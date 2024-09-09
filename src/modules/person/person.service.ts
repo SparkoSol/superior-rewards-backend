@@ -3,7 +3,7 @@ import { Model } from 'mongoose';
 import { Person, PersonDocument } from './schema/person.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { SignUpRequest } from '../auth/dto/sign-up-request.dto';
-import { PersonUpdateDto } from './dto/person.dto';
+import { PasswordUpdateRequestDto, PersonUpdateDto } from './dto/person.dto';
 
 export type User = any;
 
@@ -50,7 +50,7 @@ export class PersonService {
   }
 
   async findOneByPhone(phone: string): Promise<User | undefined> {
-    return this.model.findOne({phone}).exec();
+    return this.model.findOne({ phone }).exec();
   }
 
   /*******************************************************************
@@ -70,6 +70,23 @@ export class PersonService {
       throw new NotFoundException('No data found!');
     }
   }
+
+  /*******************************************************************
+   * changePassword
+   ******************************************************************/
+  async changePassword(data: PasswordUpdateRequestDto) {
+    const person = await this.findOne(data.person);
+    if (person && data.oldPassword === person.password) {
+      return this.model.findOneAndUpdate({ _id: person._id }, {
+        password: data.newPassword,
+      }, {
+        new: true,
+      });
+    } else {
+      throw new NotAcceptableException('Old Password Not Correct!');
+    }
+  }
+
 
   /*******************************************************************
    * update

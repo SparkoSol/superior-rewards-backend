@@ -1,4 +1,4 @@
-import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Role } from '../enum/role.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -50,5 +50,21 @@ export class PersonResponseDto {
 
 export class UpdateFcmTokenRequestDto {
   @ApiProperty({ required: true }) @IsNotEmpty() @IsString() fcmToken: string;
+}
+
+export class PasswordUpdateRequestDto {
+  @IsNotEmpty()
+  @IsString()
+  @IsMongoId()
+  @ApiProperty({ required: true, description: 'Person Id' })
+  person: string;
+
+  @IsString()
+  @ApiProperty({ required: true })
+  oldPassword: string;
+
+  @IsString()
+  @ApiProperty({ required: true })
+  newPassword: string;
 }
 

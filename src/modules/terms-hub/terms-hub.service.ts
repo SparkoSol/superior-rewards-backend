@@ -35,7 +35,7 @@ export class TermsHubService {
         }
     } catch (e) {
       console.log('Error while creating terms-hub: ', e);
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException('Error while creating terms-hub');
     }
   }
 
@@ -49,7 +49,7 @@ export class TermsHubService {
       return await this.model.find(query).sort({createdAt: -1}).exec();
     } catch (e) {
       console.log('Error while getting terms-hubs: ', e);
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException('Error while getting terms-hubs');
     }
   }
 
@@ -94,7 +94,7 @@ export class TermsHubService {
       }
     } catch (e) {
       console.log('Error while deleting terms-hub: ', e);
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException('Error while deleting terms-hub');
     }
   }
 }

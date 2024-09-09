@@ -51,12 +51,12 @@ export class TransactionController {
   /*******************************************************************
    * update
    ******************************************************************/
-  @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiOkResponse({
-    type: TransactionResponse, description: 'Transaction Updated Successfully',
-  }) @ApiOperation({ summary: 'To update transaction data' }) @Patch(':id')
-  async update(@Param('id') id: string, @Body() data: TransactionUpdateRequest) {
-    return await this.service.update(id, data);
-  }
+  // @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiOkResponse({
+  //   type: TransactionResponse, description: 'Transaction Updated Successfully',
+  // }) @ApiOperation({ summary: 'To update transaction data' }) @Patch(':id')
+  // async update(@Param('id') id: string, @Body() data: TransactionUpdateRequest) {
+  //   return await this.service.update(id, data);
+  // }
 
   /*******************************************************************
    * delete

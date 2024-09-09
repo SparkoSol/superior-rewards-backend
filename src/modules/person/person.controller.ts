@@ -1,13 +1,13 @@
 import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
 import {
   ApiBadRequestResponse, ApiBearerAuth,
-  ApiInternalServerErrorResponse,
+  ApiInternalServerErrorResponse, ApiNotAcceptableResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation, ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { PersonResponseDto, PersonUpdateDto } from './dto/person.dto';
+import { PasswordUpdateRequestDto, PersonResponseDto, PersonUpdateDto } from './dto/person.dto';
 import { PersonService } from './person.service';
 
 @ApiBearerAuth('access-token')
@@ -38,6 +38,22 @@ export class PersonController {
     summary: 'To get specific transaction',
   }) @Get(':id') findOne(@Param('id') id: string) {
     return this.service.fetchById(id);
+  }
+
+  /*******************************************************************
+   * changePassword
+   ******************************************************************/
+  @ApiOkResponse({ description: 'Password Updated Successfully' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({
+    description:
+      '1:Internal server errors, 2:Something went wrong while updating password',
+  })
+  @ApiBadRequestResponse({ description: 'Issue in request data' })
+  @ApiNotAcceptableResponse({ description: 'Old Password Not Correct!' })
+  @Patch('change-password')
+  async changePassword(@Body() data: PasswordUpdateRequestDto): Promise<any> {
+    return this.service.changePassword(data);
   }
 
   /*******************************************************************

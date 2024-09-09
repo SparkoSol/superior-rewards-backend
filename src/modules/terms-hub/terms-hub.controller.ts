@@ -38,8 +38,7 @@ export class TermsHubController {
     description: 'Data Created Successfully',
   })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiInternalServerErrorResponse({ description: 'Internal server errors' })
-  @ApiBadRequestResponse({ description: 'Invalid request data' })
+  @ApiInternalServerErrorResponse({ description: 'Error while creating terms-hub' })
   @ApiOperation({
     description: 'Creating Data',
   })
@@ -57,7 +56,7 @@ export class TermsHubController {
     description: 'Data Found Successfully',
   })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
+  @ApiInternalServerErrorResponse({ description: 'Error while getting terms-hubs' })
   @ApiOperation({ description: 'Get All Data' })
   @ApiQuery({
     required: false,
@@ -78,7 +77,6 @@ export class TermsHubController {
     description: 'Data Found Successfully',
   })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiInternalServerErrorResponse({ description: 'Internal server errors' })
   @ApiNotFoundResponse({ description: 'What You Are Looking For Not Found' })
   @ApiOperation({ description: 'Get Specific Data' })
   @Get(':id')
@@ -114,7 +112,7 @@ export class TermsHubController {
     description: 'Data Deleted Successfully',
   })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiInternalServerErrorResponse({ description: 'Internal server errors' })
+  @ApiInternalServerErrorResponse({ description: 'Error while deleting terms-hub' })
   @ApiNotFoundResponse({
     description: 'Data You are Trying to Delete Not Existed',
   })
