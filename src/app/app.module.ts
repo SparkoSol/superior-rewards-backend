@@ -15,6 +15,8 @@ import { NoGeneratorUtils } from '../utils/no-generator-utils';
 import { extname } from 'path';
 import { GiftModule } from '../modules/gift/gift.module';
 import { TransactionModule } from '../modules/transaction/transaction.module';
+import { NotificationController } from '../modules/notification/notification.controller';
+import { NotificationModule } from '../modules/notification/notification.module';
 
 @Module({
   imports: [// Config modules
@@ -46,7 +48,8 @@ import { TransactionModule } from '../modules/transaction/transaction.module';
     AuthModule,
     PersonModule,
     GiftModule,
-    TransactionModule
+    TransactionModule,
+    NotificationModule
   ], controllers: [AppController], providers: [AppService, {
     provide: APP_GUARD, useClass: JwtAuthGuard,
   }],

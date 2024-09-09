@@ -43,6 +43,10 @@ export class PersonService {
     return await this.model.findOne(query).exec();
   }
 
+  async findOneByFcmToken(fcmToken: string) {
+    return this.model.findOne({ fcmTokens: { $in: [fcmToken] } });
+  }
+
   async findOneByPhone(phone: string): Promise<User | undefined> {
     return this.model.findOne({phone}).exec();
   }

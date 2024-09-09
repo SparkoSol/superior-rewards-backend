@@ -18,7 +18,7 @@ import {
 import { Model } from 'mongoose';
 import { PersonService } from '../person/person.service';
 import * as mongoose from 'mongoose';
-import { FIREBASE_PROVIDER } from 'src/utils/const';
+// import { FIREBASE_PROVIDER } from 'src/utils/const';
 
 @Injectable()
 export class NotificationService {
@@ -27,11 +27,11 @@ export class NotificationService {
   constructor(
     @InjectModel(Notification.name)
     private readonly model: Model<NotificationDocument>,
-    @Inject(FIREBASE_PROVIDER) private readonly firebase,
+    // @Inject(FIREBASE_PROVIDER) private readonly firebase,
     @Inject(forwardRef(() => PersonService))
     private readonly personService: PersonService,
   ) {
-    this.admin = this.firebase;
+    // this.admin = this.firebase;
   }
 
   /*******************************************************************
@@ -122,7 +122,7 @@ export class NotificationService {
     fcmToken,
     data: NotificationPayload,
   ) {
-    const person = await this.personService.fetchByFcmToken(fcmToken);
+    const person = await this.personService.findOneByFcmToken(fcmToken);
 
     if (!person)
       throw new NotFoundException('No user associate with the given token!');
@@ -211,7 +211,7 @@ export class NotificationService {
    * sendNotificationByUserId
    ******************************************************************/
   async sendNotificationByUserId(personId: string, title, body) {
-    const person = await this.personService.fetchById(personId);
+    const person = await this.personService.findOne(personId);
     if (!person || (person && !person.fcmTokens)) return;
 
     await this.sendNotificationToSingleDevice(
