@@ -7,12 +7,43 @@ import { PersonModule } from '../modules/person/person.module';
 import { AuthModule } from '../modules/auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from '../modules/auth/guard/jwt-auth.guard';
+import { MulterModule } from '@nestjs/platform-express';
+import { ImageUtils } from '../utils/image-utils';
+import { diskStorage } from 'multer';
+import { existsSync, mkdirSync } from 'fs';
+import { NoGeneratorUtils } from '../utils/no-generator-utils';
+import { extname } from 'path';
 
 @Module({
   imports: [// Config modules
     ConfigModule.forRoot({
       isGlobal: true, envFilePath: '.env.' + process.env.NODE_ENVIRONMENT,
-    }), DbModule, AuthModule, PersonModule], controllers: [AppController], providers: [AppService, {
+    }),
+    // Multer (File uploading)
+    MulterModule.register({
+      dest: ImageUtils.imagePath,
+      storage: diskStorage({
+        destination: (req: any, file: any, cb: any) => {
+          const uploadPath = ImageUtils.imagePath;
+          if (!existsSync(uploadPath)) {
+            mkdirSync(uploadPath);
+          }
+          cb(null, uploadPath);
+        },
+        filename: async (req: any, file: any, cb: any) => {
+          cb(
+            null,
+            `${await NoGeneratorUtils.generateCode(16)}${extname(
+              file.originalname,
+            )}`,
+          );
+        },
+      }),
+    }),
+    DbModule,
+    AuthModule,
+    PersonModule
+  ], controllers: [AppController], providers: [AppService, {
     provide: APP_GUARD, useClass: JwtAuthGuard,
   }],
 })

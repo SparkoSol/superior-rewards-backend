@@ -14,6 +14,7 @@ export type PersonDocument = HydratedDocument<Person>;
   role: '',
   description?: '',
   fcmTokens: [''],
+  points: 0
 
 */
 
@@ -36,6 +37,8 @@ export class Person {
   @Prop() description?: string;
 
   @Prop({ type: [String] }) fcmTokens: string[];
+
+  @Prop() points: number
 }
 
 export const PersonSchema = SchemaFactory.createForClass(Person);

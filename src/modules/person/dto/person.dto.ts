@@ -1,4 +1,4 @@
-import { IsArray, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Role } from '../enum/role.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -22,6 +22,8 @@ export class PersonUpdateDto {
   @ApiProperty() @IsOptional() @IsString() description?: string;
 
   @ApiProperty({ type: [String] }) @IsOptional() @IsArray() fcmTokens: string[];
+
+  @ApiProperty({ default: 0 }) @IsOptional() @IsNumber() points: number;
 }
 
 export class PersonResponseDto {
@@ -42,6 +44,8 @@ export class PersonResponseDto {
   @ApiProperty() description?: string;
 
   @ApiProperty({ type: [String] }) fcmTokens: string[];
+
+  @ApiProperty({ default: 0 }) points: number;
 
   @ApiProperty() createdAt: Date;
 
