@@ -9,19 +9,19 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { GiftService } from './gift.service';
-import { GiftCreateRequest, GiftResponse, GiftUpdateRequest } from './dto/user-gift.dto';
+import { UserGiftService } from './user-gift.service';
+import { UserGiftCreateRequest, UserGiftResponse, UserGiftUpdateRequest } from './dto/user-gift.dto';
 
-@ApiBearerAuth('access-token') @ApiTags('Gifts') @Controller('gifts')
+@ApiBearerAuth('access-token') @ApiTags('UserGifts') @Controller('user-gifts')
 export class UserGiftController {
-  constructor(private readonly service: GiftService) {
+  constructor(private readonly service: UserGiftService) {
   }
 
   /*******************************************************************
    * create
    ******************************************************************/
   @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiOperation({ summary: 'To create gift' }) @Post()
-  async create(@Request() req: any, @Body() data: GiftCreateRequest): Promise<any> {
+  async create(@Request() req: any, @Body() data: UserGiftCreateRequest): Promise<any> {
     return await this.service.create(data);
   }
 
@@ -29,7 +29,7 @@ export class UserGiftController {
    * fetch
    ******************************************************************/
   @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiOkResponse({
-    description: 'gift', type: GiftResponse, isArray: true,
+    description: 'gift', type: UserGiftResponse, isArray: true,
   }) @ApiOperation({
     summary: 'To get gift',
   }) @Get()
@@ -41,7 +41,7 @@ export class UserGiftController {
    * fetchById
    ******************************************************************/
   @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Internal Server Error' }) @ApiNotFoundResponse({ description: 'No data found!' }) @ApiOkResponse({
-    description: 'Gift by Id', type: GiftResponse,
+    description: 'UserGift by Id', type: UserGiftResponse,
   }) @ApiOperation({
     summary: 'To get specific gift',
   }) @Get(':id') findOne(@Param('id') id: string) {
@@ -52,9 +52,9 @@ export class UserGiftController {
    * update
    ******************************************************************/
   @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiOkResponse({
-    type: GiftResponse, description: 'Gift Updated Successfully',
+    type: UserGiftResponse, description: 'UserGift Updated Successfully',
   }) @ApiOperation({ summary: 'To update gift data' }) @Patch(':id')
-  async update(@Param('id') id: string, @Body() data: GiftUpdateRequest) {
+  async update(@Param('id') id: string, @Body() data: UserGiftUpdateRequest) {
     return await this.service.update(id, data);
   }
 
@@ -62,7 +62,7 @@ export class UserGiftController {
    * delete
    ******************************************************************/
   @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiOkResponse({
-    type: GiftResponse, description: 'Gift Deleted Successfully',
+    type: UserGiftResponse, description: 'UserGift Deleted Successfully',
   }) @ApiOperation({
     summary: 'To delete an gift',
   }) @Delete(':id')

@@ -18,6 +18,7 @@ import { TransactionModule } from '../modules/transaction/transaction.module';
 import { NotificationController } from '../modules/notification/notification.controller';
 import { NotificationModule } from '../modules/notification/notification.module';
 import { TermsHubModule } from '../modules/terms-hub/terms-hub.module';
+import { UserGiftModule } from '../modules/user-gift/user-gift.module';
 
 @Module({
   imports: [// Config modules
@@ -49,9 +50,10 @@ import { TermsHubModule } from '../modules/terms-hub/terms-hub.module';
     AuthModule,
     PersonModule,
     GiftModule,
+    UserGiftModule,
     TransactionModule,
     NotificationModule,
-    TermsHubModule
+    TermsHubModule,
   ], controllers: [AppController], providers: [AppService, {
     provide: APP_GUARD, useClass: JwtAuthGuard,
   }],

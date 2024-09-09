@@ -1,24 +1,28 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import * as mongoose from 'mongoose';
 import { HydratedDocument } from 'mongoose';
+import { Person } from '../../person/schema/person.schema';
+import { Gift } from '../../gift/schema/gift.schema';
+import { GiftStatus } from '../enum/status.enum';
 
-export type GiftDocument = HydratedDocument<Gift>;
+export type UserGiftDocument = HydratedDocument<UserGift>;
 
 /*
-  name: '',
-  image?: '',
-  points: 0
+  user: {},
+  gift: {},
+  status: '',
+  redeemedAt?: Date;
 */
 
 @Schema({ timestamps: true })
-export class Gift {
-  @Prop()
-  name: string;
+export class UserGift {
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name }) user: string;
 
-  @Prop()
-  image?: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Gift.name }) gift: string;
 
-  @Prop()
-  points: number;
+  @Prop({ default: GiftStatus.IN_PROGRESS }) status: string;
+
+  @Prop() redeemedAt?: Date;
 }
 
-export const UserGiftSchema = SchemaFactory.createForClass(Gift);
+export const UserGiftSchema = SchemaFactory.createForClass(UserGift);
