@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Query, Request } from '@nes
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
-    ApiInternalServerErrorResponse,
+    ApiInternalServerErrorResponse, ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -25,6 +25,7 @@ export class UserGiftController {
      ******************************************************************/
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+    @ApiNotAcceptableResponse({description: '1: Invalid user id!, 2: Invalid gift id!'})
     @ApiOperation({ summary: 'To create gift' })
     @Post()
     async create(@Request() req: any, @Body() data: UserGiftCreateRequest): Promise<any> {
@@ -58,6 +59,19 @@ export class UserGiftController {
     @Get()
     async fetch(@Query('user') user?: string, @Query('status') status?: GiftStatus): Promise<any> {
         return await this.service.fetch(user, status);
+    }
+
+    /*******************************************************************
+     * fetchAllGiftByUser
+     ******************************************************************/
+    @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
+    @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+    @ApiOperation({
+        summary: 'To get gift w.r.t to userId',
+    })
+    @Get('byUserId/:user')
+    async fetchAllGiftByUser(@Param('user') user?: string): Promise<any> {
+        return await this.service.fetchAllGiftByUser(user);
     }
 
     /*******************************************************************
