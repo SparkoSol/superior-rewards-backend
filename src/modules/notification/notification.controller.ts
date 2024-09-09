@@ -18,6 +18,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @ApiTags('Notifications')
 @Controller('notifications')
 export class NotificationController {

@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
 import {
-  ApiBadRequestResponse,
+  ApiBadRequestResponse, ApiBearerAuth,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -10,8 +10,9 @@ import {
 import { PersonResponseDto, PersonUpdateDto } from './dto/person.dto';
 import { PersonService } from './person.service';
 
+@ApiBearerAuth('access-token')
 @ApiTags('Person')
-@Controller('person')
+@Controller('persons')
 export class PersonController {
   constructor(private readonly service: PersonService) {
   }

@@ -1,4 +1,4 @@
-import { IsArray, IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Role } from '../enum/role.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -9,8 +9,6 @@ export class PersonUpdateDto {
 
   @ApiProperty() @IsNotEmpty() @IsString() date: Date;
 
-  @ApiProperty() @IsOptional() @IsString() @IsEmail() email?: string;
-
   @ApiProperty() @IsOptional() @IsString() profilePicture?: string;
 
   @ApiProperty({
@@ -19,11 +17,11 @@ export class PersonUpdateDto {
     message: 'Role must be ' + Object.values(Role).join(', '),
   }) role: string;
 
-  @ApiProperty() @IsOptional() @IsString() description?: string;
-
   @ApiProperty({ type: [String] }) @IsOptional() @IsArray() fcmTokens: string[];
 
   @ApiProperty({ default: 0 }) @IsOptional() @IsNumber() points: number;
+
+  @ApiProperty() @IsOptional() @IsString() deletedAt?: Date;
 }
 
 export class PersonResponseDto {
@@ -33,19 +31,17 @@ export class PersonResponseDto {
 
   @ApiProperty() dob: Date;
 
-  @ApiProperty() email?: string;
-
   @ApiProperty() profilePicture?: string;
 
   @ApiProperty({
-    enum: Role, example: [Role.ADMIN, Role.USER],
+    enum: Role, example: Role.ADMIN,
   }) role: string;
-
-  @ApiProperty() description?: string;
 
   @ApiProperty({ type: [String] }) fcmTokens: string[];
 
   @ApiProperty({ default: 0 }) points: number;
+
+  @ApiProperty() deletedAt?: Date;
 
   @ApiProperty() createdAt: Date;
 

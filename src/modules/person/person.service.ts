@@ -24,6 +24,7 @@ export class PersonService {
   async create(data: SignUpRequest) {
     let query = {};
     query['phone'] = data.phone;
+    query['deletedAt'] = { $eq: null };
     if (await this.model.findOne(query)) {
       throw new NotAcceptableException('User with this phone already exist.');
     }
@@ -86,7 +87,7 @@ export class PersonService {
    ******************************************************************/
   async delete(id: string) {
     try {
-      return await this.model.findByIdAndDelete(id);
+      return await this.model.findByIdAndUpdate(id, { deletedAt: new Date() });
     } catch (e) {
       throw new InternalServerErrorException('Unexpected Error');
     }
