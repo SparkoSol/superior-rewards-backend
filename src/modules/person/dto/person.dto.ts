@@ -7,7 +7,7 @@ export class PersonUpdateDto {
 
   @ApiProperty() @IsNotEmpty() @IsString() phone: string;
 
-  @ApiProperty() @IsNotEmpty() @IsString() date: Date;
+  @ApiProperty() @IsNotEmpty() @IsString() dob: Date;
 
   @ApiProperty() @IsOptional() @IsString() profilePicture?: string;
 

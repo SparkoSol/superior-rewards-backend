@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Request } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Request } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -10,7 +10,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { TransactionService } from './transaction.service';
-import { TransactionCreateRequest, TransactionResponse, TransactionUpdateRequest } from './dto/transaction.dto';
+import { TransactionCreateRequest, TransactionResponse } from './dto/transaction.dto';
 
 @ApiBearerAuth('access-token') @ApiTags('Transactions') @Controller('transactions')
 export class TransactionController {
