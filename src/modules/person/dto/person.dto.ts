@@ -1,5 +1,5 @@
 import {
-    IsArray,
+    IsArray, IsBoolean,
     IsEnum,
     IsMongoId,
     IsNotEmpty,
@@ -36,6 +36,8 @@ export class PersonUpdateDto {
 
     @ApiProperty({ default: 0 }) @IsOptional() @IsNumber() redeemedPoints: number;
 
+    @ApiProperty({ default: false }) @IsOptional() @IsBoolean() addedInOdoo: boolean;
+
     @ApiProperty() @IsOptional() @IsString() deletedAt?: Date;
 }
 
@@ -59,6 +61,8 @@ export class PersonResponseDto {
     @ApiProperty({ default: 0 }) points: number;
 
     @ApiProperty({ default: 0 }) redeemedPoints: number;
+
+    @ApiProperty({ default: false }) addedInOdoo: boolean;
 
     @ApiProperty() deletedAt?: Date;
 

@@ -14,6 +14,7 @@ export type PersonDocument = HydratedDocument<Person>;
   fcmTokens: [''],
   points: 0,
   redeemedPoints: 0,
+  addedInOdoo: true,
   deletedAt?: Date;
 
 */
@@ -37,6 +38,8 @@ export class Person {
     @Prop() points: number;
 
     @Prop() redeemedPoints: number;
+
+    @Prop() addedInOdoo: boolean;
 
     @Prop() deletedAt?: Date;
 }
