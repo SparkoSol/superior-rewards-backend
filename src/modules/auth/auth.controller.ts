@@ -1,17 +1,19 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
-  ApiBadRequestResponse,
+  ApiBadRequestResponse, ApiBearerAuth, ApiBody,
   ApiInternalServerErrorResponse, ApiNotAcceptableResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiTags,
+  ApiTags, ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { Public } from './decorators/setmetadata.decorator';
 import { PersonResponseDto } from '../person/dto/person.dto';
 import { SignUpRequestDto } from './dto/sign-up-request.dto';
+import { SignInRequestDto } from './dto/sign-in-request.dto';
+import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -39,14 +41,27 @@ export class AuthController {
     return this.authService.signUp(data);
   }
 
+  /*******************************************************************
+   * signIn
+   ******************************************************************/
+  @Public()
+  @ApiBody({ type: SignInRequestDto, description: 'Login successfully!' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server errors.' })
   @UseGuards(LocalAuthGuard)
-  @Post('auth/login')
-  async login(@Request() req) {
-    return this.authService.login(req.user);
+  @Post('/sign-in')
+  async signIn(@Request() req) {
+    return this.authService.signIn(req.user);
   }
 
-  // @UseGuards(AuthGuard('local')) @Post('auth/login')
-  // async login(@Request() req) {
-  //   return req.user;
-  // }
+  /*******************************************************************
+   * getProfile
+   ******************************************************************/
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard)
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @Get('profile')
+  getProfile(@Request() req) {
+    console.log('req.user: ', req.user);
+    return this.authService.getProfile(req.user);
+  }
 }

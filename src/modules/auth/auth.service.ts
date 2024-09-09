@@ -4,17 +4,18 @@ import { JwtService } from '@nestjs/jwt';
 import { SignUpRequestDto } from './dto/sign-up-request.dto';
 import { Validations } from '../../utils/validations';
 import { rethrow } from '@nestjs/core/helpers/rethrow';
+import * as mongoose from 'mongoose';
 
 @Injectable()
 export class AuthService {
   constructor(private personService: PersonService, private jwtService: JwtService) {
   }
 
-  async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.personService.findOne(username);
-    if (user && user.password === pass) {
-      const { password, ...result } = user;
-      return result;
+  async validateUser(phone: string, password: string): Promise<any> {
+    const person = await this.personService.findOneByPhone(phone);
+    if (person && person.password === password) {
+      const { password, ...restData } = person;
+      return restData._doc;
     }
     return null;
   }
@@ -38,10 +39,19 @@ export class AuthService {
     }
   }
 
-  async login(user: any) {
-    const payload = { username: user.username, sub: user.userId };
+  /*******************************************************************
+   * signIn
+   ******************************************************************/
+  async signIn(user: any) {
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign({ _id: user._id, phone: user.phone, role: user.role }),
     };
+  }
+
+  /*******************************************************************
+   * getProfile
+   ******************************************************************/
+  async getProfile(user: any) {
+    return await this.personService.findOneByQuery({ _id: new mongoose.Types.ObjectId(user.userId), phone: user.phone, role: user.role });
   }
 }

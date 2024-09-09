@@ -10,7 +10,7 @@ import { jwtConstants } from './constants';
 
 @Module({
   imports: [forwardRef(() => PersonModule), PassportModule, JwtModule.register({
-    secret: jwtConstants.secret, signOptions: { expiresIn: '60s' },
+    secret: jwtConstants.secret, signOptions: { expiresIn: '60m' },
   })], controllers: [AuthController], providers: [AuthService, LocalStrategy, JwtStrategy], exports: [AuthService],
 })
 export class AuthModule {

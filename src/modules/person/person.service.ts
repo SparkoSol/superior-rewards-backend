@@ -35,7 +35,15 @@ export class PersonService {
     return this.model.findById(person._id);
   }
 
-  async findOne(username: string): Promise<User | undefined> {
-    return this.users.find(user => user.username === username);
+  async findOne(id: string) {
+    return await this.model.findById(id).exec();
+  }
+
+  async findOneByQuery(query: {}) {
+    return await this.model.findOne(query).exec();
+  }
+
+  async findOneByPhone(phone: string): Promise<User | undefined> {
+    return this.model.findOne({phone}).exec();
   }
 }
