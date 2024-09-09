@@ -7,16 +7,15 @@ export type TermsHubDocument = TermsHub & mongoose.Document;
 
 @Schema({ timestamps: true })
 export class TermsHub {
+    @Prop({
+        required: true,
+        default: TermsHubsType.POLICY,
+        enum: TermsHubsType,
+    })
+    type: number;
 
-  @Prop({
-    required: true,
-    default: TermsHubsType.POLICY,
-    enum: TermsHubsType,
-  })
-  type: number;
-
-  @Prop()
-  details?: string;
+    @Prop()
+    details?: string;
 }
 
 export const TermsHubSchema = SchemaFactory.createForClass(TermsHub);

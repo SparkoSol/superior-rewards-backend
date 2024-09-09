@@ -6,13 +6,9 @@ import { Global, Module } from '@nestjs/common';
 
 @Global()
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: Gift.name, schema: GiftSchema },
-    ]),
-  ],
-  controllers: [GiftController],
-  providers: [GiftService],
-  exports: [GiftService],
+    imports: [MongooseModule.forFeature([{ name: Gift.name, schema: GiftSchema }])],
+    controllers: [GiftController],
+    providers: [GiftService],
+    exports: [GiftService],
 })
 export class GiftModule {}

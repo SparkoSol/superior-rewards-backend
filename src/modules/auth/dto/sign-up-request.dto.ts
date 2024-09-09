@@ -3,13 +3,16 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Role } from '../../person/enum/role.enum';
 
 export class SignUpRequest {
-  @ApiProperty() @IsNotEmpty() @IsString() name: string;
+    @ApiProperty() @IsNotEmpty() @IsString() name: string;
 
-  @ApiProperty() @IsNotEmpty() @IsString() phone: string;
+    @ApiProperty() @IsNotEmpty() @IsString() phone: string;
 
-  @ApiProperty() @IsNotEmpty() @IsString() dob: Date;
+    @ApiProperty() @IsNotEmpty() @IsString() dob: Date;
 
-  @ApiProperty() @IsOptional() @IsString() password: string;
+    @ApiProperty() @IsOptional() @IsString() password: string;
 
-  @ApiProperty({ required: false, enum: Role, default: Role.USER }) @IsNotEmpty() @IsString() role: string;
+    @ApiProperty({ required: false, enum: Role, default: Role.USER })
+    @IsNotEmpty()
+    @IsString()
+    role: string;
 }

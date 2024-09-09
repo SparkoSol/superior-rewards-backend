@@ -16,15 +16,15 @@ export type UserGiftDocument = HydratedDocument<UserGift>;
 
 @Schema({ timestamps: true })
 export class UserGift {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name }) user: string;
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name }) user: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Gift.name }) gift: string;
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Gift.name }) gift: string;
 
-  @Prop({ default: GiftStatus.IN_PROGRESS }) status: string;
+    @Prop({ default: GiftStatus.IN_PROGRESS }) status: string;
 
-  @Prop() redeemedAt?: Date;
+    @Prop() redeemedAt?: Date;
 
-  @Prop() qrCode?: string;
+    @Prop() qrCode?: string;
 }
 
 export const UserGiftSchema = SchemaFactory.createForClass(UserGift);

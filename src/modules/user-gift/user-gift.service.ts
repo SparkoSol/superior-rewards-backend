@@ -82,9 +82,9 @@ export class UserGiftService {
             this.fetch(user),
         ]);
 
-        return allGifts.map(gift => ({
+        return allGifts.map((gift) => ({
             ...gift,
-            userHistory: userHistory.find(history => history.gift === gift._id)
+            userHistory: userHistory.find((history) => history.gift === gift._id),
         }));
     }
 

@@ -1,4 +1,4 @@
 export enum TermsHubsType {
-  TERMS = 'TERMS',
-  POLICY = 'POLICY',
+    TERMS = 'TERMS',
+    POLICY = 'POLICY',
 }

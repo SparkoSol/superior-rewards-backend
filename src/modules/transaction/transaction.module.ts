@@ -7,14 +7,12 @@ import { PersonModule } from '../person/person.module';
 
 @Global()
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: Transaction.name, schema: TransactionSchema },
-    ]),
-    PersonModule
-  ],
-  controllers: [TransactionController],
-  providers: [TransactionService],
-  exports: [TransactionService],
+    imports: [
+        MongooseModule.forFeature([{ name: Transaction.name, schema: TransactionSchema }]),
+        PersonModule,
+    ],
+    controllers: [TransactionController],
+    providers: [TransactionService],
+    exports: [TransactionService],
 })
 export class TransactionModule {}

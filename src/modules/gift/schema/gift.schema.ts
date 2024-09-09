@@ -11,14 +11,14 @@ export type GiftDocument = HydratedDocument<Gift>;
 
 @Schema({ timestamps: true })
 export class Gift {
-  @Prop()
-  name: string;
+    @Prop()
+    name: string;
 
-  @Prop()
-  image?: string;
+    @Prop()
+    image?: string;
 
-  @Prop()
-  points: number;
+    @Prop()
+    points: number;
 }
 
 export const GiftSchema = SchemaFactory.createForClass(Gift);

@@ -2,7 +2,8 @@ import { Body, Controller, Delete, Get, Param, Post, Query, Request } from '@nes
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
-    ApiInternalServerErrorResponse, ApiNotAcceptableResponse,
+    ApiInternalServerErrorResponse,
+    ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -25,7 +26,7 @@ export class UserGiftController {
      ******************************************************************/
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
-    @ApiNotAcceptableResponse({description: '1: Invalid user id!, 2: Invalid gift id!'})
+    @ApiNotAcceptableResponse({ description: '1: Invalid user id!, 2: Invalid gift id!' })
     @ApiOperation({ summary: 'To create gift' })
     @Post()
     async create(@Request() req: any, @Body() data: UserGiftCreateRequest): Promise<any> {

@@ -20,25 +20,25 @@ export type PersonDocument = HydratedDocument<Person>;
 
 @Schema({ timestamps: true })
 export class Person {
-  @Prop() name: string;
+    @Prop() name: string;
 
-  @Prop({require: true}) phone: string;
+    @Prop({ require: true }) phone: string;
 
-  @Prop() dob: Date;
+    @Prop() dob: Date;
 
-  @Prop() password: string;
+    @Prop() password: string;
 
-  @Prop() profilePicture?: string;
+    @Prop() profilePicture?: string;
 
-  @Prop({ default: Role.USER }) role: string;
+    @Prop({ default: Role.USER }) role: string;
 
-  @Prop({ type: [String] }) fcmTokens: string[];
+    @Prop({ type: [String] }) fcmTokens: string[];
 
-  @Prop() points: number;
+    @Prop() points: number;
 
-  @Prop() redeemedPoints: number;
+    @Prop() redeemedPoints: number;
 
-  @Prop() deletedAt?: Date;
+    @Prop() deletedAt?: Date;
 }
 
 export const PersonSchema = SchemaFactory.createForClass(Person);

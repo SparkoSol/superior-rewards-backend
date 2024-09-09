@@ -17,19 +17,19 @@ export type TransactionDocument = HydratedDocument<Transaction>;
 
 @Schema({ timestamps: true })
 export class Transaction {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name }) user: string;
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name }) user: string;
 
-  @Prop() customerPhone: string;
+    @Prop() customerPhone: string;
 
-  @Prop() invoiceNo?: string;
+    @Prop() invoiceNo?: string;
 
-  @Prop() amount?: number;
+    @Prop() amount?: number;
 
-  @Prop() points: number;
+    @Prop() points: number;
 
-  @Prop() details?: string;
+    @Prop() details?: string;
 
-  @Prop({ default: TransactionType.CREDIT }) type: string;
+    @Prop({ default: TransactionType.CREDIT }) type: string;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);

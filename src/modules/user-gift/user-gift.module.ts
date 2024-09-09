@@ -9,16 +9,14 @@ import { GiftModule } from '../gift/gift.module';
 
 @Global()
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: UserGift.name, schema: UserGiftSchema },
-    ]),
-    PersonModule,
-    GiftModule,
-    TransactionModule
-  ],
-  controllers: [UserGiftController],
-  providers: [UserGiftService],
-  exports: [UserGiftService],
+    imports: [
+        MongooseModule.forFeature([{ name: UserGift.name, schema: UserGiftSchema }]),
+        PersonModule,
+        GiftModule,
+        TransactionModule,
+    ],
+    controllers: [UserGiftController],
+    providers: [UserGiftService],
+    exports: [UserGiftService],
 })
 export class UserGiftModule {}

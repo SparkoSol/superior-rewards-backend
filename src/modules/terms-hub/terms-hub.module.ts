@@ -5,12 +5,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TermsHub, TermsHubSchema } from './schema/terms-hub.schema';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: TermsHub.name, schema: TermsHubSchema },
-    ]),
-  ],
-  controllers: [TermsHubController],
-  providers: [TermsHubService],
+    imports: [MongooseModule.forFeature([{ name: TermsHub.name, schema: TermsHubSchema }])],
+    controllers: [TermsHubController],
+    providers: [TermsHubService],
 })
 export class TermsHubModule {}

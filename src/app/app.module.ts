@@ -21,42 +21,47 @@ import { TermsHubModule } from '../modules/terms-hub/terms-hub.module';
 import { UserGiftModule } from '../modules/user-gift/user-gift.module';
 
 @Module({
-  imports: [// Config modules
-    ConfigModule.forRoot({
-      isGlobal: true, envFilePath: '.env.' + process.env.NODE_ENVIRONMENT,
-    }),
-    // Multer (File uploading)
-    MulterModule.register({
-      dest: ImageUtils.imagePath,
-      storage: diskStorage({
-        destination: (req: any, file: any, cb: any) => {
-          const uploadPath = ImageUtils.imagePath;
-          if (!existsSync(uploadPath)) {
-            mkdirSync(uploadPath);
-          }
-          cb(null, uploadPath);
+    imports: [
+        // Config modules
+        ConfigModule.forRoot({
+            isGlobal: true,
+            envFilePath: '.env.' + process.env.NODE_ENVIRONMENT,
+        }),
+        // Multer (File uploading)
+        MulterModule.register({
+            dest: ImageUtils.imagePath,
+            storage: diskStorage({
+                destination: (req: any, file: any, cb: any) => {
+                    const uploadPath = ImageUtils.imagePath;
+                    if (!existsSync(uploadPath)) {
+                        mkdirSync(uploadPath);
+                    }
+                    cb(null, uploadPath);
+                },
+                filename: async (req: any, file: any, cb: any) => {
+                    cb(
+                        null,
+                        `${await NoGeneratorUtils.generateCode(16)}${extname(file.originalname)}`
+                    );
+                },
+            }),
+        }),
+        DbModule,
+        AuthModule,
+        PersonModule,
+        TransactionModule,
+        GiftModule,
+        UserGiftModule,
+        NotificationModule,
+        TermsHubModule,
+    ],
+    controllers: [AppController],
+    providers: [
+        AppService,
+        {
+            provide: APP_GUARD,
+            useClass: JwtAuthGuard,
         },
-        filename: async (req: any, file: any, cb: any) => {
-          cb(
-            null,
-            `${await NoGeneratorUtils.generateCode(16)}${extname(
-              file.originalname,
-            )}`,
-          );
-        },
-      }),
-    }),
-    DbModule,
-    AuthModule,
-    PersonModule,
-    TransactionModule,
-    GiftModule,
-    UserGiftModule,
-    NotificationModule,
-    TermsHubModule,
-  ], controllers: [AppController], providers: [AppService, {
-    provide: APP_GUARD, useClass: JwtAuthGuard,
-  }],
+    ],
 })
-export class AppModule {
-}
+export class AppModule {}
