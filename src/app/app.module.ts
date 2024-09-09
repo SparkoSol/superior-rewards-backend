@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { DbModule } from '../config/db/db.module';
+import { PersonModule } from '../modules/person/person.module';
 
 @Module({
   imports: [
@@ -11,7 +12,9 @@ import { DbModule } from '../config/db/db.module';
       isGlobal: true,
       envFilePath: '.env.' + process.env.NODE_ENVIRONMENT,
     }),
-    DbModule
+    DbModule,
+
+    PersonModule
   ],
   controllers: [AppController],
   providers: [AppService],
