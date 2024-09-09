@@ -14,6 +14,7 @@ import { existsSync, mkdirSync } from 'fs';
 import { NoGeneratorUtils } from '../utils/no-generator-utils';
 import { extname } from 'path';
 import { GiftModule } from '../modules/gift/gift.module';
+import { TransactionModule } from '../modules/transaction/transaction.module';
 
 @Module({
   imports: [// Config modules
@@ -44,7 +45,8 @@ import { GiftModule } from '../modules/gift/gift.module';
     DbModule,
     AuthModule,
     PersonModule,
-    GiftModule
+    GiftModule,
+    TransactionModule
   ], controllers: [AppController], providers: [AppService, {
     provide: APP_GUARD, useClass: JwtAuthGuard,
   }],
