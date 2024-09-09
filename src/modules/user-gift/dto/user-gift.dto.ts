@@ -3,34 +3,45 @@ import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { GiftStatus } from '../enum/status.enum';
 
 export class UserGiftCreateRequest {
-  @ApiProperty() @IsNotEmpty() @IsString() @IsMongoId() user: string;
+    @ApiProperty() @IsNotEmpty() @IsString() @IsMongoId() user: string;
 
-  @ApiProperty() @IsNotEmpty() @IsString() @IsMongoId() gift: string;
+    @ApiProperty() @IsNotEmpty() @IsString() @IsMongoId() gift: string;
 
-  @ApiProperty({
-    required: true, type: String, default: GiftStatus.IN_PROGRESS,
-  }) @IsOptional() @IsEnum(GiftStatus, {
-    message: 'Gift Status must be ' + Object.values(GiftStatus).join(', '),
-  }) status: string;
+    @ApiProperty({
+        required: true,
+        type: String,
+        default: GiftStatus.IN_PROGRESS,
+    })
+    @IsOptional()
+    @IsEnum(GiftStatus, {
+        message: 'Gift Status must be ' + Object.values(GiftStatus).join(', '),
+    })
+    status: string;
 
-  @ApiProperty() @IsOptional() @IsString() redeemedAt: Date;
+    @ApiProperty() @IsOptional() @IsString() redeemedAt: Date;
+
+    @ApiProperty() @IsOptional() @IsString() qrCode?: string;
 }
 
-export class UserGiftUpdateRequest extends PartialType(UserGiftCreateRequest) {
-}
+export class UserGiftUpdateRequest extends PartialType(UserGiftCreateRequest) {}
 
 export class UserGiftResponse {
-  @ApiProperty() user: object;
+    @ApiProperty() user: object;
 
-  @ApiProperty() gift: object;
+    @ApiProperty() gift: object;
 
-  @ApiProperty({
-    required: true, type: String, default: GiftStatus.IN_PROGRESS,
-  }) status: GiftStatus.IN_PROGRESS;
+    @ApiProperty({
+        required: true,
+        type: String,
+        default: GiftStatus.IN_PROGRESS,
+    })
+    status: GiftStatus.IN_PROGRESS;
 
-  @ApiProperty() redeemedAt: Date;
+    @ApiProperty() redeemedAt: Date;
 
-  @ApiProperty() createdAt: Date;
+    @ApiProperty() qrCode?: string;
 
-  @ApiProperty() updatedAt: Date;
+    @ApiProperty() createdAt: Date;
+
+    @ApiProperty() updatedAt: Date;
 }

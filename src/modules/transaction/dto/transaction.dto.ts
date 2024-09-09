@@ -7,9 +7,9 @@ export class TransactionCreateRequest {
 
   @ApiProperty() @IsNotEmpty() @IsString() customerPhone: string;
 
-  @ApiProperty() @IsNotEmpty() @IsString() invoiceNo: string;
+  @ApiProperty() @IsOptional() @IsString() invoiceNo?: string;
 
-  @ApiProperty({ default: 0 }) @IsNotEmpty() @IsNumber() amount: number;
+  @ApiProperty({ default: 0 }) @IsOptional() @IsNumber() amount?: number;
 
   @ApiProperty({ default: 0 }) @IsNotEmpty() @IsNumber() points: number;
 
@@ -30,9 +30,9 @@ export class TransactionResponse {
 
   @ApiProperty() customerPhone: string;
 
-  @ApiProperty() invoiceNo: string;
+  @ApiProperty() invoiceNo?: string;
 
-  @ApiProperty({ default: 0 }) amount: number;
+  @ApiProperty({ default: 0 }) amount?: number;
 
   @ApiProperty({ default: 0 }) points: number;
 

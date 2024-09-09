@@ -25,7 +25,7 @@ export class GiftService {
     try {
       return this.model.create(data);
     } catch (e) {
-      throw new InternalServerErrorException('Unexpected Error');
+      throw new InternalServerErrorException('Error while creating gift');
     }
   }
 

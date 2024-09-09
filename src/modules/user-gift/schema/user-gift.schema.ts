@@ -23,6 +23,8 @@ export class UserGift {
   @Prop({ default: GiftStatus.IN_PROGRESS }) status: string;
 
   @Prop() redeemedAt?: Date;
+
+  @Prop() qrCode?: string;
 }
 
 export const UserGiftSchema = SchemaFactory.createForClass(UserGift);
