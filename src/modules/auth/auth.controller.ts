@@ -4,7 +4,7 @@ import {
   ApiBadRequestResponse, ApiBearerAuth, ApiBody,
   ApiInternalServerErrorResponse, ApiNotAcceptableResponse,
   ApiOkResponse,
-  ApiOperation,
+  ApiOperation, ApiResponse,
   ApiTags, ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
@@ -14,6 +14,7 @@ import { PersonResponseDto } from '../person/dto/person.dto';
 import { SignUpRequestDto } from './dto/sign-up-request.dto';
 import { SignInRequestDto } from './dto/sign-in-request.dto';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
+import { Person } from '../person/schema/person.schema';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -25,7 +26,8 @@ export class AuthController {
    * signUp
    ******************************************************************/
   @Public()
-  @ApiOkResponse({ type: PersonResponseDto, description: 'SignUp successful' })
+  @ApiOkResponse({ type: PersonResponseDto, description: 'Signup successful' })
+  @ApiResponse({type: PersonResponseDto})
   @ApiOperation({
     description:
       'Roles: ADMIN, USER',
@@ -34,7 +36,7 @@ export class AuthController {
   @ApiInternalServerErrorResponse({ description: 'Error while signup || Internal server errors.' })
   @ApiNotAcceptableResponse({
     description:
-      '1:Invalid role., 2:User with this phone already exist.',
+      '1:Invalid role. , 2:User with this phone already exist.',
   })
   @Post('sign-up')
   signUp(@Body() data: SignUpRequestDto): Promise<any> {
@@ -46,7 +48,9 @@ export class AuthController {
    ******************************************************************/
   @Public()
   @ApiBody({ type: SignInRequestDto, description: 'Login successfully!' })
+  @ApiResponse({type: PersonResponseDto})
   @ApiInternalServerErrorResponse({ description: 'Internal server errors.' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
   @UseGuards(LocalAuthGuard)
   @Post('/sign-in')
   async signIn(@Request() req) {
@@ -57,11 +61,11 @@ export class AuthController {
    * getProfile
    ******************************************************************/
   @ApiBearerAuth('access-token')
+  @ApiResponse({type: PersonResponseDto})
   @UseGuards(JwtAuthGuard)
   @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
   @Get('profile')
   getProfile(@Request() req) {
-    console.log('req.user: ', req.user);
     return this.authService.getProfile(req.user);
   }
 }
