@@ -64,11 +64,11 @@ export class TransactionService {
   /*******************************************************************
    * delete
    ******************************************************************/
-  async delete(id: string) {
-    try {
-      return await this.model.findByIdAndDelete(id);
-    } catch (e) {
-      throw new InternalServerErrorException('Unexpected Error');
-    }
-  }
+  // async delete(id: string) {
+  //   try {
+  //     return await this.model.findByIdAndDelete(id);
+  //   } catch (e) {
+  //     throw new InternalServerErrorException('Unexpected Error');
+  //   }
+  // }
 }

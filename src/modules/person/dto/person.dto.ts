@@ -21,6 +21,8 @@ export class PersonUpdateDto {
 
   @ApiProperty({ default: 0 }) @IsOptional() @IsNumber() points: number;
 
+  @ApiProperty({ default: 0 }) @IsOptional() @IsNumber() redeemedPoints: number;
+
   @ApiProperty() @IsOptional() @IsString() deletedAt?: Date;
 }
 
@@ -40,6 +42,8 @@ export class PersonResponseDto {
   @ApiProperty({ type: [String] }) fcmTokens: string[];
 
   @ApiProperty({ default: 0 }) points: number;
+
+  @ApiProperty({ default: 0 }) redeemedPoints: number;
 
   @ApiProperty() deletedAt?: Date;
 

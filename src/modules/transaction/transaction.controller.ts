@@ -29,9 +29,9 @@ export class TransactionController {
    * fetch
    ******************************************************************/
   @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiOkResponse({
-    description: 'transaction', type: TransactionResponse, isArray: true,
+    description: 'To get transactions', type: TransactionResponse, isArray: true,
   }) @ApiOperation({
-    summary: 'To get transaction',
+    summary: 'To get transactions',
   }) @Get()
   async fetch(): Promise<any> {
     return await this.service.fetch();
@@ -49,24 +49,14 @@ export class TransactionController {
   }
 
   /*******************************************************************
-   * update
-   ******************************************************************/
-  // @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiOkResponse({
-  //   type: TransactionResponse, description: 'Transaction Updated Successfully',
-  // }) @ApiOperation({ summary: 'To update transaction data' }) @Patch(':id')
-  // async update(@Param('id') id: string, @Body() data: TransactionUpdateRequest) {
-  //   return await this.service.update(id, data);
-  // }
-
-  /*******************************************************************
    * delete
    ******************************************************************/
-  @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiOkResponse({
-    type: TransactionResponse, description: 'Transaction Deleted Successfully',
-  }) @ApiOperation({
-    summary: 'To delete an transaction',
-  }) @Delete(':id')
-  async delete(@Param('id') id: string) {
-    return await this.service.delete(id);
-  }
+  // @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiOkResponse({
+  //   type: TransactionResponse, description: 'Transaction Deleted Successfully',
+  // }) @ApiOperation({
+  //   summary: 'To delete an transaction',
+  // }) @Delete(':id')
+  // async delete(@Param('id') id: string) {
+  //   return await this.service.delete(id);
+  // }
 }

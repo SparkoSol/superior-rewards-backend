@@ -49,9 +49,9 @@ import { UserGiftModule } from '../modules/user-gift/user-gift.module';
     DbModule,
     AuthModule,
     PersonModule,
+    TransactionModule,
     GiftModule,
     UserGiftModule,
-    TransactionModule,
     NotificationModule,
     TermsHubModule,
   ], controllers: [AppController], providers: [AppService, {

@@ -13,6 +13,7 @@ export type PersonDocument = HydratedDocument<Person>;
   role: '',
   fcmTokens: [''],
   points: 0,
+  redeemedPoints: 0,
   deletedAt?: Date;
 
 */
@@ -34,6 +35,8 @@ export class Person {
   @Prop({ type: [String] }) fcmTokens: string[];
 
   @Prop() points: number;
+
+  @Prop() redeemedPoints: number;
 
   @Prop() deletedAt?: Date;
 }
