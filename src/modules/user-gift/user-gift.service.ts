@@ -58,6 +58,8 @@ export class UserGiftService {
             points: person.redeemed + gift.points,
         });
 
+        // TODO: set notification here
+
         return userGift;
     }
 

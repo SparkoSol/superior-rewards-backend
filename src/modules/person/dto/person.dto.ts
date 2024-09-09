@@ -5,9 +5,9 @@ import { ApiProperty } from '@nestjs/swagger';
 export class PersonUpdateDto {
   @ApiProperty() @IsOptional() @IsString() name: string;
 
-  @ApiProperty() @IsNotEmpty() @IsString() phone: string;
+  @ApiProperty() @IsOptional() @IsString() phone: string;
 
-  @ApiProperty() @IsNotEmpty() @IsString() dob: Date;
+  @ApiProperty() @IsOptional() @IsString() dob: Date;
 
   @ApiProperty() @IsOptional() @IsString() profilePicture?: string;
 
