@@ -80,11 +80,9 @@ export class UserGiftService {
             this.fetch(user),
         ]);
 
-        const redeemedGiftIds = new Set(userHistory.map(gift => gift.gift.toString()));
-
         return allGifts.map(gift => ({
             ...gift,
-            isRedeemedByUser: redeemedGiftIds.has(gift._id.toString()),
+            userHistory: userHistory.find(history => history.gift === gift._id)
         }));
     }
 
