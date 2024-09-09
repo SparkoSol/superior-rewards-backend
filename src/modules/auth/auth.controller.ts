@@ -11,8 +11,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { Public } from './decorators/setmetadata.decorator';
 import { PersonResponseDto } from '../person/dto/person.dto';
-import { SignUpRequestDto } from './dto/sign-up-request.dto';
-import { SignInRequestDto } from './dto/sign-in-request.dto';
+import { SignUpRequest } from './dto/sign-up-request.dto';
+import { SignInRequest } from './dto/sign-in-request.dto';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import { Person } from '../person/schema/person.schema';
 
@@ -39,7 +39,7 @@ export class AuthController {
       '1:Invalid role. , 2:User with this phone already exist.',
   })
   @Post('sign-up')
-  signUp(@Body() data: SignUpRequestDto): Promise<any> {
+  signUp(@Body() data: SignUpRequest): Promise<any> {
     return this.authService.signUp(data);
   }
 
@@ -47,7 +47,7 @@ export class AuthController {
    * signIn
    ******************************************************************/
   @Public()
-  @ApiBody({ type: SignInRequestDto, description: 'Login successfully!' })
+  @ApiBody({ type: SignInRequest, description: 'Login successfully!' })
   @ApiResponse({type: PersonResponseDto})
   @ApiInternalServerErrorResponse({ description: 'Internal server errors.' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized.' })

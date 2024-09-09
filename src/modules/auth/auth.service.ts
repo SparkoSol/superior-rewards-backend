@@ -1,7 +1,7 @@
 import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { PersonService } from '../person/person.service';
 import { JwtService } from '@nestjs/jwt';
-import { SignUpRequestDto } from './dto/sign-up-request.dto';
+import { SignUpRequest } from './dto/sign-up-request.dto';
 import { Validations } from '../../utils/validations';
 import { rethrow } from '@nestjs/core/helpers/rethrow';
 import * as mongoose from 'mongoose';
@@ -23,7 +23,7 @@ export class AuthService {
   /*******************************************************************
    * signUp
    ******************************************************************/
-  async signUp(data: SignUpRequestDto) {
+  async signUp(data: SignUpRequest) {
     if (!(await Validations.ValidateUserRole(data.role))) {
       throw new NotAcceptableException('Invalid role.');
     }

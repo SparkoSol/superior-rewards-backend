@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Role } from '../../person/enum/role.enum';
 
-export class SignUpRequestDto {
+export class SignUpRequest {
   @ApiProperty() @IsNotEmpty() @IsString() name: string;
 
   @ApiProperty() @IsNotEmpty() @IsString() phone: string;

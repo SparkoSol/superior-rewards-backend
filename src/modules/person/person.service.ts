@@ -2,7 +2,7 @@ import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { Person, PersonDocument } from './schema/person.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { SignUpRequestDto } from '../auth/dto/sign-up-request.dto';
+import { SignUpRequest } from '../auth/dto/sign-up-request.dto';
 
 export type User = any;
 
@@ -20,7 +20,7 @@ export class PersonService {
   /*******************************************************************
    * create
    ******************************************************************/
-  async create(data: SignUpRequestDto) {
+  async create(data: SignUpRequest) {
     let query = {};
     query['phone'] = data.phone;
     if (await this.model.findOne(query)) {
