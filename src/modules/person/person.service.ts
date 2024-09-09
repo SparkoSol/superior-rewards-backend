@@ -1,8 +1,9 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotAcceptableException, NotFoundException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { Person, PersonDocument } from './schema/person.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { SignUpRequest } from '../auth/dto/sign-up-request.dto';
+import { PersonUpdateDto } from './dto/person.dto';
 
 export type User = any;
 
@@ -49,5 +50,45 @@ export class PersonService {
 
   async findOneByPhone(phone: string): Promise<User | undefined> {
     return this.model.findOne({phone}).exec();
+  }
+
+  /*******************************************************************
+   * fetch
+   ******************************************************************/
+  async fetch() {
+    return this.model.find().sort({ createdAt: -1 }).exec();
+  }
+
+  /*******************************************************************
+   * fetchById
+   ******************************************************************/
+  async fetchById(id: string): Promise<PersonDocument> {
+    try {
+      return this.model.findById(id).exec();
+    } catch (e) {
+      throw new NotFoundException('No data found!');
+    }
+  }
+
+  /*******************************************************************
+   * update
+   ******************************************************************/
+  async update(id: string, data: PersonUpdateDto) {
+    try {
+      return await this.model.findByIdAndUpdate(id, data, { new: true });
+    } catch (e) {
+      throw new InternalServerErrorException('Unexpected Error');
+    }
+  }
+
+  /*******************************************************************
+   * delete
+   ******************************************************************/
+  async delete(id: string) {
+    try {
+      return await this.model.findByIdAndDelete(id);
+    } catch (e) {
+      throw new InternalServerErrorException('Unexpected Error');
+    }
   }
 }

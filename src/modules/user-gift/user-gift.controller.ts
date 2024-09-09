@@ -1,28 +1,37 @@
-import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Request } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
-  ApiOperation, ApiTags,
+  ApiOperation,
+  ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { PersonResponseDto, PersonUpdateDto } from './dto/person.dto';
-import { PersonService } from './person.service';
+import { GiftService } from './gift.service';
+import { GiftCreateRequest, GiftResponse, GiftUpdateRequest } from './dto/user-gift.dto';
 
-@ApiTags('Person')
-@Controller('person')
-export class PersonController {
-  constructor(private readonly service: PersonService) {
+@ApiBearerAuth('access-token') @ApiTags('Gifts') @Controller('gifts')
+export class UserGiftController {
+  constructor(private readonly service: GiftService) {
+  }
+
+  /*******************************************************************
+   * create
+   ******************************************************************/
+  @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiOperation({ summary: 'To create gift' }) @Post()
+  async create(@Request() req: any, @Body() data: GiftCreateRequest): Promise<any> {
+    return await this.service.create(data);
   }
 
   /*******************************************************************
    * fetch
    ******************************************************************/
   @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiOkResponse({
-    description: 'transaction', type: PersonResponseDto, isArray: true,
+    description: 'gift', type: GiftResponse, isArray: true,
   }) @ApiOperation({
-    summary: 'To get transaction',
+    summary: 'To get gift',
   }) @Get()
   async fetch(): Promise<any> {
     return await this.service.fetch();
@@ -32,9 +41,9 @@ export class PersonController {
    * fetchById
    ******************************************************************/
   @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Internal Server Error' }) @ApiNotFoundResponse({ description: 'No data found!' }) @ApiOkResponse({
-    description: 'Person by Id', type: PersonResponseDto,
+    description: 'Gift by Id', type: GiftResponse,
   }) @ApiOperation({
-    summary: 'To get specific transaction',
+    summary: 'To get specific gift',
   }) @Get(':id') findOne(@Param('id') id: string) {
     return this.service.fetchById(id);
   }
@@ -43,9 +52,9 @@ export class PersonController {
    * update
    ******************************************************************/
   @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiOkResponse({
-    type: PersonResponseDto, description: 'Person Updated Successfully',
-  }) @ApiOperation({ summary: 'To update transaction data' }) @Patch(':id')
-  async update(@Param('id') id: string, @Body() data: PersonUpdateDto) {
+    type: GiftResponse, description: 'Gift Updated Successfully',
+  }) @ApiOperation({ summary: 'To update gift data' }) @Patch(':id')
+  async update(@Param('id') id: string, @Body() data: GiftUpdateRequest) {
     return await this.service.update(id, data);
   }
 
@@ -53,9 +62,9 @@ export class PersonController {
    * delete
    ******************************************************************/
   @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiOkResponse({
-    type: PersonResponseDto, description: 'Person Deleted Successfully',
+    type: GiftResponse, description: 'Gift Deleted Successfully',
   }) @ApiOperation({
-    summary: 'To delete an transaction',
+    summary: 'To delete an gift',
   }) @Delete(':id')
   async delete(@Param('id') id: string) {
     return await this.service.delete(id);
