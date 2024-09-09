@@ -52,6 +52,12 @@ export class UserGiftService {
             points: person.points - gift.points,
         });
 
+        // increase redeemedPoints
+        await this.personService.update(data.user, {
+            ...person,
+            points: person.redeemed + gift.points,
+        });
+
         return userGift;
     }
 
