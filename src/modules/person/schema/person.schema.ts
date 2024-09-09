@@ -7,6 +7,7 @@ export type PersonDocument = HydratedDocument<Person>;
 /*
   name: '',
   phone: '',
+  dob: '',
   email?: '',
   password: '',
   profilePicture?: '',
@@ -21,6 +22,8 @@ export class Person {
   @Prop() name: string;
 
   @Prop({require: true, unique: true}) phone: string;
+
+  @Prop() dob: Date;
 
   @Prop() email?: string;
 

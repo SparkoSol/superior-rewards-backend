@@ -2,10 +2,12 @@ import { IsArray, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'clas
 import { Role } from '../enum/role.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class PersonUpdateRequest {
+export class PersonUpdateDto {
   @ApiProperty() @IsOptional() @IsString() name: string;
 
   @ApiProperty() @IsNotEmpty() @IsString() phone: string;
+
+  @ApiProperty() @IsNotEmpty() @IsString() date: Date;
 
   @ApiProperty() @IsOptional() @IsString() @IsEmail() email?: string;
 
@@ -22,10 +24,12 @@ export class PersonUpdateRequest {
   @ApiProperty({ type: [String] }) @IsOptional() @IsArray() fcmTokens: string[];
 }
 
-export class PersonResponse {
+export class PersonResponseDto {
   @ApiProperty() name: string;
 
   @ApiProperty() phone: string;
+
+  @ApiProperty() dob: Date;
 
   @ApiProperty() email?: string;
 
