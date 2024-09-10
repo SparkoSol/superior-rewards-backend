@@ -52,7 +52,7 @@ export class PersonService {
     }
 
     async findOneByQuery(query: {}) {
-        return await this.model.findOne(query).exec();
+        return await this.model.findOne(query).select('-password').exec();
     }
 
     async findOneByFcmToken(fcmToken: string) {
