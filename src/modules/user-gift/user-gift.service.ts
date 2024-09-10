@@ -55,7 +55,7 @@ export class UserGiftService {
         // increase redeemedPoints
         await this.personService.update(data.user, {
             ...person,
-            points: person.redeemed + gift.points,
+            points: person.redeemedPoints + gift.points,
         });
 
         // TODO: set notification here
@@ -84,7 +84,7 @@ export class UserGiftService {
 
         return allGifts.map((gift) => ({
             ...gift,
-            userHistory: userHistory.find((history) => history.gift === gift._id),
+            userHistory: userHistory.find((history) => history.gift.toString() === gift._id.toString()),
         }));
     }
 
