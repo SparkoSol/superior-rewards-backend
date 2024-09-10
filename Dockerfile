@@ -1,7 +1,7 @@
 # Base image.
 FROM node:18-alpine
 # Set the Enviournment to production
-ENV NODE_ENVIRONMENT=staging
+ENV NODE_ENVIRONMENT=production
 # Create app directory.
 WORKDIR /usr/src/app
 # A wildcard is used to copy package.json AND package-lock.json.
