@@ -67,7 +67,7 @@ export class UserGiftService {
      * fetch
      ******************************************************************/
     async fetch(user?: string, status?: GiftStatus) {
-        let query = {};
+        const query = {};
         if (user) query['user'] = new mongoose.Types.ObjectId(user);
         if (status) query['status'] = status;
         return this.model.find(query).sort({ createdAt: -1 }).exec();
@@ -84,7 +84,9 @@ export class UserGiftService {
 
         return allGifts.map((gift) => ({
             ...gift,
-            userHistory: userHistory.find((history) => history.gift.toString() === gift._id.toString()),
+            userHistory: userHistory.find(
+                (history) => history.gift.toString() === gift._id.toString()
+            ),
         }));
     }
 

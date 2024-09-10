@@ -33,14 +33,14 @@ export class PersonService {
      * create
      ******************************************************************/
     async create(data: SignUpRequest) {
-        let query = {};
+        const query = {};
         query['phone'] = data.phone;
         query['deletedAt'] = { $eq: null };
         if (await this.model.findOne(query)) {
             throw new NotAcceptableException('User with this phone already exist.');
         }
 
-        let person = (await this.model.create({
+        const person = (await this.model.create({
             ...data,
         })) as PersonDocument;
 

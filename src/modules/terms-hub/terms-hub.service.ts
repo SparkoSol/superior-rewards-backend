@@ -38,7 +38,7 @@ export class TermsHubService {
      ******************************************************************/
     async findAll(type?: string) {
         try {
-            let query = {};
+            const query = {};
             if (type) query['type'] = type;
             return await this.model.find(query).sort({ createdAt: -1 }).exec();
         } catch (e) {
