@@ -58,7 +58,7 @@ export class AuthController {
     })
     @ApiResponse({ type: SignInResponse })
     @ApiInternalServerErrorResponse({ description: 'Internal server errors!' })
-    @ApiNotFoundResponse({description: 'No any user found with the given phone!'})
+    @ApiNotFoundResponse({description: 'No account is associated with this phone number!'})
     @ApiUnauthorizedResponse({ description: 'Unauthorized! Invalid password.' })
     @UseGuards(LocalAuthGuard)
     @Post('/sign-in')

@@ -20,7 +20,7 @@ export class AuthService {
         if (!person) {
             return {
                 status: HttpStatus.NOT_FOUND,
-                message: 'No any user found with the given phone!',
+                message: 'No account is associated with this phone number!',
                 data: null,
             };
         }
