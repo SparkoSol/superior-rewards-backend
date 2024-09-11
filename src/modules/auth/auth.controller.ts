@@ -5,7 +5,7 @@ import {
     ApiBearerAuth,
     ApiBody,
     ApiInternalServerErrorResponse,
-    ApiNotAcceptableResponse,
+    ApiNotAcceptableResponse, ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
     ApiResponse,
@@ -16,7 +16,7 @@ import { LocalAuthGuard } from './guard/local-auth.guard';
 import { Public } from './decorators/setmetadata.decorator';
 import { PersonResponseDto } from '../person/dto/person.dto';
 import { SignUpRequest } from './dto/sign-up-request.dto';
-import { SignInRequest } from './dto/sign-in-request.dto';
+import { SignInRequest, SignInResponse } from './dto/sign-in-request.dto';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
 @ApiTags('Auth')
@@ -56,9 +56,10 @@ export class AuthController {
         type: SignInRequest,
         description: 'Login successfully!',
     })
-    @ApiResponse({ type: PersonResponseDto })
-    @ApiInternalServerErrorResponse({ description: 'Internal server errors.' })
-    @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+    @ApiResponse({ type: SignInResponse })
+    @ApiInternalServerErrorResponse({ description: 'Internal server errors!' })
+    @ApiNotFoundResponse({description: 'No any user found with the given phone!'})
+    @ApiUnauthorizedResponse({ description: 'Unauthorized! Invalid password.' })
     @UseGuards(LocalAuthGuard)
     @Post('/sign-in')
     async signIn(@Request() req) {

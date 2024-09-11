@@ -1,10 +1,11 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import { HttpStatus, Injectable, NotAcceptableException } from '@nestjs/common';
 import { PersonService } from '../person/person.service';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpRequest } from './dto/sign-up-request.dto';
 import { Validations } from '../../utils/validations';
 import { rethrow } from '@nestjs/core/helpers/rethrow';
 import * as mongoose from 'mongoose';
+import { Role } from '../person/enum/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -15,11 +16,31 @@ export class AuthService {
 
     async validateUser(phone: string, password: string): Promise<any> {
         const person = await this.personService.findOneByPhone(phone);
-        if (person && person.password === password) {
-            const { password, ...restData } = person;
-            return restData._doc;
+
+        if (!person) {
+            return {
+                status: HttpStatus.NOT_FOUND,
+                message: 'No any user found with the given phone!',
+                data: null,
+            };
         }
-        return null;
+
+        if (person.password !== password) {
+            return {
+                status: HttpStatus.UNAUTHORIZED,
+                message: 'Unauthorized! Invalid password.',
+                data: null,
+            };
+        }
+
+        if (person.password === password) {
+            const { password, ...restData } = person;
+            return {
+                status: HttpStatus.OK,
+                message: 'User Authenticated!',
+                data: restData._doc,
+            };
+        }
     }
 
     /*******************************************************************
@@ -46,7 +67,7 @@ export class AuthService {
      ******************************************************************/
     async signIn(user: any) {
         return {
-            access_token: this.jwtService.sign({
+            accessToken: this.jwtService.sign({
                 _id: user._id,
                 phone: user.phone,
                 role: user.role,
