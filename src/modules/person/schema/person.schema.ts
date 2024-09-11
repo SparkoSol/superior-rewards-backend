@@ -35,9 +35,9 @@ export class Person {
 
     @Prop({ type: [String] }) fcmTokens: string[];
 
-    @Prop() points: number;
+    @Prop({default: 0}) points: number;
 
-    @Prop() redeemedPoints: number;
+    @Prop({default: 0}) redeemedPoints: number;
 
     @Prop() addedInOdoo: boolean;
 
