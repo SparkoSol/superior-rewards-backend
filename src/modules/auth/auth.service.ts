@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, NotAcceptableException } from '@nestjs/common';
+import { HttpStatus, Injectable, InternalServerErrorException, NotAcceptableException } from '@nestjs/common';
 import { PersonService } from '../person/person.service';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpRequest } from './dto/sign-up-request.dto';
@@ -54,6 +54,7 @@ export class AuthService {
         const query = {};
         query['phone'] = data.phone;
         query['deletedAt'] = { $eq: null };
+        console.log('query: ', query);
         if (await this.personService.findOneByQuery(query)) {
             throw new NotAcceptableException('User with this phone already exist.');
         }
@@ -65,7 +66,7 @@ export class AuthService {
             return user;
         } catch (e) {
             console.log('Error while signup: ', e);
-            rethrow(e);
+            throw new InternalServerErrorException('Error while signup: ', e);
         }
     }
 
