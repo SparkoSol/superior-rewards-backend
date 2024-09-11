@@ -32,7 +32,7 @@ export class AuthController {
         type: PersonResponseDto,
         description: 'Signup successful',
     })
-    @ApiResponse({ type: PersonResponseDto })
+    @ApiBody({type: SignUpRequest})
     @ApiOperation({
         description: 'Roles: ADMIN, USER',
     })
