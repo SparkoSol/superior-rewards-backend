@@ -51,6 +51,13 @@ export class AuthService {
             throw new NotAcceptableException('Invalid role.');
         }
 
+        const query = {};
+        query['phone'] = data.phone;
+        query['deletedAt'] = { $eq: null };
+        if (await this.personService.findOneByQuery(query)) {
+            throw new NotAcceptableException('User with this phone already exist.');
+        }
+
         try {
             const result = (await this.personService.create(data)) as any;
             const { password, ...user } = result._doc;
