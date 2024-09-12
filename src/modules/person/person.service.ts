@@ -33,11 +33,7 @@ export class PersonService {
      * create
      ******************************************************************/
     async create(data: SignUpRequest) {
-        const person = (await this.model.create({
-            ...data,
-        })) as PersonDocument;
-
-        return this.model.findById(person._id);
+        return await this.model.create(data);
     }
 
     async findOne(id: string) {
