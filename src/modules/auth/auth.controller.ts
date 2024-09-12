@@ -36,7 +36,6 @@ export class AuthController {
     @ApiOperation({
         description: 'Roles: ADMIN, USER',
     })
-    @ApiBadRequestResponse({ description: 'Issue in request data' })
     @ApiInternalServerErrorResponse({
         description: 'Error while signup || Internal server errors.',
     })

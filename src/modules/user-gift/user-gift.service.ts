@@ -49,13 +49,13 @@ export class UserGiftService {
         // Deduct git points from user current points
         await this.personService.update(data.user, {
             ...person,
-            points: person.points - gift.points,
+            points: Number(person.points) - Number(gift.points),
         });
 
         // increase redeemedPoints
         await this.personService.update(data.user, {
             ...person,
-            points: person.redeemedPoints + gift.points,
+            redeemedPoints: Number(person.redeemedPoints) + Number(gift.points),
         });
 
         // TODO: set notification here

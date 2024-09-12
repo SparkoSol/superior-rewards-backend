@@ -25,7 +25,7 @@ export class TransactionService {
 
             await this.personService.update(transaction.user, {
                 ...person,
-                points: person.points + transaction.points,
+                points: Number(person.points) + Number(transaction.points),
             });
 
             // TODO: has to send notification
