@@ -60,10 +60,7 @@ export class AuthService {
         }
 
         try {
-            const result = (await this.personService.create(data)) as any;
-            const { password, ...user } = result._doc;
-
-            return user;
+            return await this.personService.create(data);
         } catch (e) {
             console.log('Error while signup: ', e);
             throw new InternalServerErrorException('Error while signup: ', e);
