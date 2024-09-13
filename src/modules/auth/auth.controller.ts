@@ -1,11 +1,20 @@
-import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Post,
+    Request,
+    UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
-    ApiBadRequestResponse,
     ApiBearerAuth,
     ApiBody,
     ApiInternalServerErrorResponse,
-    ApiNotAcceptableResponse, ApiNotFoundResponse,
+    ApiNotAcceptableResponse,
+    ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
     ApiResponse,
@@ -32,7 +41,7 @@ export class AuthController {
         type: PersonResponseDto,
         description: 'Signup successful',
     })
-    @ApiBody({type: SignUpRequest})
+    @ApiBody({ type: SignUpRequest })
     @ApiOperation({
         description: 'Roles: ADMIN, USER',
     })
@@ -55,10 +64,11 @@ export class AuthController {
         type: SignInRequest,
         description: 'Login successfully!',
     })
-    @ApiResponse({ type: SignInResponse })
+    @ApiOkResponse({ type: SignInResponse })
     @ApiInternalServerErrorResponse({ description: 'Internal server errors!' })
-    @ApiNotFoundResponse({description: 'No account is associated with this phone number!'})
+    @ApiNotFoundResponse({ description: 'No account is associated with this phone number!' })
     @ApiUnauthorizedResponse({ description: 'Unauthorized! Invalid password.' })
+    @HttpCode(HttpStatus.OK)
     @UseGuards(LocalAuthGuard)
     @Post('/sign-in')
     async signIn(@Request() req) {
