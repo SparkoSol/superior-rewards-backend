@@ -11,6 +11,7 @@ import {
 } from '@nestjs/swagger';
 import { TransactionService } from './transaction.service';
 import { TransactionCreateRequest, TransactionResponse } from './dto/transaction.dto';
+import { TransactionType } from './enum/type.enum';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Transactions')
@@ -22,8 +23,9 @@ export class TransactionController {
      * create
      ******************************************************************/
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
+    @ApiOkResponse({type: TransactionResponse, description: 'Transaction Created Successfully'})
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
-    @ApiOperation({ summary: 'To create transaction' })
+    @ApiOperation({ summary: 'To create transaction', description: `type: ${Object.values(TransactionType)}`, })
     @Post()
     async create(@Request() req: any, @Body() data: TransactionCreateRequest): Promise<any> {
         return await this.service.create(data);

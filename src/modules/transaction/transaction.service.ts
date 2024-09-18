@@ -38,7 +38,7 @@ export class TransactionService {
      * fetch
      ******************************************************************/
     async fetch() {
-        return this.model.find().sort({ createdAt: -1 }).exec();
+        return this.model.find().populate(['user']).sort({ createdAt: -1 }).exec();
     }
 
     /*******************************************************************
@@ -46,7 +46,7 @@ export class TransactionService {
      ******************************************************************/
     async fetchById(id: string): Promise<TransactionDocument> {
         try {
-            return this.model.findById(id).exec();
+            return this.model.findById(id).populate(['user']).exec();
         } catch (e) {
             throw new NotFoundException('No data found!');
         }
