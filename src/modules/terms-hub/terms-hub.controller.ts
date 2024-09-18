@@ -16,7 +16,7 @@ import { TermsHubCreateDto, TermsHubsResponseDto, TermsHubUpdateDto } from './dt
 
 @ApiBearerAuth('access-token')
 @ApiTags('TermsHub')
-@Controller('terms-hubs')
+@Controller('terms-hub')
 export class TermsHubController {
     constructor(private readonly termsHubService: TermsHubService) {}
 
