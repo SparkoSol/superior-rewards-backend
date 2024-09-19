@@ -1,11 +1,14 @@
-import { HttpStatus, Injectable, InternalServerErrorException, NotAcceptableException } from '@nestjs/common';
+import {
+    HttpStatus,
+    Injectable,
+    InternalServerErrorException,
+    NotAcceptableException,
+} from '@nestjs/common';
 import { PersonService } from '../person/person.service';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpRequest } from './dto/sign-up-request.dto';
 import { Validations } from '../../utils/validations';
-import { rethrow } from '@nestjs/core/helpers/rethrow';
 import * as mongoose from 'mongoose';
-import { Role } from '../person/enum/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -60,7 +63,14 @@ export class AuthService {
         }
 
         try {
-            return await this.personService.create(data);
+            const person = await this.personService.create(data);
+            return {
+                accessToken: this.jwtService.sign({
+                    _id: person._id,
+                    phone: person.phone,
+                    role: person.role,
+                }),
+            };
         } catch (e) {
             console.log('Error while signup: ', e);
             throw new InternalServerErrorException('Error while signup: ', e);
@@ -70,12 +80,12 @@ export class AuthService {
     /*******************************************************************
      * signIn
      ******************************************************************/
-    async signIn(user: any) {
+    async signIn(person: any) {
         return {
             accessToken: this.jwtService.sign({
-                _id: user._id,
-                phone: user.phone,
-                role: user.role,
+                _id: person._id,
+                phone: person.phone,
+                role: person.role,
             }),
         };
     }

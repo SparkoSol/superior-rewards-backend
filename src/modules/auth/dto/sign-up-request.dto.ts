@@ -7,7 +7,7 @@ export class SignUpRequest {
 
     @ApiProperty() @IsNotEmpty() @IsString() phone: string;
 
-    @ApiProperty() @IsNotEmpty() @IsISO8601() dob: string;
+    @ApiProperty() @IsNotEmpty() @IsISO8601() dob: Date;
 
     @ApiProperty() @IsOptional() @IsString() password: string;
 

@@ -38,7 +38,7 @@ export class AuthController {
      ******************************************************************/
     @Public()
     @ApiOkResponse({
-        type: PersonResponseDto,
+        type: SignInResponse,
         description: 'Signup successful',
     })
     @ApiBody({ type: SignUpRequest })

@@ -47,7 +47,6 @@ export class AppController {
     @Post('save-file')
     @UseInterceptors(FileInterceptor('file'))
     saveFile(@UploadedFile() file): any {
-        console.log('file: ', file);
         if (file) return { name: file.filename, path: file.path };
         else return {};
     }
