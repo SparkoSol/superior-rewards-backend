@@ -6,7 +6,7 @@ export class TermsHubCreateDto {
     @ApiProperty({ default: TermsHubsType.POLICY })
     @IsEnum(TermsHubsType)
     @IsNotEmpty()
-    type: number;
+    type: string;
 
     @ApiProperty() @IsOptional() @IsString() details: string;
 }
@@ -17,7 +17,7 @@ export class TermsHubsResponseDto {
     @ApiProperty({ default: TermsHubsType.POLICY })
     @IsEnum(TermsHubsType)
     @IsNotEmpty()
-    type: number;
+    type: string;
 
     @ApiProperty() @IsOptional() @IsString() details: string;
 }

@@ -12,7 +12,7 @@ export class TermsHub {
         default: TermsHubsType.POLICY,
         enum: TermsHubsType,
     })
-    type: number;
+    type: string;
 
     @Prop()
     details?: string;

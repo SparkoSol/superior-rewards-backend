@@ -51,7 +51,7 @@ export class TransactionController {
         description: 'If true, will return populated data.',
     })
     @Get()
-    async fetch(@Query('withPopulate') withPopulate: boolean,): Promise<any> {
+    async fetch(@Query('withPopulate') withPopulate: boolean): Promise<any> {
         return await this.service.fetch(withPopulate);
     }
 

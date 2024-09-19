@@ -54,12 +54,27 @@ export class UserGiftController {
     })
     @ApiQuery({
         required: false,
+        name: 'gift',
+        description: 'for getting all gifts of specific gift',
+    })
+    @ApiQuery({
+        required: false,
         name: 'status',
         description: 'for getting all gifts of specific status',
     })
+    @ApiQuery({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
     @Get()
-    async fetch(@Query('user') user?: string, @Query('status') status?: GiftStatus): Promise<any> {
-        return await this.service.fetch(user, status);
+    async fetch(
+        @Query('user') user?: string,
+        @Query('gift') gift?: string,
+        @Query('status') status?: GiftStatus,
+        @Query('withPopulate') withPopulate?: boolean
+    ): Promise<any> {
+        return await this.service.fetch(user, gift, status, withPopulate);
     }
 
     /*******************************************************************

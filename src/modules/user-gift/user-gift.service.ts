@@ -66,11 +66,16 @@ export class UserGiftService {
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch(user?: string, status?: GiftStatus) {
+    async fetch(user?: string, gift?: string, status?: GiftStatus, withPopulate?: boolean) {
         const query = {};
         if (user) query['user'] = new mongoose.Types.ObjectId(user);
+        if (gift) query['gift'] = new mongoose.Types.ObjectId(gift);
         if (status) query['status'] = status;
-        return this.model.find(query).sort({ createdAt: -1 }).exec();
+        return this.model
+            .find(query)
+            .populate(withPopulate ? ['user', 'gift'] : [])
+            .sort({ createdAt: -1 })
+            .exec();
     }
 
     /*******************************************************************

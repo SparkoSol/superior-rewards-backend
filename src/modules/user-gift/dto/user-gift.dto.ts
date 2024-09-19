@@ -1,4 +1,4 @@
-import { IsEnum, IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { GiftStatus } from '../enum/status.enum';
 
@@ -18,6 +18,11 @@ export class UserGiftCreateRequest {
     })
     status: string;
 
+    @ApiProperty({ default: false })
+    @IsOptional()
+    @IsBoolean()
+    isExpired: boolean;
+
     @ApiProperty() @IsOptional() @IsString() redeemedAt: Date;
 
     @ApiProperty() @IsOptional() @IsString() qrCode?: string;
@@ -36,6 +41,9 @@ export class UserGiftResponse {
         default: GiftStatus.IN_PROGRESS,
     })
     status: GiftStatus.IN_PROGRESS;
+
+    @ApiProperty({ default: false })
+    isExpired: boolean;
 
     @ApiProperty() redeemedAt: Date;
 

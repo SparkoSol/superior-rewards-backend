@@ -1,7 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Response } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, Response } from '@nestjs/common';
 import { TermsHubService } from './terms-hub.service';
 import {
-    ApiBadRequestResponse,
     ApiBearerAuth,
     ApiBody,
     ApiInternalServerErrorResponse,
@@ -12,7 +11,8 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { TermsHubCreateDto, TermsHubsResponseDto, TermsHubUpdateDto } from './dto/terms-hub.dto';
+import { TermsHubCreateDto, TermsHubsResponseDto } from './dto/terms-hub.dto';
+import { TermsHubsType } from './enum/type.enum';
 
 @ApiBearerAuth('access-token')
 @ApiTags('TermsHub')
@@ -30,7 +30,7 @@ export class TermsHubController {
     @ApiUnauthorizedResponse({ description: 'Unauthorized' })
     @ApiInternalServerErrorResponse({ description: 'Error while creating terms-hub' })
     @ApiOperation({
-        description: 'Creating Data',
+        description: `type: ${Object.values(TermsHubsType)}`,
     })
     @ApiBody({ type: TermsHubCreateDto })
     @Post()
@@ -73,24 +73,24 @@ export class TermsHubController {
         return this.termsHubService.findOne(id);
     }
 
-    /*******************************************************************
-     * update
-     ******************************************************************/
-    @ApiOkResponse({
-        type: TermsHubsResponseDto,
-        description: 'Data Updated Successfully',
-    })
-    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-    @ApiBadRequestResponse({ description: 'Invalid request data' })
-    @ApiInternalServerErrorResponse({ description: 'Internal server errors' })
-    @ApiOperation({
-        description: 'Update Specific Data',
-    })
-    @ApiBody({ type: TermsHubUpdateDto })
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() TermsHubUpdateDto: TermsHubUpdateDto) {
-        return this.termsHubService.update(id, TermsHubUpdateDto);
-    }
+    // /*******************************************************************
+    //  * update
+    //  ******************************************************************/
+    // @ApiOkResponse({
+    //     type: TermsHubsResponseDto,
+    //     description: 'Data Updated Successfully',
+    // })
+    // @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+    // @ApiBadRequestResponse({ description: 'Invalid request data' })
+    // @ApiInternalServerErrorResponse({ description: 'Internal server errors' })
+    // @ApiOperation({
+    //     description: 'Update Specific Data',
+    // })
+    // @ApiBody({ type: TermsHubUpdateDto })
+    // @Patch(':id')
+    // update(@Param('id') id: string, @Body() TermsHubUpdateDto: TermsHubUpdateDto) {
+    //     return this.termsHubService.update(id, TermsHubUpdateDto);
+    // }
 
     /*******************************************************************
      * delete
