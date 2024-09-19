@@ -81,10 +81,10 @@ export class UserGiftService {
     /*******************************************************************
      * fetchAllGiftByUser
      ******************************************************************/
-    async fetchAllGiftByUser(user: string) {
+    async fetchAllGiftByUser(user: string, withPopulate?: boolean) {
         const [allGifts, userHistory] = await Promise.all([
             this.giftService.fetch(),
-            this.fetch(user),
+            this.fetch(user, null, null, withPopulate),
         ]);
 
         return allGifts.map((gift) => ({
@@ -98,9 +98,9 @@ export class UserGiftService {
     /*******************************************************************
      * fetchById
      ******************************************************************/
-    async fetchById(id: string): Promise<UserGiftDocument> {
+    async fetchById(id: string, withPopulate?: boolean): Promise<UserGiftDocument> {
         try {
-            return this.model.findById(id).exec();
+            return this.model.findById(id).populate(withPopulate ? ['user', 'gift'] : []).exec();
         } catch (e) {
             throw new NotFoundException('No data found!');
         }

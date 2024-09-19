@@ -85,9 +85,14 @@ export class UserGiftController {
     @ApiOperation({
         summary: 'To get gift w.r.t to userId',
     })
+    @ApiQuery({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
     @Get('byUserId/:user')
-    async fetchAllGiftByUser(@Param('user') user?: string): Promise<any> {
-        return await this.service.fetchAllGiftByUser(user);
+    async fetchAllGiftByUser(@Param('user') user?: string,  @Query('withPopulate') withPopulate?: boolean): Promise<any> {
+        return await this.service.fetchAllGiftByUser(user, withPopulate);
     }
 
     /*******************************************************************
@@ -103,9 +108,14 @@ export class UserGiftController {
     @ApiOperation({
         summary: 'To get specific gift',
     })
+    @ApiQuery({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.service.fetchById(id);
+    findOne(@Param('id') id: string,  @Query('withPopulate') withPopulate?: boolean) {
+        return this.service.fetchById(id, withPopulate);
     }
 
     /*******************************************************************
