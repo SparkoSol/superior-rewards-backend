@@ -30,6 +30,8 @@ export class GiftResponse {
     @ApiProperty({ default: 0 })
     points: number;
 
+    @ApiProperty() deletedAt?: Date;
+
     @ApiProperty()
     createdAt: Date;
 

@@ -56,7 +56,9 @@ export class PersonService {
      * fetch
      ******************************************************************/
     async fetch() {
-        return this.model.find().sort({ createdAt: -1 }).exec();
+        const query = {};
+        query['deletedAt'] = { $eq: null };
+        return this.model.find(query).sort({ createdAt: -1 }).exec();
     }
 
     /*******************************************************************

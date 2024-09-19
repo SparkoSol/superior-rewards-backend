@@ -6,10 +6,7 @@ import { GiftCreateRequest, GiftUpdateRequest } from './dto/gift.dto';
 
 @Injectable()
 export class GiftService {
-    constructor(
-        @InjectModel(Gift.name)
-        private readonly model: Model<GiftDocument>
-    ) {}
+    constructor(@InjectModel(Gift.name) private readonly model: Model<GiftDocument>) {}
 
     /*******************************************************************
      * create
@@ -26,7 +23,9 @@ export class GiftService {
      * fetch
      ******************************************************************/
     async fetch() {
-        return this.model.find().sort({ createdAt: -1 }).exec();
+        const query = {};
+        query['deletedAt'] = { $eq: null };
+        return this.model.find(query).sort({ createdAt: -1 }).exec();
     }
 
     /*******************************************************************
@@ -56,7 +55,7 @@ export class GiftService {
      ******************************************************************/
     async delete(id: string) {
         try {
-            return await this.model.findByIdAndDelete(id);
+            return await this.model.findByIdAndUpdate(id, { deletedAt: new Date() });
         } catch (e) {
             throw new InternalServerErrorException('Unexpected Error');
         }
