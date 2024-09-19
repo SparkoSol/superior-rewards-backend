@@ -37,16 +37,16 @@ export class TransactionService {
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch() {
-        return this.model.find().populate(['user']).sort({ createdAt: -1 }).exec();
+    async fetch(withPopulate?: boolean): Promise<TransactionDocument[]> {
+        return this.model.find().populate(withPopulate ? ['user'] : []).sort({ createdAt: -1 }).exec();
     }
 
     /*******************************************************************
      * fetchById
      ******************************************************************/
-    async fetchById(id: string): Promise<TransactionDocument> {
+    async fetchById(id: string, withPopulate?: boolean): Promise<TransactionDocument> {
         try {
-            return this.model.findById(id).populate(['user']).exec();
+            return this.model.findById(id).populate(withPopulate ? ['user'] : []).exec();
         } catch (e) {
             throw new NotFoundException('No data found!');
         }

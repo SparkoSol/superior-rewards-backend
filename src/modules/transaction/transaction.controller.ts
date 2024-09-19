@@ -1,11 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Post, Request } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, Request } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
     ApiInternalServerErrorResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
-    ApiOperation,
+    ApiOperation, ApiQuery,
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -45,9 +45,14 @@ export class TransactionController {
     @ApiOperation({
         summary: 'To get transactions',
     })
+    @ApiQuery({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
     @Get()
-    async fetch(): Promise<any> {
-        return await this.service.fetch();
+    async fetch(@Query('withPopulate') withPopulate: boolean,): Promise<any> {
+        return await this.service.fetch(withPopulate);
     }
 
     /*******************************************************************
@@ -63,9 +68,14 @@ export class TransactionController {
     @ApiOperation({
         summary: 'To get specific transaction',
     })
+    @ApiQuery({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.service.fetchById(id);
+    findOne(@Param('id') id: string, @Query('withPopulate') withPopulate: boolean) {
+        return this.service.fetchById(id, withPopulate);
     }
 
     /*******************************************************************
