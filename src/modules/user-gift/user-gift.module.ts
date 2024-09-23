@@ -7,6 +7,7 @@ import { TransactionModule } from '../transaction/transaction.module';
 import { PersonModule } from '../person/person.module';
 import { GiftModule } from '../gift/gift.module';
 import { BullModule } from '@nestjs/bullmq';
+import { UserGiftConsumer } from './user-gift.consumer';
 
 @Global()
 @Module({
@@ -20,7 +21,7 @@ import { BullModule } from '@nestjs/bullmq';
         TransactionModule,
     ],
     controllers: [UserGiftController],
-    providers: [UserGiftService],
+    providers: [UserGiftService, UserGiftConsumer],
     exports: [UserGiftService],
 })
 export class UserGiftModule {}

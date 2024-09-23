@@ -7,7 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { UserGift, UserGiftDocument } from './schema/user-gift.schema';
 import mongoose, { Model } from 'mongoose';
-import { UserGiftCreateRequest } from './dto/user-gift.dto';
+import { UserGiftCreateRequest, UserGiftUpdateRequest } from './dto/user-gift.dto';
 import { TransactionService } from '../transaction/transaction.service';
 import { TransactionType } from '../transaction/enum/type.enum';
 import { PersonService } from '../person/person.service';
@@ -119,13 +119,13 @@ export class UserGiftService {
     /*******************************************************************
      * update
      ******************************************************************/
-    // async update(id: string, data: UserGiftUpdateRequest) {
-    //   try {
-    //     return await this.model.findByIdAndUpdate(id, data, { new: true });
-    //   } catch (e) {
-    //     throw new InternalServerErrorException('Unexpected Error');
-    //   }
-    // }
+    async update(id: string, data: UserGiftUpdateRequest) {
+      try {
+        return await this.model.findByIdAndUpdate(id, data, { new: true });
+      } catch (e) {
+        throw new InternalServerErrorException('Unexpected Error');
+      }
+    }
 
     /*******************************************************************
      * delete
