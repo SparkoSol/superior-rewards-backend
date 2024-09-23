@@ -73,12 +73,11 @@ export class UserGiftService {
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch(user?: string, gift?: string, status?: GiftStatus, withPopulate?: boolean, withExpired?: boolean = false) {
+    async fetch(user?: string, gift?: string, status?: GiftStatus, withPopulate?: boolean) {
         const query = {};
         if (user) query['user'] = new mongoose.Types.ObjectId(user);
         if (gift) query['gift'] = new mongoose.Types.ObjectId(gift);
         if (status) query['status'] = status;
-        if (withExpired) query['isExpired'] = { $eq: true };
         return this.model
             .find(query)
             .populate(withPopulate ? ['user', 'gift'] : [])
@@ -92,7 +91,7 @@ export class UserGiftService {
     async fetchAllGiftByUser(user: string, withPopulate?: boolean) {
         const [allGifts, userHistory] = await Promise.all([
             this.giftService.fetch(),
-            this.fetch(user, null, GiftStatus.IN_PROGRESS, withPopulate, true),
+            this.fetch(user, null, null, withPopulate),
         ]);
 
         return allGifts.map((gift) => ({
@@ -121,11 +120,16 @@ export class UserGiftService {
      * update
      ******************************************************************/
     async update(id: string, data: UserGiftUpdateRequest) {
-      try {
-        return await this.model.findByIdAndUpdate(id, data, { new: true });
-      } catch (e) {
-        throw new InternalServerErrorException('Unexpected Error');
-      }
+        // for Admin, when pending gift is redeemed
+        if (data.status === GiftStatus.REDEEMED) {
+            await this.removeJobFromUserGiftQueue(id);
+        }
+
+        try {
+            return await this.model.findByIdAndUpdate(id, data, { new: true });
+        } catch (e) {
+            throw new InternalServerErrorException('Unexpected Error');
+        }
     }
 
     /*******************************************************************
@@ -140,24 +144,28 @@ export class UserGiftService {
     }
 
     async addNewJobInUserGiftQueue(userGift: UserGiftDocument) {
-        const job = await this.userGiftQueue.add(
-          'user-git-job',
-          userGift,
-          {
-              jobId: userGift._id.toString(),
-              delay: +process.env.USER_GIFTS_REDEEMED_DELAY,
-          },
-        );
+        const job = await this.userGiftQueue.add('user-git-job', userGift, {
+            jobId: userGift._id.toString(),
+            delay: +process.env.USER_GIFTS_REDEEMED_DELAY,
+        });
 
         await job.log(
-          `${new Date().toLocaleString()}: LOG :: New created job in queue:  ${JSON.stringify(
-            {
+            `${new Date().toLocaleString()}: LOG :: New created job in queue:  ${JSON.stringify({
                 jobId: job.id,
-                userGift
-            },
-          )}`,
+                userGift,
+            })}`
         );
 
         return job;
+    }
+
+    async removeJobFromUserGiftQueue(id: string) {
+        try {
+            await this.userGiftQueue.remove(id);
+        } catch (e) {
+            console.log('=======================');
+            console.log('Error in removing job: ', e);
+            console.log('=======================');
+        }
     }
 }
