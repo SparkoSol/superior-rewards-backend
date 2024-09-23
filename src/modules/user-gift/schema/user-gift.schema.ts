@@ -22,7 +22,7 @@ export class UserGift {
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Gift.name }) gift: string;
 
-    @Prop({ default: GiftStatus.IN_PROGRESS }) status: string;
+    @Prop({ default: GiftStatus.PENDING }) status: string;
 
     @Prop({ default: false }) isExpired: boolean;
 
