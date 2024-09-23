@@ -35,11 +35,11 @@ export class Person {
 
     @Prop({ type: [String] }) fcmTokens: string[];
 
-    @Prop({default: 0}) points: number;
+    @Prop({ default: 0 }) points: number;
 
-    @Prop({default: 0}) redeemedPoints: number;
+    @Prop({ default: 0 }) redeemedPoints: number;
 
-    @Prop({default: false}) addedInOdoo: boolean;
+    @Prop({ default: false }) addedInOdoo: boolean;
 
     @Prop() deletedAt?: Date;
 }

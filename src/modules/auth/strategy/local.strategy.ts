@@ -12,7 +12,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     async validate(phone: string, password: string): Promise<any> {
         const response = await this.authService.validateUser(phone, password);
 
-        if(response.status !== HttpStatus.OK) {
+        if (response.status !== HttpStatus.OK) {
             throw new HttpException(response.message, response.status);
         }
 

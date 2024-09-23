@@ -91,7 +91,10 @@ export class UserGiftController {
         description: 'If true, will return populated data.',
     })
     @Get('byUserId/:user')
-    async fetchAllGiftByUser(@Param('user') user?: string,  @Query('withPopulate') withPopulate?: boolean): Promise<any> {
+    async fetchAllGiftByUser(
+        @Param('user') user?: string,
+        @Query('withPopulate') withPopulate?: boolean
+    ): Promise<any> {
         return await this.service.fetchAllGiftByUser(user, withPopulate);
     }
 
@@ -114,7 +117,7 @@ export class UserGiftController {
         description: 'If true, will return populated data.',
     })
     @Get(':id')
-    findOne(@Param('id') id: string,  @Query('withPopulate') withPopulate?: boolean) {
+    findOne(@Param('id') id: string, @Query('withPopulate') withPopulate?: boolean) {
         return this.service.fetchById(id, withPopulate);
     }
 

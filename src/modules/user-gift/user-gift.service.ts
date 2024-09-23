@@ -100,7 +100,10 @@ export class UserGiftService {
      ******************************************************************/
     async fetchById(id: string, withPopulate?: boolean): Promise<UserGiftDocument> {
         try {
-            return this.model.findById(id).populate(withPopulate ? ['user', 'gift'] : []).exec();
+            return this.model
+                .findById(id)
+                .populate(withPopulate ? ['user', 'gift'] : [])
+                .exec();
         } catch (e) {
             throw new NotFoundException('No data found!');
         }

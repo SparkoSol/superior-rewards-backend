@@ -5,7 +5,8 @@ import {
     ApiInternalServerErrorResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
-    ApiOperation, ApiQuery,
+    ApiOperation,
+    ApiQuery,
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -23,9 +24,12 @@ export class TransactionController {
      * create
      ******************************************************************/
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
-    @ApiOkResponse({type: TransactionResponse, description: 'Transaction Created Successfully'})
+    @ApiOkResponse({ type: TransactionResponse, description: 'Transaction Created Successfully' })
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
-    @ApiOperation({ summary: 'To create transaction', description: `type: ${Object.values(TransactionType)}`, })
+    @ApiOperation({
+        summary: 'To create transaction',
+        description: `type: ${Object.values(TransactionType)}`,
+    })
     @Post()
     async create(@Request() req: any, @Body() data: TransactionCreateRequest): Promise<any> {
         return await this.service.create(data);
