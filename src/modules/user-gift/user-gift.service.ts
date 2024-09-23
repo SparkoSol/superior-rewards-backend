@@ -73,11 +73,12 @@ export class UserGiftService {
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch(user?: string, gift?: string, status?: GiftStatus, withPopulate?: boolean) {
+    async fetch(user?: string, gift?: string, status?: GiftStatus, withPopulate?: boolean, withExpired?: boolean = false) {
         const query = {};
         if (user) query['user'] = new mongoose.Types.ObjectId(user);
         if (gift) query['gift'] = new mongoose.Types.ObjectId(gift);
         if (status) query['status'] = status;
+        if (withExpired) query['isExpired'] = { $eq: true };
         return this.model
             .find(query)
             .populate(withPopulate ? ['user', 'gift'] : [])
@@ -91,7 +92,7 @@ export class UserGiftService {
     async fetchAllGiftByUser(user: string, withPopulate?: boolean) {
         const [allGifts, userHistory] = await Promise.all([
             this.giftService.fetch(),
-            this.fetch(user, null, null, withPopulate),
+            this.fetch(user, null, GiftStatus.IN_PROGRESS, withPopulate, true),
         ]);
 
         return allGifts.map((gift) => ({
