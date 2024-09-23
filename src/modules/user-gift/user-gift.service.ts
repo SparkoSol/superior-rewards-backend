@@ -14,11 +14,15 @@ import { PersonService } from '../person/person.service';
 import { GiftService } from '../gift/gift.service';
 import { GiftStatus } from './enum/status.enum';
 import { NoGeneratorUtils } from '../../utils/no-generator-utils';
+import { Queue } from 'bullmq';
+import { InjectQueue } from '@nestjs/bullmq';
+import * as process from 'node:process';
 
 @Injectable()
 export class UserGiftService {
     constructor(
         @InjectModel(UserGift.name) private readonly model: Model<UserGiftDocument>,
+        @InjectQueue('user-gift-queue') private userGiftQueue: Queue,
         private readonly personService: PersonService,
         private readonly giftService: GiftService,
         private readonly transactionService: TransactionService
@@ -57,6 +61,9 @@ export class UserGiftService {
             ...person,
             redeemedPoints: Number(person.redeemedPoints) + Number(gift.points),
         });
+
+        // TODO: checking queue systems
+        await this.addNewJobInUserGiftQueue(userGift);
 
         // TODO: set notification here
 
@@ -129,5 +136,27 @@ export class UserGiftService {
         } catch (e) {
             throw new InternalServerErrorException('Unexpected Error');
         }
+    }
+
+    async addNewJobInUserGiftQueue(userGift: UserGiftDocument) {
+        const job = await this.userGiftQueue.add(
+          'user-git-job',
+          userGift,
+          {
+              jobId: userGift._id.toString(),
+              delay: +process.env.USER_GIFTS_REDEEMED_DELAY,
+          },
+        );
+
+        await job.log(
+          `${new Date().toLocaleString()}: LOG :: New created job in queue:  ${JSON.stringify(
+            {
+                jobId: job.id,
+                userGift
+            },
+          )}`,
+        );
+
+        return job;
     }
 }

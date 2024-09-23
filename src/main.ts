@@ -18,8 +18,6 @@ async function bootstrap() {
         })
     );
 
-    console.log(`${process.env.APP_NAME_SLUG}-uploads`);
-
     app.useStaticAssets(join(process.cwd(), '..', `${process.env.APP_NAME_SLUG}-uploads`), {
         prefix: '/uploads/',
     });

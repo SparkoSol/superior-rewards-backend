@@ -6,10 +6,14 @@ import { Global, Module } from '@nestjs/common';
 import { TransactionModule } from '../transaction/transaction.module';
 import { PersonModule } from '../person/person.module';
 import { GiftModule } from '../gift/gift.module';
+import { BullModule } from '@nestjs/bullmq';
 
 @Global()
 @Module({
     imports: [
+        BullModule.registerQueue({
+            name: 'user-gift-queue',
+        }),
         MongooseModule.forFeature([{ name: UserGift.name, schema: UserGiftSchema }]),
         PersonModule,
         GiftModule,

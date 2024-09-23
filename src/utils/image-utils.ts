@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { FileSchema } from '../uploadFileStructue/file.schema';
+import { FileSchema } from '../uploadFileStructue/schema/file.schema';
 
 export class ImageUtils {
     static imagePath = path.join(process.cwd(), '..', 'superior-rewards-uploads');
