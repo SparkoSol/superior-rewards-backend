@@ -19,6 +19,8 @@ import { NotificationController } from '../modules/notification/notification.con
 import { NotificationModule } from '../modules/notification/notification.module';
 import { TermsHubModule } from '../modules/terms-hub/terms-hub.module';
 import { UserGiftModule } from '../modules/user-gift/user-gift.module';
+import { RoleModule } from 'src/modules/gift copy/role.module';
+import { PermissionModule } from 'src/modules/gift copy 2/permission.module';
 
 @Module({
     imports: [
@@ -54,6 +56,8 @@ import { UserGiftModule } from '../modules/user-gift/user-gift.module';
         UserGiftModule,
         NotificationModule,
         TermsHubModule,
+        RoleModule,
+        PermissionModule
     ],
     controllers: [AppController],
     providers: [

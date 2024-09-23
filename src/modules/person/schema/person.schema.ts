@@ -1,6 +1,7 @@
-import { Role } from '../enum/role.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import * as mongoose from 'mongoose';
+import { Role } from 'src/modules/gift copy/schema/role.schema';
 
 export type PersonDocument = HydratedDocument<Person>;
 
@@ -31,7 +32,7 @@ export class Person {
 
     @Prop() profilePicture?: string;
 
-    @Prop({ default: Role.USER }) role: string;
+    @Prop({type: mongoose.Schema.Types.ObjectId, ref: Role.name}) role: string;
 
     @Prop({ type: [String] }) fcmTokens: string[];
 
