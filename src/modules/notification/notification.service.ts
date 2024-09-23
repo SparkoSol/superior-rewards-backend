@@ -9,23 +9,21 @@ import {
 import { NotificationCreateDto, NotificationPayload } from './dto/notification.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Notification, NotificationDocument } from '../notification/schema/notification.schema';
+import * as mongoose from 'mongoose';
 import { Model } from 'mongoose';
 import { PersonService } from '../person/person.service';
-import * as mongoose from 'mongoose';
-// import { FIREBASE_PROVIDER } from 'src/utils/const';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class NotificationService {
     private readonly admin;
 
     constructor(
-        @InjectModel(Notification.name)
-        private readonly model: Model<NotificationDocument>,
-        // @Inject(FIREBASE_PROVIDER) private readonly firebase,
-        @Inject(forwardRef(() => PersonService))
-        private readonly personService: PersonService
+        @InjectModel(Notification.name) private readonly model: Model<NotificationDocument>,
+        @Inject(forwardRef(() => PersonService)) private readonly personService: PersonService,
+        private readonly authService: AuthService
     ) {
-        // this.admin = this.firebase;
+        this.admin = this.authService.getAdmin();
     }
 
     /*******************************************************************
@@ -108,7 +106,7 @@ export class NotificationService {
     /*******************************************************************
      * sendNotificationToSingleDevice
      ******************************************************************/
-    async sendNotificationFromApiToSingleDevice(fcmToken, data: NotificationPayload) {
+    async sendNotificationFromApiToSingleDevice(fcmToken: string, data: NotificationPayload) {
         const person = await this.personService.findOneByFcmToken(fcmToken);
 
         if (!person) throw new NotFoundException('No user associate with the given token!');
