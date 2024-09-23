@@ -10,7 +10,7 @@ export class UserGiftCreateRequest {
     @ApiProperty({
         required: true,
         type: String,
-        default: GiftStatus.IN_PROGRESS,
+        default: GiftStatus.PENDING,
     })
     @IsOptional()
     @IsEnum(GiftStatus, {
@@ -38,9 +38,9 @@ export class UserGiftResponse {
     @ApiProperty({
         required: true,
         type: String,
-        default: GiftStatus.IN_PROGRESS,
+        default: GiftStatus.PENDING,
     })
-    status: GiftStatus.IN_PROGRESS;
+    status: GiftStatus.PENDING;
 
     @ApiProperty({ default: false })
     isExpired: boolean;
