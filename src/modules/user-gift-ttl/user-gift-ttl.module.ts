@@ -1,7 +1,9 @@
 import { UserGiftTtlService } from './user-gift-ttl.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserGiftTtl, UserGiftTtlSchema } from './schema/user-gift-ttl.schema';
-import { Global, Module } from '@nestjs/common';
+import { forwardRef, Global, Module } from '@nestjs/common';
+import { UserGiftTtlJob } from './user-gift-ttl-job';
+import { UserGiftModule } from '../user-gift/user-gift.module';
 
 @Global()
 @Module({
@@ -12,9 +14,10 @@ import { Global, Module } from '@nestjs/common';
                 schema: UserGiftTtlSchema,
             },
         ]),
+        forwardRef(() => UserGiftModule),
     ],
     controllers: [],
-    providers: [UserGiftTtlService],
+    providers: [UserGiftTtlService, UserGiftTtlJob],
     exports: [UserGiftTtlService],
 })
 export class UserGiftTtlModule {}

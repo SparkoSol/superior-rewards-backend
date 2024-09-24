@@ -1,4 +1,6 @@
 import {
+    forwardRef,
+    Inject,
     Injectable,
     InternalServerErrorException,
     NotAcceptableException,
@@ -7,7 +9,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { UserGift, UserGiftDocument } from './schema/user-gift.schema';
 import mongoose, { Model } from 'mongoose';
-import { UserGiftCreateRequest } from './dto/user-gift.dto';
+import { UserGiftCreateRequest, UserGiftUpdateRequest } from './dto/user-gift.dto';
 import { TransactionService } from '../transaction/transaction.service';
 import { TransactionType } from '../transaction/enum/type.enum';
 import { PersonService } from '../person/person.service';
@@ -23,6 +25,7 @@ export class UserGiftService {
         private readonly personService: PersonService,
         private readonly giftService: GiftService,
         private readonly transactionService: TransactionService,
+        @Inject(forwardRef(() => UserGiftTtlService))
         private readonly UserGiftTtlService: UserGiftTtlService
     ) {}
 
@@ -40,16 +43,18 @@ export class UserGiftService {
 
         const userGift = await this.model.create(data);
 
-        console.log('date: ', new Date((new Date()).toISOString().replace('Z', '+00:00')));
+        console.log('date: ', new Date(new Date().toISOString().replace('Z', '+00:00')));
 
         // create entry in user-gift-ttl
         await this.UserGiftTtlService.create({
-            user: data.user,
-            gift: data.gift,
-            reference: userGift._id.toString(),
-            isExpired: data.isExpired,
-            createdAt: new Date((new Date()).toISOString().replace('Z', '+00:00')),
+            // user: data.user,
+            // gift: data.gift,
+            userGift: userGift._id.toString(), // isExpired: data.isExpired,
+            createdAt: new Date(new Date().toISOString().replace('Z', '+00:00')),
         });
+
+        const yes = true;
+        if (yes) return userGift;
 
         // create DEBIT type transaction, when user redeemed a gift
         await this.transactionService.create({
@@ -125,13 +130,17 @@ export class UserGiftService {
     /*******************************************************************
      * update
      ******************************************************************/
-    // async update(id: string, data: UserGiftUpdateRequest) {
-    //   try {
-    //     return await this.model.findByIdAndUpdate(id, data, { new: true });
-    //   } catch (e) {
-    //     throw new InternalServerErrorException('Unexpected Error');
-    //   }
-    // }
+    async update(id: string, data: UserGiftUpdateRequest) {
+        if (data.status === GiftStatus.REDEEMED) {
+            
+        }
+
+        try {
+            return await this.model.findByIdAndUpdate(id, data, { new: true });
+        } catch (e) {
+            throw new InternalServerErrorException('Unexpected Error');
+        }
+    }
 
     /*******************************************************************
      * delete
@@ -142,5 +151,18 @@ export class UserGiftService {
         } catch (e) {
             throw new InternalServerErrorException('Unexpected Error');
         }
+    }
+
+    async getExpiredUserGiftsIds(excludedIds: any[]) {
+        const items = await this.model.find({
+            _id: { $nin: excludedIds },
+            isExpired: false,
+        });
+
+        return items.map((item) => item._id);
+    }
+
+    async updateStatusOfExpiredUserGifts(ids: any[]) {
+        return this.model.updateMany({ _id: { $in: ids } }, { $set: { isExpired: true } });
     }
 }

@@ -19,6 +19,7 @@ import { NotificationModule } from '../modules/notification/notification.module'
 import { TermsHubModule } from '../modules/terms-hub/terms-hub.module';
 import { UserGiftModule } from '../modules/user-gift/user-gift.module';
 import { UserGiftTtlModule } from '../modules/user-gift-ttl/user-gift-ttl.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
     imports: [
@@ -26,7 +27,8 @@ import { UserGiftTtlModule } from '../modules/user-gift-ttl/user-gift-ttl.module
         ConfigModule.forRoot({
             isGlobal: true,
             envFilePath: '.env.' + process.env.NODE_ENVIRONMENT,
-        }), // Multer (File uploading)
+        }),
+        // Multer (File uploading)
         MulterModule.register({
             dest: ImageUtils.imagePath,
             storage: diskStorage({
@@ -45,6 +47,8 @@ import { UserGiftTtlModule } from '../modules/user-gift-ttl/user-gift-ttl.module
                 },
             }),
         }),
+        // Schedule module
+        ScheduleModule.forRoot(),
         DbModule,
         AuthModule,
         PersonModule,

@@ -16,4 +16,9 @@ export class UserGiftTtlService {
     async create(data: UserGiftTtlCreateRequest) {
         return await this.model.create(data);
     }
+
+    async getAllReferenceIdsInArray() {
+        const records = await this.model.find().exec();
+        return records.map(record => record.userGift);
+    }
 }

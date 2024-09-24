@@ -2,7 +2,7 @@ import { UserGiftService } from './user-gift.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserGiftController } from './user-gift.controller';
 import { UserGift, UserGiftSchema } from './schema/user-gift.schema';
-import { Global, Module } from '@nestjs/common';
+import { forwardRef, Global, Module } from '@nestjs/common';
 import { TransactionModule } from '../transaction/transaction.module';
 import { PersonModule } from '../person/person.module';
 import { GiftModule } from '../gift/gift.module';
@@ -20,7 +20,7 @@ import { UserGiftTtlModule } from '../user-gift-ttl/user-gift-ttl.module';
         PersonModule,
         GiftModule,
         TransactionModule,
-        UserGiftTtlModule,
+        forwardRef(() => UserGiftTtlModule),
     ],
     controllers: [UserGiftController],
     providers: [UserGiftService],

@@ -9,22 +9,17 @@ import { UserGift } from '../../user-gift/schema/user-gift.schema';
 export type UserGiftTtlDocument = HydratedDocument<UserGiftTtl>;
 
 /*
-  user: {},
-  gift: {},
-  reference: {},
-  isExpired: false,
+  userGift: {},
   expiredAt: Date;
 */
 
 @Schema({ timestamps: false })
 export class UserGiftTtl {
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name }) user: string;
+    // @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name }) user: string;
+    //
+    // @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Gift.name }) gift: string;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Gift.name }) gift: string;
-
-    @Prop({ type: mongoose.Schema.Types.ObjectId , ref: UserGift.name}) reference: string;
-
-    @Prop({ default: false }) isExpired: boolean;
+    @Prop({ type: mongoose.Schema.Types.ObjectId , ref: UserGift.name}) userGift: string;
 
     @Prop({ type: Date, expires: '5s', required: true }) createdAt: Date;
 }
