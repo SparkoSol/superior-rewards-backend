@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Query } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
@@ -6,7 +6,7 @@ import {
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
-    ApiOperation,
+    ApiOperation, ApiQuery,
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -32,9 +32,14 @@ export class PersonController {
     })
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+    @ApiQuery({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
     @Get()
-    async fetch(): Promise<any> {
-        return await this.service.fetch();
+    async fetch(@Query('withPopulate') withPopulate?: boolean): Promise<any> {
+        return await this.service.fetch(withPopulate);
     }
 
     /*******************************************************************
@@ -47,9 +52,14 @@ export class PersonController {
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
     @ApiNotFoundResponse({ description: 'No data found!' })
+    @ApiQuery({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.service.fetchById(id);
+    findOne(@Param('id') id: string, @Query('withPopulate') withPopulate?: boolean) {
+        return this.service.fetchById(id, withPopulate);
     }
 
     /*******************************************************************

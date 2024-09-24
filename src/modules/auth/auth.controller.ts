@@ -4,7 +4,7 @@ import {
     Get,
     HttpCode,
     HttpStatus,
-    Post,
+    Post, Query,
     Request,
     UseGuards,
 } from '@nestjs/common';
@@ -16,7 +16,7 @@ import {
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
-    ApiOperation,
+    ApiOperation, ApiQuery,
     ApiResponse,
     ApiTags,
     ApiUnauthorizedResponse,
@@ -83,7 +83,12 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
     @Get('profile')
-    getProfile(@Request() req) {
-        return this.authService.getProfile(req.user);
+    @ApiQuery({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
+    getProfile(@Request() req, @Query('withPopulate') withPopulate?: boolean): Promise<any> {
+        return this.authService.getProfile(req.user, withPopulate);
     }
 }

@@ -122,11 +122,11 @@ export class AuthService {
     /*******************************************************************
      * getProfile
      ******************************************************************/
-    async getProfile(user: any) {
+    async getProfile(user: any, withPopulate: boolean = false) {
         return await this.personService.findOneByQuery({
             _id: new mongoose.Types.ObjectId(user.userId),
             phone: user.phone,
-        });
+        }, withPopulate);
     }
 
     getAdmin(): admin.app.App {

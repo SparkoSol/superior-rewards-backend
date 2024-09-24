@@ -27,8 +27,22 @@ export class PersonService {
         return await this.model.findById(id).exec();
     }
 
-    async findOneByQuery(query: {}) {
-        return await this.model.findOne(query).select('-password').populate('role').exec();
+    async findOneByQuery(query: {}, withPopulate?: boolean) {
+        return await this.model
+            .findOne(query)
+            .select('-password')
+            .populate(
+                withPopulate
+                    ? [
+                          'role',
+                          {
+                              path: 'role',
+                              populate: { path: 'permissions' },
+                          },
+                      ]
+                    : []
+            )
+            .exec();
     }
 
     async findOneByFcmToken(fcmToken: string) {
@@ -42,18 +56,34 @@ export class PersonService {
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch() {
+    async fetch(withPopulate?: boolean) {
         const query = {};
         query['deletedAt'] = { $eq: null };
-        return this.model.find(query).populate('role').sort({ createdAt: -1 }).exec();
+        return this.model
+            .find(query)
+            .populate(
+                withPopulate
+                    ? [
+                          'role',
+                          {
+                              path: 'role',
+                              populate: { path: 'permissions' },
+                          },
+                      ]
+                    : []
+            )
+            .sort({ createdAt: -1 })
+            .exec();
     }
 
     /*******************************************************************
      * fetchById
      ******************************************************************/
-    async fetchById(id: string): Promise<PersonDocument> {
+    async fetchById(id: string, withPopulate?: boolean): Promise<PersonDocument> {
         try {
-            return this.model.findById(id).populate('role').exec();
+            return this.model.findById(id).populate(
+              withPopulate ? ['role', { path: 'role', populate: { path: 'permissions' } }] : []
+            ).exec();
         } catch (e) {
             throw new NotFoundException('No data found!');
         }
