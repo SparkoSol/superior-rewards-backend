@@ -13,20 +13,16 @@ export class UserGiftTtlJob {
         private readonly userGiftTtlService: UserGiftTtlService
     ) {}
 
-    @Cron(CronExpression.EVERY_5_SECONDS)
+    @Cron(CronExpression.EVERY_5_MINUTES)
     async handleCron() {
-        this.logger.debug('Called after every 5 seconds');
-
         const allReferenceIds = await this.userGiftTtlService.getAllReferenceIdsInArray();
-        console.log('allReferenceIds: ', allReferenceIds);
 
         const expiredUserGiftsIds =
             await this.userGiftService.getExpiredUserGiftsIds(allReferenceIds);
-        console.log('expiredUserGiftsIds: ', expiredUserGiftsIds);
 
         if (expiredUserGiftsIds.length > 0) {
             this.logger.debug('Status updated!');
-            await this.userGiftService.updateStatusOfExpiredUserGifts(expiredUserGiftsIds);
+            this.userGiftService.updateStatusOfExpiredUserGifts(expiredUserGiftsIds);
         }
     }
 }

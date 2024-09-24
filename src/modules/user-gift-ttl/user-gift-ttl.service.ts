@@ -19,6 +19,10 @@ export class UserGiftTtlService {
 
     async getAllReferenceIdsInArray() {
         const records = await this.model.find().exec();
-        return records.map(record => record.userGift);
+        return records.map((record) => record.userGift);
+    }
+
+    async deleteById(userGiftTtlId: string) {
+        return await this.model.findByIdAndDelete(userGiftTtlId).exec();
     }
 }

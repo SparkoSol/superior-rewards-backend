@@ -27,8 +27,7 @@ import { ScheduleModule } from '@nestjs/schedule';
         ConfigModule.forRoot({
             isGlobal: true,
             envFilePath: '.env.' + process.env.NODE_ENVIRONMENT,
-        }),
-        // Multer (File uploading)
+        }), // Multer (File uploading)
         MulterModule.register({
             dest: ImageUtils.imagePath,
             storage: diskStorage({
@@ -46,8 +45,7 @@ import { ScheduleModule } from '@nestjs/schedule';
                     );
                 },
             }),
-        }),
-        // Schedule module
+        }), // Schedule module
         ScheduleModule.forRoot(),
         DbModule,
         AuthModule,

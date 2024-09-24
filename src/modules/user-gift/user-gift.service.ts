@@ -43,18 +43,11 @@ export class UserGiftService {
 
         const userGift = await this.model.create(data);
 
-        console.log('date: ', new Date(new Date().toISOString().replace('Z', '+00:00')));
-
         // create entry in user-gift-ttl
         await this.UserGiftTtlService.create({
-            // user: data.user,
-            // gift: data.gift,
-            userGift: userGift._id.toString(), // isExpired: data.isExpired,
+            userGift: userGift._id.toString(),
             createdAt: new Date(new Date().toISOString().replace('Z', '+00:00')),
         });
-
-        const yes = true;
-        if (yes) return userGift;
 
         // create DEBIT type transaction, when user redeemed a gift
         await this.transactionService.create({
@@ -132,7 +125,8 @@ export class UserGiftService {
      ******************************************************************/
     async update(id: string, data: UserGiftUpdateRequest) {
         if (data.status === GiftStatus.REDEEMED) {
-            
+            // remove entry from user-gift-ttl
+            await this.UserGiftTtlService.deleteById(id);
         }
 
         try {
