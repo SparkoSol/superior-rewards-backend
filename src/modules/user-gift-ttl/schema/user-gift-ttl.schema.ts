@@ -26,7 +26,7 @@ export class UserGiftTtl {
 
     @Prop({ default: false }) isExpired: boolean;
 
-    @Prop({ expires: process.env.TOKEN_EXPIRY, required: true }) createdAt: Date;
+    @Prop({ type: Date, expires: '5s', required: true }) createdAt: Date;
 }
 
 export const UserGiftTtlSchema = SchemaFactory.createForClass(UserGiftTtl);

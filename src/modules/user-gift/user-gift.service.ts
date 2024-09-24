@@ -46,7 +46,7 @@ export class UserGiftService {
         await this.UserGiftTtlService.create({
             user: data.user,
             gift: data.gift,
-            reference: userGift._id,
+            reference: userGift._id.toString(),
             isExpired: data.isExpired,
             createdAt: new Date((new Date()).toISOString().replace('Z', '+00:00')),
         });
