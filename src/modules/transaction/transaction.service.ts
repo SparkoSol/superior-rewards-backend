@@ -21,11 +21,11 @@ export class TransactionService {
 
         // if new transaction credit, it points should add in user's points.
         if (transaction.type === TransactionType.CREDIT) {
-            const person = await this.personService.findOne(transaction.user);
+            const person = await this.personService.findOne(transaction.user) as any;
 
             await this.personService.update(transaction.user, {
-                ...person,
-                points: Number(person.points) + Number(transaction.points),
+                ...person._doc,
+                points: Number(person.points) + Number(transaction.points)
             });
 
             // TODO: has to send notification

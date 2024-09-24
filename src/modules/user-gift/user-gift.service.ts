@@ -33,7 +33,7 @@ export class UserGiftService {
      * create
      ******************************************************************/
     async create(data: UserGiftCreateRequest) {
-        const person = await this.personService.findOne(data.user);
+        const person = await this.personService.findOne(data.user) as any;
         if (!person) throw new NotAcceptableException('Invalid user id!');
 
         const gift = await this.giftService.fetchById(data.gift);
@@ -59,13 +59,13 @@ export class UserGiftService {
 
         // Deduct git points from user current points
         await this.personService.update(data.user, {
-            ...person,
+            ...person._doc,
             points: Number(person.points) - Number(gift.points),
         });
 
         // increase redeemedPoints
         await this.personService.update(data.user, {
-            ...person,
+            ...person._doc,
             redeemedPoints: Number(person.redeemedPoints) + Number(gift.points),
         });
 
