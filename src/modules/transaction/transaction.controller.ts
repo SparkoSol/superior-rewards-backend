@@ -51,12 +51,17 @@ export class TransactionController {
     })
     @ApiQuery({
         required: false,
+        name: 'user',
+        description: 'for getting all gifts of specific user',
+    })
+    @ApiQuery({
+        required: false,
         name: 'withPopulate',
         description: 'If true, will return populated data.',
     })
     @Get()
-    async fetch(@Query('withPopulate') withPopulate: boolean): Promise<any> {
-        return await this.service.fetch(withPopulate);
+    async fetch(@Query('user') user?: string, @Query('withPopulate') withPopulate?: boolean): Promise<any> {
+        return await this.service.fetch(user, withPopulate);
     }
 
     /*******************************************************************

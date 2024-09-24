@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Transaction, TransactionDocument } from './schema/transaction.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { TransactionCreateRequest } from './dto/transaction.dto';
 import { TransactionType } from './enum/type.enum';
 import { PersonService } from '../person/person.service';
@@ -37,9 +37,12 @@ export class TransactionService {
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch(withPopulate?: boolean): Promise<TransactionDocument[]> {
+    async fetch(user?:string, withPopulate?: boolean): Promise<TransactionDocument[]> {
+        const query = {};
+        if (user) query['user'] = new mongoose.Types.ObjectId(user);
+
         return this.model
-            .find()
+            .find(query)
             .populate(withPopulate ? ['user'] : [])
             .sort({ createdAt: -1 })
             .exec();
