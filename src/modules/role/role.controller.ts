@@ -1,11 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Request } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
     ApiInternalServerErrorResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
-    ApiOperation,
+    ApiOperation, ApiQuery,
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -42,9 +42,14 @@ export class RoleController {
     @ApiOperation({
         summary: 'To get Roles',
     })
+    @ApiQuery({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
     @Get()
-    async fetch(): Promise<any> {
-        return await this.service.fetch();
+    async fetch(@Query('withPopulate') withPopulate?: boolean): Promise<any> {
+        return await this.service.fetch(withPopulate);
     }
 
     /*******************************************************************

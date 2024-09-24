@@ -22,10 +22,14 @@ export class RoleService {
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch() {
+    async fetch(withPopulate?: boolean): Promise<RoleDocument[]> {
         const query = {};
         query['deletedAt'] = { $eq: null };
-        return this.model.find(query).populate('permissions').sort({ createdAt: -1 }).exec();
+        return this.model
+            .find(query)
+            .populate(withPopulate ? ['permissions'] : [])
+            .sort({ createdAt: -1 })
+            .exec();
     }
 
     /*******************************************************************
