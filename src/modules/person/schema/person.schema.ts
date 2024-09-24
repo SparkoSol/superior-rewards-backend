@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import * as mongoose from 'mongoose';
-import { Role } from 'src/modules/gift copy/schema/role.schema';
+import { Role } from '../../role/schema/role.schema';
 
 export type PersonDocument = HydratedDocument<Person>;
 
@@ -11,7 +11,7 @@ export type PersonDocument = HydratedDocument<Person>;
   dob: '',
   password: '',
   profilePicture?: '',
-  role: '',
+  role: {},
   fcmTokens: [''],
   points: 0,
   redeemedPoints: 0,
@@ -36,7 +36,7 @@ export class Person {
 
     @Prop({ type: [String] }) fcmTokens: string[];
 
-    @Prop({ default: 0 }) points: number;
+    @Prop({ default: 0 }) points: number;number
 
     @Prop({ default: 0 }) redeemedPoints: number;
 

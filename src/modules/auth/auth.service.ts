@@ -126,7 +126,6 @@ export class AuthService {
         return await this.personService.findOneByQuery({
             _id: new mongoose.Types.ObjectId(user.userId),
             phone: user.phone,
-            role: user.role,
         });
     }
 

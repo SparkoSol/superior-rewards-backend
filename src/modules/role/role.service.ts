@@ -25,7 +25,7 @@ export class RoleService {
     async fetch() {
         const query = {};
         query['deletedAt'] = { $eq: null };
-        return this.model.find(query).sort({ createdAt: -1 }).exec();
+        return this.model.find(query).populate('permissions').sort({ createdAt: -1 }).exec();
     }
 
     /*******************************************************************
@@ -33,7 +33,7 @@ export class RoleService {
      ******************************************************************/
     async fetchById(id: string): Promise<RoleDocument> {
         try {
-            return this.model.findById(id).exec();
+            return this.model.findById(id).populate('permissions').exec();
         } catch (e) {
             throw new NotFoundException('No data found!');
         }
@@ -46,6 +46,7 @@ export class RoleService {
         try {
             return await this.model.findByIdAndUpdate(id, data, { new: true });
         } catch (e) {
+            console.log('Error in role update:', e);
             throw new InternalServerErrorException('Unexpected Error');
         }
     }

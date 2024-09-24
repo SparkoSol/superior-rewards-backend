@@ -14,19 +14,6 @@ export type User = any;
 
 @Injectable()
 export class PersonService {
-    private readonly users = [
-        {
-            userId: 1,
-            username: 'john',
-            password: 'changeme',
-        },
-        {
-            userId: 2,
-            username: 'maria',
-            password: 'guess',
-        },
-    ];
-
     constructor(@InjectModel(Person.name) private readonly model: Model<PersonDocument>) {}
 
     /*******************************************************************
@@ -41,7 +28,7 @@ export class PersonService {
     }
 
     async findOneByQuery(query: {}) {
-        return await this.model.findOne(query).select('-password').exec();
+        return await this.model.findOne(query).select('-password').populate('role').exec();
     }
 
     async findOneByFcmToken(fcmToken: string) {
@@ -58,7 +45,7 @@ export class PersonService {
     async fetch() {
         const query = {};
         query['deletedAt'] = { $eq: null };
-        return this.model.find(query).sort({ createdAt: -1 }).exec();
+        return this.model.find(query).populate('role').sort({ createdAt: -1 }).exec();
     }
 
     /*******************************************************************
@@ -66,7 +53,7 @@ export class PersonService {
      ******************************************************************/
     async fetchById(id: string): Promise<PersonDocument> {
         try {
-            return this.model.findById(id).exec();
+            return this.model.findById(id).populate('role').exec();
         } catch (e) {
             throw new NotFoundException('No data found!');
         }
