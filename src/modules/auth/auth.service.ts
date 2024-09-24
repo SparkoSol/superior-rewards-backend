@@ -86,7 +86,6 @@ export class AuthService {
         const query = {};
         query['phone'] = data.phone;
         query['deletedAt'] = { $eq: null };
-        console.log('query: ', query);
         if (await this.personService.findOneByQuery(query)) {
             throw new NotAcceptableException('User with this phone already exist.');
         }
