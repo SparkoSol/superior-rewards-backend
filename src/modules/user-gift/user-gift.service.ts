@@ -98,10 +98,10 @@ export class UserGiftService {
             this.fetch(user, null, null, withPopulate),
         ]);
 
-        return allGifts.map((gift) => ({
-            ...gift,
+        return allGifts.map((gift: any) => ({
+            ...gift._doc,
             userHistory: userHistory.find(
-                (history) => history.gift.toString() === gift._id.toString()
+              (history) => history.gift.toString() === gift._id.toString()
             ),
         }));
     }
