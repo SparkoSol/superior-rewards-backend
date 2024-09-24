@@ -14,6 +14,7 @@ import { PersonService } from '../person/person.service';
 import { GiftService } from '../gift/gift.service';
 import { GiftStatus } from './enum/status.enum';
 import { NoGeneratorUtils } from '../../utils/no-generator-utils';
+import { UserGiftTtlService } from '../user-gift-ttl/user-gift-ttl.service';
 
 @Injectable()
 export class UserGiftService {
@@ -21,7 +22,8 @@ export class UserGiftService {
         @InjectModel(UserGift.name) private readonly model: Model<UserGiftDocument>,
         private readonly personService: PersonService,
         private readonly giftService: GiftService,
-        private readonly transactionService: TransactionService
+        private readonly transactionService: TransactionService,
+        private readonly UserGiftTtlService: UserGiftTtlService
     ) {}
 
     /*******************************************************************
@@ -37,6 +39,17 @@ export class UserGiftService {
         data['qrCode'] = await NoGeneratorUtils.generateCode();
 
         const userGift = await this.model.create(data);
+
+        console.log('date: ', new Date((new Date()).toISOString().replace('Z', '+00:00')));
+
+        // create entry in user-gift-ttl
+        await this.UserGiftTtlService.create({
+            user: data.user,
+            gift: data.gift,
+            reference: userGift._id,
+            isExpired: data.isExpired,
+            createdAt: new Date((new Date()).toISOString().replace('Z', '+00:00')),
+        });
 
         // create DEBIT type transaction, when user redeemed a gift
         await this.transactionService.create({

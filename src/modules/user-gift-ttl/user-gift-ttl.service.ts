@@ -1,0 +1,19 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { UserGiftTtl, UserGiftTtlDocument } from './schema/user-gift-ttl.schema';
+import { Model } from 'mongoose';
+import { UserGiftTtlCreateRequest } from './dto/user-gift-ttl.dto';
+
+@Injectable()
+export class UserGiftTtlService {
+    constructor(
+        @InjectModel(UserGiftTtl.name) private readonly model: Model<UserGiftTtlDocument>
+    ) {}
+
+    /*******************************************************************
+     * create
+     ******************************************************************/
+    async create(data: UserGiftTtlCreateRequest) {
+        return await this.model.create(data);
+    }
+}
