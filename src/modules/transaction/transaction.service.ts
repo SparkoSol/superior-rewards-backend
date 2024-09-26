@@ -17,28 +17,28 @@ export class TransactionService {
      * create
      ******************************************************************/
     async create(data: TransactionCreateRequest) {
-        try {
-            const transaction = await this.model.create(data);
-
-            // if new transaction credit, it points should add in user's points.
-            if (transaction.type === TransactionType.CREDIT) {
-                const person = (await this.personService.findOne(transaction.user)) as any;
-
-                await this.personService.update(transaction.user, {
-                    ...person._doc,
-                    points: Number(person.points) + Number(transaction.points),
-                });
-
-                // TODO: has to send notification
-            }
-
-            return transaction;
-        } catch (e) {
-            console.log('Error while creating transaction', e);
-            if(e && e?.code === 11000) {
+        if (data.invoiceNo) {
+            const isExist = await this.model.findOne({ invoiceNo: data.invoiceNo });
+            if (isExist) {
                 throw new NotAcceptableException('Invoice No already exists!');
             }
         }
+
+        const transaction = await this.model.create(data);
+
+        // if new transaction credit, it points should add in user's points.
+        if (transaction.type === TransactionType.CREDIT) {
+            const person = (await this.personService.findOne(transaction.user)) as any;
+
+            await this.personService.update(transaction.user, {
+                ...person._doc,
+                points: Number(person.points) + Number(transaction.points),
+            });
+
+            // TODO: has to send notification
+        }
+
+        return transaction;
     }
 
     /*******************************************************************

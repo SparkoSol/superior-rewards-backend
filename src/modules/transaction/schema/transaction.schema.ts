@@ -8,7 +8,7 @@ export type TransactionDocument = HydratedDocument<Transaction>;
 /*
   user: {},
   customerPhone: '',
-  invoiceNo: '',
+  invoiceNo?: '',
   amount?: 0,
   points: 0,
   details?: '',
@@ -21,7 +21,7 @@ export class Transaction extends mongoose.Document {
 
     @Prop() customerPhone: string;
 
-    @Prop({type: String, required: true, unique: true}) invoiceNo: string;
+    @Prop() invoiceNo?: string;
 
     @Prop() amount?: number;
 
