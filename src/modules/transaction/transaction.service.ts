@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Transaction, TransactionDocument } from './schema/transaction.schema';
 import mongoose, { Model } from 'mongoose';
@@ -17,27 +17,34 @@ export class TransactionService {
      * create
      ******************************************************************/
     async create(data: TransactionCreateRequest) {
-        const transaction = await this.model.create(data);
+        try {
+            const transaction = await this.model.create(data);
 
-        // if new transaction credit, it points should add in user's points.
-        if (transaction.type === TransactionType.CREDIT) {
-            const person = await this.personService.findOne(transaction.user) as any;
+            // if new transaction credit, it points should add in user's points.
+            if (transaction.type === TransactionType.CREDIT) {
+                const person = (await this.personService.findOne(transaction.user)) as any;
 
-            await this.personService.update(transaction.user, {
-                ...person._doc,
-                points: Number(person.points) + Number(transaction.points)
-            });
+                await this.personService.update(transaction.user, {
+                    ...person._doc,
+                    points: Number(person.points) + Number(transaction.points),
+                });
 
-            // TODO: has to send notification
+                // TODO: has to send notification
+            }
+
+            return transaction;
+        } catch (e) {
+            console.log('Error while creating transaction', e);
+            if(e && e?.code === 11000) {
+                throw new NotAcceptableException('Invoice No already exists!');
+            }
         }
-
-        return transaction;
     }
 
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch(user?:string, withPopulate?: boolean): Promise<TransactionDocument[]> {
+    async fetch(user?: string, withPopulate?: boolean): Promise<TransactionDocument[]> {
         const query = {};
         if (user) query['user'] = new mongoose.Types.ObjectId(user);
 

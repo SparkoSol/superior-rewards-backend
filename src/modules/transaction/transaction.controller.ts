@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Query, Request } from '@nes
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
-    ApiInternalServerErrorResponse,
+    ApiInternalServerErrorResponse, ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -25,6 +25,7 @@ export class TransactionController {
      ******************************************************************/
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiOkResponse({ type: TransactionResponse, description: 'Transaction Created Successfully' })
+    @ApiNotAcceptableResponse({ description: 'Invoice No already exists!' })
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
     @ApiOperation({
         summary: 'To create transaction',
