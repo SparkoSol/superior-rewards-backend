@@ -8,7 +8,7 @@ export type TransactionDocument = HydratedDocument<Transaction>;
 /*
   user: {},
   customerPhone: '',
-  invoiceNo?: '',
+  invoiceNo: '',
   amount?: 0,
   points: 0,
   details?: '',
@@ -21,7 +21,7 @@ export class Transaction {
 
     @Prop() customerPhone: string;
 
-    @Prop({required: false, unique: true}) invoiceNo?: string;
+    @Prop({required: false, unique: true}) invoiceNo: string;
 
     @Prop() amount?: number;
 
