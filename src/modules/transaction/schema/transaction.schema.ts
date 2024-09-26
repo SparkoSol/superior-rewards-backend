@@ -32,6 +32,4 @@ export class Transaction extends mongoose.Document {
     @Prop({ default: TransactionType.CREDIT }) type: string;
 }
 
-export const TransactionSchema = SchemaFactory.createForClass(Transaction)
-
-TransactionSchema.index({ invoiceNo: 1 }, { unique: true });
+export const TransactionSchema = SchemaFactory.createForClass(Transaction);
