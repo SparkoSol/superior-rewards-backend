@@ -1,18 +1,58 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsISO8601, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { Role } from '../../person/enum/role.enum';
+import { IsISO8601, IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class SignUpRequest {
-    @ApiProperty() @IsNotEmpty() @IsString() name: string;
-
-    @ApiProperty() @IsNotEmpty() @IsString() phone: string;
-
-    @ApiProperty() @IsNotEmpty() @IsISO8601() dob: Date;
-
-    @ApiProperty() @IsOptional() @IsString() password: string;
-
-    @ApiProperty({ required: false, enum: Role, default: Role.USER })
+export class AdminCreateUserRequest {
+    @ApiProperty()
     @IsNotEmpty()
     @IsString()
+    name: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    phone: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsISO8601()
+    dob?: Date;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    password: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    @IsMongoId()
     role: string;
+}
+
+export class MobileSignUpRequest {
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    name: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    phone: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsISO8601()
+    dob: Date;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    password: string;
+
+    role?: string;
+}
+
+export class SignUpResponse {
+    @ApiProperty() @IsString() accessToken: string;
 }

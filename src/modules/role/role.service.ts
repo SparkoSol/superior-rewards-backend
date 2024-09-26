@@ -43,6 +43,19 @@ export class RoleService {
         }
     }
 
+    async fetchByRoleName(name: string): Promise<RoleDocument> {
+        try {
+            return this.model
+                .findOne({
+                    name,
+                })
+                .populate('permissions')
+                .exec();
+        } catch (e) {
+            throw new NotFoundException('No data found!');
+        }
+    }
+
     /*******************************************************************
      * update
      ******************************************************************/

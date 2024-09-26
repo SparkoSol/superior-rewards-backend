@@ -4,7 +4,8 @@ import {
     Get,
     HttpCode,
     HttpStatus,
-    Post, Query,
+    Post,
+    Query,
     Request,
     UseGuards,
 } from '@nestjs/common';
@@ -16,7 +17,7 @@ import {
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
-    ApiOperation, ApiQuery,
+    ApiQuery,
     ApiResponse,
     ApiTags,
     ApiUnauthorizedResponse,
@@ -24,7 +25,7 @@ import {
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { Public } from './decorators/setmetadata.decorator';
 import { PersonResponseDto } from '../person/dto/person.dto';
-import { SignUpRequest } from './dto/sign-up-request.dto';
+import { AdminCreateUserRequest, MobileSignUpRequest, SignUpResponse } from './dto/sign-up-request.dto';
 import { SignInRequest, SignInResponse } from './dto/sign-in-request.dto';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
@@ -34,25 +35,42 @@ export class AuthController {
     constructor(private authService: AuthService) {}
 
     /*******************************************************************
+     * adminSignUp
+     ******************************************************************/
+    @Public()
+    @ApiOkResponse({
+        type: SignUpResponse,
+        description: 'AdminSignup successful',
+    })
+    @ApiBody({ type: AdminCreateUserRequest })
+    @ApiInternalServerErrorResponse({
+        description: 'Error while adminSignUp || Internal server errors.',
+    })
+    @ApiNotAcceptableResponse({
+        description: '1: User with this phone already exist.',
+    })
+    @Post('admin/sign-up')
+    adminSignUp(@Body() data: AdminCreateUserRequest): Promise<any> {
+        return this.authService.adminSignUp(data);
+    }
+
+    /*******************************************************************
      * signUp
      ******************************************************************/
     @Public()
     @ApiOkResponse({
-        type: SignInResponse,
+        type: SignUpResponse,
         description: 'Signup successful',
     })
-    @ApiBody({ type: SignUpRequest })
-    @ApiOperation({
-        description: 'Roles: ADMIN, USER',
-    })
+    @ApiBody({ type: MobileSignUpRequest })
     @ApiInternalServerErrorResponse({
         description: 'Error while signup || Internal server errors.',
     })
     @ApiNotAcceptableResponse({
-        description: '1:Invalid role. , 2:User with this phone already exist.',
+        description: '1: User with this phone already exist.',
     })
     @Post('sign-up')
-    signUp(@Body() data: SignUpRequest): Promise<any> {
+    signUp(@Body() data: MobileSignUpRequest): Promise<any> {
         return this.authService.signUp(data);
     }
 

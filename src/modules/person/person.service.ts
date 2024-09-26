@@ -7,8 +7,8 @@ import {
 import { Model } from 'mongoose';
 import { Person, PersonDocument } from './schema/person.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { SignUpRequest } from '../auth/dto/sign-up-request.dto';
 import { PasswordUpdateRequestDto, PersonUpdateDto } from './dto/person.dto';
+import { AdminCreateUserRequest, MobileSignUpRequest } from '../auth/dto/sign-up-request.dto';
 
 export type User = any;
 
@@ -19,7 +19,7 @@ export class PersonService {
     /*******************************************************************
      * create
      ******************************************************************/
-    async create(data: SignUpRequest) {
+    async create(data: MobileSignUpRequest | AdminCreateUserRequest) {
         return await this.model.create(data);
     }
 

@@ -6,11 +6,11 @@ import {
 } from '@nestjs/common';
 import { PersonService } from '../person/person.service';
 import { JwtService } from '@nestjs/jwt';
-import { SignUpRequest } from './dto/sign-up-request.dto';
-import { Validations } from '../../utils/validations';
+import { AdminCreateUserRequest, MobileSignUpRequest } from './dto/sign-up-request.dto';
 import * as mongoose from 'mongoose';
 import * as admin from 'firebase-admin';
 import * as process from 'process';
+import { RoleService } from '../role/role.service';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +18,8 @@ export class AuthService {
 
     constructor(
         private personService: PersonService,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private readonly roleService: RoleService
     ) {
         // const serviceAccount = JSON.parse(
         //     fs.readFileSync(
@@ -75,21 +76,49 @@ export class AuthService {
         }
     }
 
+    async isUserExist(phone: string) {
+        const query = {};
+        query['phone'] = phone;
+        query['deletedAt'] = { $eq: null };
+        return !!(await this.personService.findOneByQuery(query));
+    }
+
+    /*******************************************************************
+     * adminSignUp
+     ******************************************************************/
+    async adminSignUp(data: AdminCreateUserRequest) {
+        if (await this.isUserExist(data.phone)) {
+            throw new NotAcceptableException('User with this phone already exist.');
+        }
+
+        try {
+            const person = await this.personService.create(data);
+            const role = await this.roleService.fetchById(data.role);
+
+            return {
+                accessToken: this.jwtService.sign({
+                    _id: person._id,
+                    phone: person.phone,
+                    role
+                }),
+            };
+        } catch (e) {
+            console.log('Error while adminSignUp: ', e);
+            throw new InternalServerErrorException('Error while adminSignUp: ', e);
+        }
+    }
+
     /*******************************************************************
      * signUp
      ******************************************************************/
-    async signUp(data: SignUpRequest) {
-        if (!(await Validations.ValidateUserRole(data.role))) {
-            throw new NotAcceptableException('Invalid role.');
-        }
+    async signUp(data: MobileSignUpRequest) {
+        const role = await this.roleService.fetchByRoleName('User');
 
-        const query = {};
-        query['phone'] = data.phone;
-        query['deletedAt'] = { $eq: null };
-        console.log('query: ', query);
-        if (await this.personService.findOneByQuery(query)) {
+        if (await this.isUserExist(data.phone)) {
             throw new NotAcceptableException('User with this phone already exist.');
         }
+
+        data.role = role._id.toString();
 
         try {
             const person = await this.personService.create(data);
@@ -97,7 +126,7 @@ export class AuthService {
                 accessToken: this.jwtService.sign({
                     _id: person._id,
                     phone: person.phone,
-                    role: person.role,
+                    role,
                 }),
             };
         } catch (e) {
@@ -123,10 +152,13 @@ export class AuthService {
      * getProfile
      ******************************************************************/
     async getProfile(user: any, withPopulate: boolean = false) {
-        return await this.personService.findOneByQuery({
-            _id: new mongoose.Types.ObjectId(user.userId),
-            phone: user.phone,
-        }, withPopulate);
+        return await this.personService.findOneByQuery(
+            {
+                _id: new mongoose.Types.ObjectId(user.userId),
+                phone: user.phone,
+            },
+            withPopulate
+        );
     }
 
     getAdmin(): admin.app.App {
