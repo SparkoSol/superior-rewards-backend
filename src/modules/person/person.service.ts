@@ -33,6 +33,13 @@ export class PersonService {
      * create
      ******************************************************************/
     async create(data: SignUpRequest) {
+        const lastOdooCustomerId = await this.model
+            .findOne({ odooCustomerId: { $ne: null } })
+            .sort({ odooCustomerId: -1 })
+            .exec();
+        data.odooCustomerId = lastOdooCustomerId
+            ? Number(lastOdooCustomerId?.odooCustomerId) + 1
+            : 1;
         return await this.model.create(data);
     }
 

@@ -17,4 +17,6 @@ export class SignUpRequest {
     @IsNotEmpty()
     @IsString()
     role: string;
+
+    odooCustomerId?: number;
 }
