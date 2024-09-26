@@ -21,7 +21,7 @@ export class Transaction {
 
     @Prop() customerPhone: string;
 
-    @Prop({required: true, unique: true}) invoiceNo: string;
+    @Prop({type: String, required: true, unique: true}) invoiceNo: string;
 
     @Prop() amount?: number;
 
