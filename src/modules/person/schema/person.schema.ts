@@ -8,6 +8,7 @@ export type PersonDocument = HydratedDocument<Person>;
   name: '',
   phone: '',
   dob: '',
+  address?: '',
   password: '',
   profilePicture?: '',
   role: '',
@@ -26,6 +27,8 @@ export class Person {
     @Prop({ require: true }) phone: string;
 
     @Prop() dob: Date;
+
+    @Prop() address?: string;
 
     @Prop() password: string;
 

@@ -9,6 +9,8 @@ export class SignUpRequest {
 
     @ApiProperty() @IsNotEmpty() @IsISO8601() dob: Date;
 
+    @ApiProperty() @IsOptional() @IsString() address?: string;
+
     @ApiProperty() @IsOptional() @IsString() password: string;
 
     @ApiProperty({ required: false, enum: Role, default: Role.USER })
