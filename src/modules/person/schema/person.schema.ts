@@ -8,6 +8,7 @@ export type PersonDocument = HydratedDocument<Person>;
   name: '',
   phone: '',
   dob: '',
+  address?: '',
   password: '',
   profilePicture?: '',
   role: '',
@@ -19,13 +20,17 @@ export type PersonDocument = HydratedDocument<Person>;
 
 */
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, autoIndex: true })
 export class Person {
+    @Prop({ required: true, unique: true }) odooCustomerId: number;
+
     @Prop() name: string;
 
     @Prop({ require: true }) phone: string;
 
     @Prop() dob: Date;
+
+    @Prop() address?: string;
 
     @Prop() password: string;
 

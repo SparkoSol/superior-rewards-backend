@@ -18,6 +18,8 @@ export class PersonUpdateDto {
 
     @ApiProperty() @IsOptional() @IsString() dob: Date;
 
+    @ApiProperty() @IsOptional() @IsString() address?: string;
+
     @ApiProperty() @IsOptional() @IsString() profilePicture?: string;
 
     @ApiProperty({
@@ -48,6 +50,8 @@ export class PersonResponseDto {
     @ApiProperty() phone: string;
 
     @ApiProperty() dob: Date;
+
+    @ApiProperty() address?: string;
 
     @ApiProperty() profilePicture?: string;
 
