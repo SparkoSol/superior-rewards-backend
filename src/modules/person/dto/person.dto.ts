@@ -53,6 +53,8 @@ export class PersonResponseDto {
 
     @ApiProperty() address?: string;
 
+    @ApiProperty() odooCustomerId?: number;
+
     @ApiProperty() profilePicture?: string;
 
     @ApiProperty({
