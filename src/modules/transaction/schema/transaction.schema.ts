@@ -32,4 +32,6 @@ export class Transaction {
     @Prop({ default: TransactionType.CREDIT }) type: string;
 }
 
-export const TransactionSchema = SchemaFactory.createForClass(Transaction);
+export const TransactionSchema = SchemaFactory.createForClass(Transaction)
+
+TransactionSchema.index({ invoiceNo: 1 }, { unique: true });
