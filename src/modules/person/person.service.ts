@@ -50,7 +50,16 @@ export class PersonService {
     }
 
     async findOneByPhone(phone: string): Promise<User | undefined> {
-        return this.model.findOne({ phone }).exec();
+        return this.model
+            .findOne({ phone })
+            .populate([
+                'role',
+                {
+                    path: 'role',
+                    populate: { path: 'permissions' },
+                },
+            ])
+            .exec();
     }
 
     /*******************************************************************
@@ -81,9 +90,14 @@ export class PersonService {
      ******************************************************************/
     async fetchById(id: string, withPopulate?: boolean): Promise<PersonDocument> {
         try {
-            return this.model.findById(id).populate(
-              withPopulate ? ['role', { path: 'role', populate: { path: 'permissions' } }] : []
-            ).exec();
+            return this.model
+                .findById(id)
+                .populate(
+                    withPopulate
+                        ? ['role', { path: 'role', populate: { path: 'permissions' } }]
+                        : []
+                )
+                .exec();
         } catch (e) {
             throw new NotFoundException('No data found!');
         }

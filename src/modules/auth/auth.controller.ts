@@ -89,7 +89,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @UseGuards(LocalAuthGuard)
     @Post('/sign-in')
-    async signIn(@Request() req) {
+    async signIn(@Request() req: any) {
         return this.authService.signIn(req.user);
     }
 

@@ -83,6 +83,13 @@ export class AuthService {
         return !!(await this.personService.findOneByQuery(query));
     }
 
+    getRoleWithPermissions(role: any) {
+        return {
+            name: role.name,
+            permissions: role.permissions.map((permission: any) => permission.name),
+        };
+    }
+
     /*******************************************************************
      * adminSignUp
      ******************************************************************/
@@ -99,7 +106,7 @@ export class AuthService {
                 accessToken: this.jwtService.sign({
                     _id: person._id,
                     phone: person.phone,
-                    role
+                    role: this.getRoleWithPermissions(role),
                 }),
             };
         } catch (e) {
@@ -126,7 +133,7 @@ export class AuthService {
                 accessToken: this.jwtService.sign({
                     _id: person._id,
                     phone: person.phone,
-                    role,
+                    role: this.getRoleWithPermissions(role),
                 }),
             };
         } catch (e) {
@@ -143,7 +150,7 @@ export class AuthService {
             accessToken: this.jwtService.sign({
                 _id: person._id,
                 phone: person.phone,
-                role: person.role,
+                role: this.getRoleWithPermissions(person.role),
             }),
         };
     }
@@ -152,13 +159,19 @@ export class AuthService {
      * getProfile
      ******************************************************************/
     async getProfile(user: any, withPopulate: boolean = false) {
-        return await this.personService.findOneByQuery(
-            {
-                _id: new mongoose.Types.ObjectId(user.userId),
-                phone: user.phone,
-            },
-            withPopulate
-        );
+        const profile = (await this.personService.findOneByQuery({
+            _id: new mongoose.Types.ObjectId(user.userId),
+            phone: user.phone,
+        })) as any;
+
+        if (withPopulate) {
+            return {
+                ...profile._doc,
+                role: user.role,
+            };
+        }
+
+        return profile;
     }
 
     getAdmin(): admin.app.App {
