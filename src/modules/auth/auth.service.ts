@@ -145,7 +145,6 @@ export class AuthService {
      * signIn
      ******************************************************************/
     async signIn(person: any) {
-        console.log('person: ', person);
         return {
             accessToken: this.jwtService.sign({
                 _id: person._id,
