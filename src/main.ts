@@ -53,4 +53,4 @@ async function bootstrap() {
     Logger.log('<====================================================================>');
 }
 
-bootstrap().then((r) => console.log(r));
+void bootstrap();

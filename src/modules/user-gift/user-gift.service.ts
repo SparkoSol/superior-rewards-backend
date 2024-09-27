@@ -33,7 +33,7 @@ export class UserGiftService {
      * create
      ******************************************************************/
     async create(data: UserGiftCreateRequest) {
-        const person = await this.personService.findOne(data.user) as any;
+        const person = (await this.personService.findOne(data.user)) as any;
         if (!person) throw new NotAcceptableException('Invalid user id!');
 
         const gift = await this.giftService.fetchById(data.gift);
@@ -101,7 +101,7 @@ export class UserGiftService {
         return allGifts.map((gift: any) => ({
             ...gift._doc,
             userHistory: userHistory.find(
-              (history) => history.gift.toString() === gift._id.toString()
+                (history) => history.gift.toString() === gift._id.toString()
             ),
         }));
     }
