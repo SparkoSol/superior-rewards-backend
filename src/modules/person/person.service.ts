@@ -52,13 +52,6 @@ export class PersonService {
     async findOneByPhone(phone: string): Promise<User | undefined> {
         return this.model
             .findOne({ phone })
-            .populate([
-                'role',
-                {
-                    path: 'role',
-                    populate: { path: 'permissions' },
-                },
-            ])
             .exec();
     }
 

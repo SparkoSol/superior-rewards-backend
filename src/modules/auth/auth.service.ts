@@ -100,13 +100,12 @@ export class AuthService {
 
         try {
             const person = await this.personService.create(data);
-            const role = await this.roleService.fetchById(data.role);
 
             return {
                 accessToken: this.jwtService.sign({
                     _id: person._id,
                     phone: person.phone,
-                    role: this.getRoleWithPermissions(role),
+                    role: data.role,
                 }),
             };
         } catch (e) {
@@ -133,7 +132,7 @@ export class AuthService {
                 accessToken: this.jwtService.sign({
                     _id: person._id,
                     phone: person.phone,
-                    role: this.getRoleWithPermissions(role),
+                    role: role._id.toString(),
                 }),
             };
         } catch (e) {
@@ -146,11 +145,12 @@ export class AuthService {
      * signIn
      ******************************************************************/
     async signIn(person: any) {
+        console.log('person: ', person);
         return {
             accessToken: this.jwtService.sign({
                 _id: person._id,
                 phone: person.phone,
-                role: this.getRoleWithPermissions(person.role),
+                role: person.role,
             }),
         };
     }
@@ -162,12 +162,12 @@ export class AuthService {
         const profile = (await this.personService.findOneByQuery({
             _id: new mongoose.Types.ObjectId(user.userId),
             phone: user.phone,
-        })) as any;
+        }, withPopulate)) as any;
 
         if (withPopulate) {
             return {
                 ...profile._doc,
-                role: user.role,
+                role: this.getRoleWithPermissions(profile.role),
             };
         }
 
