@@ -47,19 +47,12 @@ export class AppController {
     @Post('save-file')
     @UseInterceptors(FileInterceptor('file'))
     saveFile(@UploadedFile() file): any {
-<<<<<<< Updated upstream
-        console.log('file: ', file);
-        if (file) return { name: file.filename, path: file.path };
-        else return {};
-=======
         try {
             if (file) return { name: file.filename, path: file.path };
             else return {};
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
-
->>>>>>> Stashed changes
     }
 
     /*******************************************************************
