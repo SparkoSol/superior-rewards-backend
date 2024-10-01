@@ -73,7 +73,7 @@ export class RoleService {
      ******************************************************************/
     async delete(id: string) {
         try {
-            return await this.model.findByIdAndUpdate(id, { deletedAt: new Date() });
+            return await this.model.findByIdAndDelete(id);
         } catch (e) {
             throw new InternalServerErrorException('Unexpected Error');
         }

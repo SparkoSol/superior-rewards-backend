@@ -7,14 +7,8 @@ export class RoleDto {
     @IsString()
     name: string;
 
-
     @ApiProperty()
     @IsOptional()
     @IsArray()
     permissions: string[];
-
-    @ApiProperty()
-    @IsOptional()
-    @IsString()
-    deletedAt?: string;
 }
