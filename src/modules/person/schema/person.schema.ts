@@ -12,7 +12,7 @@ export type PersonDocument = HydratedDocument<Person>;
   password: '',
   profilePicture?: '',
   role: {},
-  fcmTokens: [''],
+  fcmTokens?: [''],
   points: 0,
   redeemedPoints: 0,
   addedInOdoo: false,
@@ -26,7 +26,7 @@ export class Person {
 
     @Prop({ require: true }) phone: string;
 
-    @Prop() dob: Date;
+    @Prop() dob?: Date;
 
     @Prop() password: string;
 
@@ -34,9 +34,9 @@ export class Person {
 
     @Prop({type: mongoose.Schema.Types.ObjectId, ref: Role.name}) role: string;
 
-    @Prop({ type: [String] }) fcmTokens: string[];
+    @Prop({ type: [String] }) fcmTokens?: string[];
 
-    @Prop({ default: 0 }) points: number;number
+    @Prop({ default: 0 }) points: number;
 
     @Prop({ default: 0 }) redeemedPoints: number;
 

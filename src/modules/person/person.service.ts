@@ -60,7 +60,7 @@ export class PersonService {
      ******************************************************************/
     async fetch(withPopulate?: boolean) {
         const query = {};
-        query['deletedAt'] = { $eq: null };
+        // query['deletedAt'] = { $eq: null };
         return this.model
             .find(query)
             .populate(
@@ -132,7 +132,7 @@ export class PersonService {
      ******************************************************************/
     async delete(id: string) {
         try {
-            return await this.model.findByIdAndUpdate(id, { deletedAt: new Date() });
+            return await this.model.findByIdAndUpdate(id, { deletedAt: new Date() }, { new: true });
         } catch (e) {
             throw new InternalServerErrorException('Unexpected Error');
         }

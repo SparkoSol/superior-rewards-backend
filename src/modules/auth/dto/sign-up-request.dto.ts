@@ -18,6 +18,11 @@ export class AdminCreateUserRequest {
     dob?: Date;
 
     @ApiProperty()
+    @IsOptional()
+    @IsString()
+    profilePicture?: string;
+
+    @ApiProperty()
     @IsNotEmpty()
     @IsString()
     password: string;
