@@ -54,6 +54,7 @@ export class UserGiftService {
             user: data.user,
             customerPhone: person.phone,
             points: gift.points,
+            amount: gift.amount,
             type: TransactionType.DEBIT,
         });
 
