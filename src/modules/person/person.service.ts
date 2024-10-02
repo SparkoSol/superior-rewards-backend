@@ -9,14 +9,12 @@ import {
 import { Model } from 'mongoose';
 import { Person, PersonDocument } from './schema/person.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { SignUpRequest } from '../auth/dto/sign-up-request.dto';
 import {
     PasswordUpdateRequestDto,
     PersonUpdateDto,
     UpdateFcmTokenRequestDto,
 } from './dto/person.dto';
 import { NotificationService } from '../notification/notification.service';
-import { PasswordUpdateRequestDto, PersonUpdateDto } from './dto/person.dto';
 import { AdminCreateUserRequest, MobileSignUpRequest } from '../auth/dto/sign-up-request.dto';
 
 export type User = any;
@@ -29,17 +27,18 @@ export class PersonService {
         private readonly notificationService: NotificationService
     ) {}
 
-    /*******************************************************************
-     * create
-     ******************************************************************/
-    async create(data: SignUpRequest) {
+    async getLastOdooCustomerId() {
         const lastOdooCustomerId = await this.model
             .findOne({ odooCustomerId: { $ne: null } })
             .sort({ odooCustomerId: -1 })
             .exec();
-        data.odooCustomerId = lastOdooCustomerId
-            ? Number(lastOdooCustomerId?.odooCustomerId) + 1
-            : 1;
+        return lastOdooCustomerId ? Number(lastOdooCustomerId?.odooCustomerId) + 1 : 1;
+    }
+
+    /*******************************************************************
+     * create
+     ******************************************************************/
+    async create(data: MobileSignUpRequest | AdminCreateUserRequest) {
         return await this.model.create(data);
     }
 
@@ -70,9 +69,7 @@ export class PersonService {
     }
 
     async findOneByPhone(phone: string): Promise<User | undefined> {
-        return this.model
-            .findOne({ phone })
-            .exec();
+        return this.model.findOne({ phone }).exec();
     }
 
     /*******************************************************************

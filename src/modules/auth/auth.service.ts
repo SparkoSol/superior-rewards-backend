@@ -127,6 +127,8 @@ export class AuthService {
 
         data.role = role._id.toString();
 
+        data.odooCustomerId = await this.personService.getLastOdooCustomerId();
+
         try {
             const person = await this.personService.create(data);
             return {

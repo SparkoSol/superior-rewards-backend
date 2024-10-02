@@ -32,8 +32,6 @@ export class AdminCreateUserRequest {
     @IsString()
     @IsMongoId()
     role: string;
-
-    odooCustomerId?: number;
 }
 
 export class MobileSignUpRequest {
@@ -58,6 +56,8 @@ export class MobileSignUpRequest {
     password: string;
 
     role?: string;
+
+    odooCustomerId?: number;
 }
 
 export class SignUpResponse {
