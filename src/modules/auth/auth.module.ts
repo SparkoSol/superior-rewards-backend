@@ -7,10 +7,12 @@ import { JwtStrategy } from './strategy/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
     imports: [
         forwardRef(() => PersonModule),
+        forwardRef(() => NotificationModule),
         PassportModule,
         JwtModule.register({
             secret: jwtConstants.secret,

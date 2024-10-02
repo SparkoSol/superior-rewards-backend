@@ -1,4 +1,6 @@
 import {
+    forwardRef,
+    Inject,
     Injectable,
     InternalServerErrorException,
     NotAcceptableException,
@@ -8,26 +10,22 @@ import { Model } from 'mongoose';
 import { Person, PersonDocument } from './schema/person.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { SignUpRequest } from '../auth/dto/sign-up-request.dto';
-import { PasswordUpdateRequestDto, PersonUpdateDto } from './dto/person.dto';
+import {
+    PasswordUpdateRequestDto,
+    PersonUpdateDto,
+    UpdateFcmTokenRequestDto,
+} from './dto/person.dto';
+import { NotificationService } from '../notification/notification.service';
 
 export type User = any;
 
 @Injectable()
 export class PersonService {
-    private readonly users = [
-        {
-            userId: 1,
-            username: 'john',
-            password: 'changeme',
-        },
-        {
-            userId: 2,
-            username: 'maria',
-            password: 'guess',
-        },
-    ];
-
-    constructor(@InjectModel(Person.name) private readonly model: Model<PersonDocument>) {}
+    constructor(
+        @InjectModel(Person.name) private readonly model: Model<PersonDocument>,
+        @Inject(forwardRef(() => NotificationService))
+        private readonly notificationService: NotificationService
+    ) {}
 
     /*******************************************************************
      * create
@@ -97,6 +95,27 @@ export class PersonService {
         } else {
             throw new NotAcceptableException('Old Password Not Correct!');
         }
+    }
+
+    async updateFcmToken(id: string, data: UpdateFcmTokenRequestDto) {
+        const person = await this.model.findById(id).exec();
+        if (!person) return;
+
+        let channel: string;
+        if (process.env.NODE_ENVIRONMENT === 'production') channel = 'news';
+        else channel = 'news-staging';
+
+        await this.notificationService.subscribedToNotificationChannel(data.fcmToken, channel);
+        if (person.fcmTokens && person.fcmTokens.length > 0) {
+            const foundElements = person.fcmTokens.find((value) => value == data.fcmToken);
+            if (!foundElements) {
+                if (person.fcmTokens.length >= 10) person.fcmTokens.shift();
+                person.fcmTokens.push(data.fcmToken);
+            }
+        } else person.fcmTokens = [data.fcmToken];
+        await person.save();
+
+        return person;
     }
 
     /*******************************************************************

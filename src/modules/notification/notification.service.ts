@@ -16,15 +16,11 @@ import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class NotificationService {
-    private readonly admin;
-
     constructor(
         @InjectModel(Notification.name) private readonly model: Model<NotificationDocument>,
         @Inject(forwardRef(() => PersonService)) private readonly personService: PersonService,
-        private readonly authService: AuthService
-    ) {
-        this.admin = this.authService.getAdmin();
-    }
+        @Inject(forwardRef(() => AuthService)) private readonly authService: AuthService
+    ) {}
 
     /*******************************************************************
      * create
@@ -69,9 +65,9 @@ export class NotificationService {
      ******************************************************************/
     async subscribedToNotificationChannel(fcmToken: string, channel: string) {
         try {
-            await this.admin.messaging().subscribeToTopic(fcmToken, channel);
+            const admin = this.authService.getAdmin();
+            await admin.messaging().subscribeToTopic(fcmToken, channel);
 
-            console.log('SubscribeToTopic successfully');
             return {
                 status: HttpStatus.OK,
                 message: 'subscribeToTopic successfully',
@@ -86,7 +82,8 @@ export class NotificationService {
      ******************************************************************/
     async sendNotificationToChannel(channel: string, data: NotificationPayload) {
         try {
-            await this.admin.messaging().send({
+            const admin = this.authService.getAdmin();
+            await admin.messaging().send({
                 notification: {
                     title: data.title,
                     body: data.body,
@@ -111,7 +108,7 @@ export class NotificationService {
 
         if (!person) throw new NotFoundException('No user associate with the given token!');
 
-        const user = person[0]._id.toString();
+        const user = person._id.toString();
         const { title, body } = data;
         await this.sendNotificationToSingleDevice(title, body, user, [fcmToken], true);
 
@@ -129,10 +126,10 @@ export class NotificationService {
         save = true,
         data: any = null
     ) {
-        console.log('data: ', data);
         try {
             for (const token of tokens) {
-                await this.admin.messaging().send({
+                const admin = this.authService.getAdmin();
+                await admin.messaging().send({
                     notification: {
                         title: title ?? 'Notification Title from Backend',
                         body: body ?? 'Notification Body from Backend',
@@ -173,7 +170,8 @@ export class NotificationService {
                     },
                     token: fcmTokens[i],
                 };
-                await this.admin.messaging().send(payload);
+                const admin = this.authService.getAdmin();
+                await admin.messaging().send(payload);
             }
 
             return {

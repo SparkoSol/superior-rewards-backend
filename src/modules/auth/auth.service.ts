@@ -1,5 +1,6 @@
 import {
-    HttpStatus,
+    forwardRef,
+    HttpStatus, Inject,
     Injectable,
     InternalServerErrorException,
     NotAcceptableException,
@@ -17,6 +18,7 @@ export class AuthService {
     private readonly defaultApp: any;
 
     constructor(
+        @Inject(forwardRef(() => PersonService))
         private personService: PersonService,
         private jwtService: JwtService
     ) {
@@ -40,7 +42,6 @@ export class AuthService {
             clientC509CertUrl: process.env.FIREBASE_CLIENT_X509_CER_URL,
             universeDomain: process.env.FIREBASE_UNIVERSE_DOMAIN,
         };
-
         this.defaultApp = admin.initializeApp({
             credential: admin.credential.cert(adminParams),
         });
