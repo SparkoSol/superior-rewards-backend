@@ -51,6 +51,11 @@ export class MobileSignUpRequest {
     dob: Date;
 
     @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    address?: string;
+
+    @ApiProperty()
     @IsOptional()
     @IsString()
     password: string;
