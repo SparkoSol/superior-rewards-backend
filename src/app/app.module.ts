@@ -22,6 +22,7 @@ import { UserGiftTtlModule } from '../modules/user-gift-ttl/user-gift-ttl.module
 import { ScheduleModule } from '@nestjs/schedule';
 import { RoleModule } from '../modules/role/role.module';
 import { PermissionModule } from '../modules/permission/permission.module';
+import { SettingModule } from '../modules/settings/setting.module';
 
 @Module({
     imports: [
@@ -59,7 +60,8 @@ import { PermissionModule } from '../modules/permission/permission.module';
         NotificationModule,
         TermsHubModule,
         RoleModule,
-        PermissionModule
+        PermissionModule,
+        SettingModule,
     ],
     controllers: [AppController],
     providers: [
