@@ -29,7 +29,7 @@ export class TransactionController {
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
     @ApiOperation({
         summary: 'To create transaction',
-        description: `type: ${Object.values(TransactionType)}`,
+        description: `type: ${Object.values(TransactionType)}, optional: invoiceNo, amount, details`,
     })
     @Post()
     async create(@Request() req: any, @Body() data: TransactionCreateRequest): Promise<any> {
@@ -87,16 +87,4 @@ export class TransactionController {
     findOne(@Param('id') id: string, @Query('withPopulate') withPopulate: boolean) {
         return this.service.fetchById(id, withPopulate);
     }
-
-    /*******************************************************************
-     * delete
-     ******************************************************************/
-    // @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiOkResponse({
-    //   type: TransactionResponse, description: 'Transaction Deleted Successfully',
-    // }) @ApiOperation({
-    //   summary: 'To delete an transaction',
-    // }) @Delete(':id')
-    // async delete(@Param('id') id: string) {
-    //   return await this.service.delete(id);
-    // }
 }

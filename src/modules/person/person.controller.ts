@@ -119,7 +119,7 @@ export class PersonController {
      * update
      ******************************************************************/
     @ApiOkResponse({ type: PersonResponseDto, description: 'Person updated successfully' })
-    @ApiOperation({ summary: 'To update person data' })
+    @ApiOperation({ summary: 'To update person data', description: 'optional: address, profilePicture, fcmTokens, deletedAt' })
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Internal server errors!' })
     @Patch(':id')

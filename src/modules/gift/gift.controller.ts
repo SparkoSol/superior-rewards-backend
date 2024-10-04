@@ -23,7 +23,7 @@ export class GiftController {
      ******************************************************************/
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Error while creating gift' })
-    @ApiOperation({ summary: 'To create gift' })
+    @ApiOperation({ summary: 'To create gift', description: 'optional: image, deletedAt' })
     @Post()
     async create(@Request() req: any, @Body() data: GiftCreateRequest): Promise<any> {
         return await this.service.create(data);
@@ -74,7 +74,7 @@ export class GiftController {
         type: GiftResponse,
         description: 'Gift Updated Successfully',
     })
-    @ApiOperation({ summary: 'To update gift data' })
+    @ApiOperation({ summary: 'To update gift data', description: 'optional: image, deletedAt' })
     @Patch(':id')
     async update(@Param('id') id: string, @Body() data: GiftUpdateRequest) {
         return await this.service.update(id, data);

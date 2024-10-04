@@ -12,7 +12,7 @@ export type UserGiftDocument = HydratedDocument<UserGift>;
   gift: {},
   status: '',
   isExpired: false,
-  redeemedAt?: Date;
+  redeemedAt: Date;
   qrCode?: string;
 */
 
@@ -26,7 +26,7 @@ export class UserGift {
 
     @Prop({ default: false }) isExpired: boolean;
 
-    @Prop() redeemedAt?: Date;
+    @Prop() redeemedAt: Date;
 
     @Prop() qrCode?: string;
 }

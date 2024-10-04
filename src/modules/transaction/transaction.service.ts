@@ -68,26 +68,4 @@ export class TransactionService {
             throw new NotFoundException('No data found!');
         }
     }
-
-    /*******************************************************************
-     * update
-     ******************************************************************/
-    // async update(id: string, data: TransactionUpdateRequest) {
-    //   try {
-    //     return await this.model.findByIdAndUpdate(id, data, { new: true });
-    //   } catch (e) {
-    //     throw new InternalServerErrorException('Unexpected Error');
-    //   }
-    // }
-
-    /*******************************************************************
-     * delete
-     ******************************************************************/
-    // async delete(id: string) {
-    //   try {
-    //     return await this.model.findByIdAndDelete(id);
-    //   } catch (e) {
-    //     throw new InternalServerErrorException('Unexpected Error');
-    //   }
-    // }
 }

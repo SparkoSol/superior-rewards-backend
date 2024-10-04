@@ -14,7 +14,7 @@ import { TransactionService } from '../transaction/transaction.service';
 import { TransactionType } from '../transaction/enum/type.enum';
 import { PersonService } from '../person/person.service';
 import { GiftService } from '../gift/gift.service';
-import { GiftStatus } from './enum/status.enum';
+import { UserGiftStatus } from './enum/status.enum';
 import { NoGeneratorUtils } from '../../utils/no-generator-utils';
 import { UserGiftTtlService } from '../user-gift-ttl/user-gift-ttl.service';
 
@@ -33,7 +33,7 @@ export class UserGiftService {
      * create
      ******************************************************************/
     async create(data: UserGiftCreateRequest) {
-        const person = await this.personService.findOne(data.user) as any;
+        const person = (await this.personService.findOne(data.user)) as any;
         if (!person) throw new NotAcceptableException('Invalid user id!');
 
         const gift = await this.giftService.fetchById(data.gift);
@@ -75,7 +75,7 @@ export class UserGiftService {
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch(user?: string, gift?: string, status?: GiftStatus, withPopulate?: boolean) {
+    async fetch(user?: string, gift?: string, status?: UserGiftStatus, withPopulate?: boolean) {
         const query = {};
         if (user) query['user'] = new mongoose.Types.ObjectId(user);
         if (gift) query['gift'] = new mongoose.Types.ObjectId(gift);
@@ -99,7 +99,7 @@ export class UserGiftService {
         return allGifts.map((gift: any) => ({
             ...gift._doc,
             userHistory: userHistory.find(
-              (history) => history.gift.toString() === gift._id.toString()
+                (history) => history.gift.toString() === gift._id.toString()
             ),
         }));
     }
@@ -122,7 +122,7 @@ export class UserGiftService {
      * update
      ******************************************************************/
     async update(id: string, data: UserGiftUpdateRequest) {
-        if (data.status === GiftStatus.REDEEMED) {
+        if (data.status === UserGiftStatus.REDEEMED) {
             // remove entry from user-gift-ttl
             await this.UserGiftTtlService.deleteById(id);
         }
