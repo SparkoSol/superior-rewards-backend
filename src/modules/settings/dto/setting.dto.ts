@@ -22,7 +22,7 @@ export class SettingRequest {
 export class SettingResponse {
     @ApiProperty()
     user: object;
-    
+
     @ApiProperty()
     amount: number;
 

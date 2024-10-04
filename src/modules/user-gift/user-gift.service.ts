@@ -17,6 +17,7 @@ import { GiftService } from '../gift/gift.service';
 import { UserGiftStatus } from './enum/status.enum';
 import { NoGeneratorUtils } from '../../utils/no-generator-utils';
 import { UserGiftTtlService } from '../user-gift-ttl/user-gift-ttl.service';
+import { SettingService } from '../settings/setting.service';
 
 @Injectable()
 export class UserGiftService {
@@ -26,7 +27,9 @@ export class UserGiftService {
         private readonly giftService: GiftService,
         private readonly transactionService: TransactionService,
         @Inject(forwardRef(() => UserGiftTtlService))
-        private readonly UserGiftTtlService: UserGiftTtlService
+        private readonly UserGiftTtlService: UserGiftTtlService,
+        private readonly SettingService: SettingService,
+
     ) {}
 
     /*******************************************************************
@@ -42,6 +45,9 @@ export class UserGiftService {
         data['qrCode'] = await NoGeneratorUtils.generateCode();
 
         const userGift = await this.model.create(data);
+        const settings = await this.SettingService.fetch();
+        const settingsData = settings[0];
+        console.log('settingsData', settingsData);
 
         // create entry in user-gift-ttl
         await this.UserGiftTtlService.create({
@@ -54,6 +60,7 @@ export class UserGiftService {
             user: data.user,
             customerPhone: person.phone,
             points: gift.points,
+            amount: settingsData.points ? (gift.points / settingsData.points) : null,
             type: TransactionType.DEBIT,
         });
 

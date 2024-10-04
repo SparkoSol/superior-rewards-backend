@@ -50,7 +50,7 @@ export class SettingController {
         description: 'for getting all settings of specific user',
     })
     @Get()
-    async fetch(@Query('user') user?: string,): Promise<any> {
+    async fetch(@Query('user') user?: string): Promise<any> {
         return await this.service.fetch(user);
     }
 
