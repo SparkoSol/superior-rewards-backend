@@ -25,7 +25,7 @@ export class SettingService {
      ******************************************************************/
     async fetch(user?: string) {
         const query = {};
-        if(user) query['user'] = new mongoose.Types.ObjectId(user);
+        if (user) query['user'] = new mongoose.Types.ObjectId(user);
         return this.model.find(query).sort({ createdAt: -1 }).exec();
     }
 
