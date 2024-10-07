@@ -7,7 +7,7 @@ export type GiftDocument = HydratedDocument<Gift>;
   name: '',
   image?: '',
   points: 0,
-   deletedAt?: Date;
+  deletedAt?: Date;
 */
 
 @Schema({ timestamps: true })

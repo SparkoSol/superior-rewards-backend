@@ -1,31 +1,31 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Request } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
     ApiInternalServerErrorResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
-    ApiOperation,
+    ApiOperation, ApiQuery,
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { GiftService } from './gift.service';
-import { GiftCreateRequest, GiftResponse, GiftUpdateRequest } from './dto/gift.dto';
+import { RoleService } from './role.service';
+import { RoleDto } from './dto/role.dto';
 
 @ApiBearerAuth('access-token')
-@ApiTags('Gifts')
-@Controller('gifts')
-export class GiftController {
-    constructor(private readonly service: GiftService) {}
+@ApiTags('Roles')
+@Controller('roles')
+export class RoleController {
+    constructor(private readonly service: RoleService) {}
 
     /*******************************************************************
      * create
      ******************************************************************/
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
-    @ApiInternalServerErrorResponse({ description: 'Error while creating gift' })
-    @ApiOperation({ summary: 'To create gift', description: 'optional: image, deletedAt' })
+    @ApiInternalServerErrorResponse({ description: 'Error while creating Role' })
+    @ApiOperation({ summary: 'To create Role' })
     @Post()
-    async create(@Request() req: any, @Body() data: GiftCreateRequest): Promise<any> {
+    async create(@Body() data: RoleDto): Promise<any> {
         return await this.service.create(data);
     }
 
@@ -35,16 +35,21 @@ export class GiftController {
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Internal server error!' })
     @ApiOkResponse({
-        description: 'To get gifts',
-        type: GiftResponse,
+        description: 'To get Roles',
+        type: RoleDto,
         isArray: true,
     })
     @ApiOperation({
-        summary: 'To get gifts',
+        summary: 'To get Roles',
+    })
+    @ApiQuery({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
     })
     @Get()
-    async fetch(): Promise<any> {
-        return await this.service.fetch();
+    async fetch(@Query('withPopulate') withPopulate?: boolean): Promise<any> {
+        return await this.service.fetch(withPopulate);
     }
 
     /*******************************************************************
@@ -54,11 +59,11 @@ export class GiftController {
     @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
     @ApiNotFoundResponse({ description: 'No data found!' })
     @ApiOkResponse({
-        description: 'Gift by Id',
-        type: GiftResponse,
+        description: 'Role by Id',
+        type: RoleDto,
     })
     @ApiOperation({
-        summary: 'To get specific gift',
+        summary: 'To get specific Role',
     })
     @Get(':id')
     findOne(@Param('id') id: string) {
@@ -71,12 +76,12 @@ export class GiftController {
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
     @ApiOkResponse({
-        type: GiftResponse,
-        description: 'Gift Updated Successfully',
+        type: RoleDto,
+        description: 'Role Updated Successfully',
     })
-    @ApiOperation({ summary: 'To update gift data', description: 'optional: image, deletedAt' })
+    @ApiOperation({ summary: 'To update Role data' })
     @Patch(':id')
-    async update(@Param('id') id: string, @Body() data: GiftUpdateRequest) {
+    async update(@Param('id') id: string, @Body() data: RoleDto) {
         return await this.service.update(id, data);
     }
 
@@ -88,11 +93,11 @@ export class GiftController {
     @ApiBadRequestResponse({ description: 'Issue in request data' })
     @ApiBadRequestResponse({ description: 'Issue in request data' })
     @ApiOkResponse({
-        type: GiftResponse,
-        description: 'Gift Deleted Successfully',
+        type: RoleDto,
+        description: 'Role Deleted Successfully',
     })
     @ApiOperation({
-        summary: 'To delete an gift',
+        summary: 'To delete an Role',
     })
     @Delete(':id')
     async delete(@Param('id') id: string) {

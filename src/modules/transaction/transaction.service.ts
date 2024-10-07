@@ -28,10 +28,9 @@ export class TransactionService {
 
         // if new transaction credit, it points should add in user's points.
         if (transaction.type === TransactionType.CREDIT) {
-            const person = (await this.personService.findOne(transaction.user)) as any;
+            const person = await this.personService.findOne(transaction.user);
 
             await this.personService.update(transaction.user, {
-                ...person._doc,
                 points: Number(person.points) + Number(transaction.points),
             });
 
@@ -68,26 +67,4 @@ export class TransactionService {
             throw new NotFoundException('No data found!');
         }
     }
-
-    /*******************************************************************
-     * update
-     ******************************************************************/
-    // async update(id: string, data: TransactionUpdateRequest) {
-    //   try {
-    //     return await this.model.findByIdAndUpdate(id, data, { new: true });
-    //   } catch (e) {
-    //     throw new InternalServerErrorException('Unexpected Error');
-    //   }
-    // }
-
-    /*******************************************************************
-     * delete
-     ******************************************************************/
-    // async delete(id: string) {
-    //   try {
-    //     return await this.model.findByIdAndDelete(id);
-    //   } catch (e) {
-    //     throw new InternalServerErrorException('Unexpected Error');
-    //   }
-    // }
 }

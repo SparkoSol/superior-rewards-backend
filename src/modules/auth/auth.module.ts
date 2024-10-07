@@ -8,6 +8,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { NotificationModule } from '../notification/notification.module';
+import { RoleModule } from '../role/role.module';
 
 @Module({
     imports: [
@@ -18,6 +19,7 @@ import { NotificationModule } from '../notification/notification.module';
             secret: jwtConstants.secret,
             signOptions: { expiresIn: '1d' },
         }),
+        RoleModule,
     ],
     controllers: [AuthController],
     providers: [AuthService, LocalStrategy, JwtStrategy],

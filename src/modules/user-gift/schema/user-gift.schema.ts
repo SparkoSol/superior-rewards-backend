@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Person } from '../../person/schema/person.schema';
 import { Gift } from '../../gift/schema/gift.schema';
-import { GiftStatus } from '../enum/status.enum';
+import { UserGiftStatus } from '../enum/status.enum';
 
 export type UserGiftDocument = HydratedDocument<UserGift>;
 
@@ -12,7 +12,7 @@ export type UserGiftDocument = HydratedDocument<UserGift>;
   gift: {},
   status: '',
   isExpired: false,
-  redeemedAt?: Date;
+  redeemedAt: Date;
   qrCode?: string;
 */
 
@@ -22,11 +22,11 @@ export class UserGift {
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Gift.name }) gift: string;
 
-    @Prop({ default: GiftStatus.PENDING }) status: string;
+    @Prop({ default: UserGiftStatus.PENDING }) status: string;
 
     @Prop({ default: false }) isExpired: boolean;
 
-    @Prop() redeemedAt?: Date;
+    @Prop() redeemedAt: Date;
 
     @Prop() qrCode?: string;
 }

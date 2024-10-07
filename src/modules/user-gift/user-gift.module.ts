@@ -7,6 +7,8 @@ import { TransactionModule } from '../transaction/transaction.module';
 import { PersonModule } from '../person/person.module';
 import { GiftModule } from '../gift/gift.module';
 import { UserGiftTtlModule } from '../user-gift-ttl/user-gift-ttl.module';
+import { firestore } from 'firebase-admin';
+import { SettingModule } from '../settings/setting.module';
 
 @Global()
 @Module({
@@ -21,6 +23,7 @@ import { UserGiftTtlModule } from '../user-gift-ttl/user-gift-ttl.module';
         GiftModule,
         TransactionModule,
         forwardRef(() => UserGiftTtlModule),
+        SettingModule,
     ],
     controllers: [UserGiftController],
     providers: [UserGiftService],

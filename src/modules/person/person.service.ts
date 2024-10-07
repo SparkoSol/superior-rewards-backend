@@ -9,13 +9,13 @@ import {
 import { Model } from 'mongoose';
 import { Person, PersonDocument } from './schema/person.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { SignUpRequest } from '../auth/dto/sign-up-request.dto';
 import {
     PasswordUpdateRequestDto,
     PersonUpdateDto,
     UpdateFcmTokenRequestDto,
 } from './dto/person.dto';
 import { NotificationService } from '../notification/notification.service';
+import { AdminCreateUserRequest, MobileSignUpRequest } from '../auth/dto/sign-up-request.dto';
 
 export type User = any;
 
@@ -27,17 +27,18 @@ export class PersonService {
         private readonly notificationService: NotificationService
     ) {}
 
-    /*******************************************************************
-     * create
-     ******************************************************************/
-    async create(data: SignUpRequest) {
+    async getLastOdooCustomerId() {
         const lastOdooCustomerId = await this.model
             .findOne({ odooCustomerId: { $ne: null } })
             .sort({ odooCustomerId: -1 })
             .exec();
-        data.odooCustomerId = lastOdooCustomerId
-            ? Number(lastOdooCustomerId?.odooCustomerId) + 1
-            : 1;
+        return lastOdooCustomerId ? Number(lastOdooCustomerId?.odooCustomerId) + 1 : 1;
+    }
+
+    /*******************************************************************
+     * create
+     ******************************************************************/
+    async create(data: MobileSignUpRequest | AdminCreateUserRequest) {
         return await this.model.create(data);
     }
 
@@ -45,8 +46,22 @@ export class PersonService {
         return await this.model.findById(id).exec();
     }
 
-    async findOneByQuery(query: {}) {
-        return await this.model.findOne(query).select('-password').exec();
+    async findOneByQuery(query: {}, withPopulate?: boolean) {
+        return await this.model
+            .findOne(query)
+            .select('-password')
+            .populate(
+                withPopulate
+                    ? [
+                          'role',
+                          {
+                              path: 'role',
+                              populate: { path: 'permissions' },
+                          },
+                      ]
+                    : []
+            )
+            .exec();
     }
 
     async findOneByFcmToken(fcmToken: string) {
@@ -60,18 +75,39 @@ export class PersonService {
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch() {
+    async fetch(withPopulate?: boolean) {
         const query = {};
-        query['deletedAt'] = { $eq: null };
-        return this.model.find(query).sort({ createdAt: -1 }).exec();
+        // query['deletedAt'] = { $eq: null };
+        return this.model
+            .find(query)
+            .populate(
+                withPopulate
+                    ? [
+                          'role',
+                          {
+                              path: 'role',
+                              populate: { path: 'permissions' },
+                          },
+                      ]
+                    : []
+            )
+            .sort({ createdAt: -1 })
+            .exec();
     }
 
     /*******************************************************************
      * fetchById
      ******************************************************************/
-    async fetchById(id: string): Promise<PersonDocument> {
+    async fetchById(id: string, withPopulate?: boolean): Promise<PersonDocument> {
         try {
-            return this.model.findById(id).exec();
+            return this.model
+                .findById(id)
+                .populate(
+                    withPopulate
+                        ? ['role', { path: 'role', populate: { path: 'permissions' } }]
+                        : []
+                )
+                .exec();
         } catch (e) {
             throw new NotFoundException('No data found!');
         }
@@ -134,7 +170,7 @@ export class PersonService {
      ******************************************************************/
     async delete(id: string) {
         try {
-            return await this.model.findByIdAndUpdate(id, { deletedAt: new Date() });
+            return await this.model.findByIdAndUpdate(id, { deletedAt: new Date() }, { new: true });
         } catch (e) {
             throw new InternalServerErrorException('Unexpected Error');
         }

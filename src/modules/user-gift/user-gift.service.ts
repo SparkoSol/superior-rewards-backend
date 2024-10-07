@@ -14,9 +14,10 @@ import { TransactionService } from '../transaction/transaction.service';
 import { TransactionType } from '../transaction/enum/type.enum';
 import { PersonService } from '../person/person.service';
 import { GiftService } from '../gift/gift.service';
-import { GiftStatus } from './enum/status.enum';
+import { UserGiftStatus } from './enum/status.enum';
 import { NoGeneratorUtils } from '../../utils/no-generator-utils';
 import { UserGiftTtlService } from '../user-gift-ttl/user-gift-ttl.service';
+import { SettingService } from '../settings/setting.service';
 
 @Injectable()
 export class UserGiftService {
@@ -26,14 +27,16 @@ export class UserGiftService {
         private readonly giftService: GiftService,
         private readonly transactionService: TransactionService,
         @Inject(forwardRef(() => UserGiftTtlService))
-        private readonly UserGiftTtlService: UserGiftTtlService
+        private readonly UserGiftTtlService: UserGiftTtlService,
+        private readonly SettingService: SettingService,
+
     ) {}
 
     /*******************************************************************
      * create
      ******************************************************************/
     async create(data: UserGiftCreateRequest) {
-        const person = await this.personService.findOne(data.user) as any;
+        const person = (await this.personService.findOne(data.user)) as any;
         if (!person) throw new NotAcceptableException('Invalid user id!');
 
         const gift = await this.giftService.fetchById(data.gift);
@@ -42,6 +45,9 @@ export class UserGiftService {
         data['qrCode'] = await NoGeneratorUtils.generateCode();
 
         const userGift = await this.model.create(data);
+        const settings = await this.SettingService.fetch();
+        const settingsData = settings[0];
+        console.log('settingsData', settingsData);
 
         // create entry in user-gift-ttl
         await this.UserGiftTtlService.create({
@@ -54,18 +60,17 @@ export class UserGiftService {
             user: data.user,
             customerPhone: person.phone,
             points: gift.points,
+            amount: settingsData.points ? (gift.points / settingsData.points) : null,
             type: TransactionType.DEBIT,
         });
 
         // Deduct git points from user current points
         await this.personService.update(data.user, {
-            ...person._doc,
             points: Number(person.points) - Number(gift.points),
         });
 
         // increase redeemedPoints
         await this.personService.update(data.user, {
-            ...person._doc,
             redeemedPoints: Number(person.redeemedPoints) + Number(gift.points),
         });
 
@@ -77,7 +82,7 @@ export class UserGiftService {
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch(user?: string, gift?: string, status?: GiftStatus, withPopulate?: boolean) {
+    async fetch(user?: string, gift?: string, status?: UserGiftStatus, withPopulate?: boolean) {
         const query = {};
         if (user) query['user'] = new mongoose.Types.ObjectId(user);
         if (gift) query['gift'] = new mongoose.Types.ObjectId(gift);
@@ -101,7 +106,7 @@ export class UserGiftService {
         return allGifts.map((gift: any) => ({
             ...gift._doc,
             userHistory: userHistory.find(
-              (history) => history.gift.toString() === gift._id.toString()
+                (history) => history.gift.toString() === gift._id.toString()
             ),
         }));
     }
@@ -124,7 +129,7 @@ export class UserGiftService {
      * update
      ******************************************************************/
     async update(id: string, data: UserGiftUpdateRequest) {
-        if (data.status === GiftStatus.REDEEMED) {
+        if (data.status === UserGiftStatus.REDEEMED) {
             // remove entry from user-gift-ttl
             await this.UserGiftTtlService.deleteById(id);
         }

@@ -20,6 +20,9 @@ import { TermsHubModule } from '../modules/terms-hub/terms-hub.module';
 import { UserGiftModule } from '../modules/user-gift/user-gift.module';
 import { UserGiftTtlModule } from '../modules/user-gift-ttl/user-gift-ttl.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { RoleModule } from '../modules/role/role.module';
+import { PermissionModule } from '../modules/permission/permission.module';
+import { SettingModule } from '../modules/settings/setting.module';
 
 @Module({
     imports: [
@@ -56,6 +59,9 @@ import { ScheduleModule } from '@nestjs/schedule';
         UserGiftTtlModule,
         NotificationModule,
         TermsHubModule,
+        RoleModule,
+        PermissionModule,
+        SettingModule,
     ],
     controllers: [AppController],
     providers: [
