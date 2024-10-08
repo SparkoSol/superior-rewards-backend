@@ -18,6 +18,7 @@ import { UserGiftStatus } from './enum/status.enum';
 import { NoGeneratorUtils } from '../../utils/no-generator-utils';
 import { UserGiftTtlService } from '../user-gift-ttl/user-gift-ttl.service';
 import { SettingService } from '../settings/setting.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class UserGiftService {
@@ -29,6 +30,7 @@ export class UserGiftService {
         @Inject(forwardRef(() => UserGiftTtlService))
         private readonly UserGiftTtlService: UserGiftTtlService,
         private readonly SettingService: SettingService,
+        private readonly notificationService: NotificationService
 
     ) {}
 
@@ -74,7 +76,16 @@ export class UserGiftService {
             redeemedPoints: Number(person.redeemedPoints) + Number(gift.points),
         });
 
-        // TODO: set notification here
+        try {
+            await this.notificationService.sendNotificationToSingleDevice(
+              'Congrats! You have redeem a gift.',
+              `You have received ${gift.points} points gift.`,
+              person._id,
+              person.fcmTokens
+            );
+        } catch (e) {
+            console.log('Error while sending notification on redeem a gift: ', e);
+        }
 
         return userGift;
     }

@@ -36,7 +36,6 @@ export class TransactionService {
                 points: Number(person.points) + Number(transaction.points),
             });
 
-            // TODO: has to send notification
             try {
                 await this.notificationService.sendNotificationToSingleDevice(
                     'Congrats! You have received points.',
