@@ -61,4 +61,10 @@ export class NotificationResponseDto {
 
     @ApiProperty({ type: Boolean, default: false })
     markAsRead: boolean;
+
+    @ApiProperty()
+    createdAt: string;
+
+    @ApiProperty()
+    updatedAt: string;
 }
