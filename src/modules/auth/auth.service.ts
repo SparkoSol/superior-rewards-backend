@@ -125,6 +125,10 @@ export class AuthService {
             throw new NotAcceptableException('User with this phone already exist.');
         }
 
+        if(role) {
+            throw new NotAcceptableException('Invalid role, please contact admin to add User role.');
+        }
+
         data.role = role._id.toString();
 
         data.odooCustomerId = await this.personService.getLastOdooCustomerId();

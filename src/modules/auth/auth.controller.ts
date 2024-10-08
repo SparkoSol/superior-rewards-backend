@@ -67,7 +67,7 @@ export class AuthController {
         description: 'Error while signup || Internal server errors.',
     })
     @ApiNotAcceptableResponse({
-        description: '1: User with this phone already exist.',
+        description: '1: User with this phone already exist., 2: Invalid role, please contact admin to add User role.',
     })
     @Post('sign-up')
     signUp(@Body() data: MobileSignUpRequest): Promise<any> {
