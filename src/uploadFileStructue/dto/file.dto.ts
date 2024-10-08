@@ -2,13 +2,12 @@ import { IsObject, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class FileDTO {
-    @IsOptional()
     @IsString()
     @ApiProperty()
-    name: string;
+    id: string;
 
-    @IsOptional()
     @IsString()
+    @IsOptional()
     @ApiProperty()
     path: string;
 }
@@ -19,3 +18,11 @@ export class SaveFileDTO {
     @ApiProperty({ required: true, type: 'string', format: 'binary' })
     file: FileDTO;
 }
+
+export class DeleteFileDTO {
+    @IsString()
+    @ApiProperty()
+    id: string;
+}
+
+
