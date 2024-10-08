@@ -8,12 +8,13 @@ import { getStorage } from 'firebase-admin/storage';
 import { NoGeneratorUtils } from '../utils/no-generator-utils';
 // @ts-ignore
 import { File } from '@google-cloud/storage/build/cjs/src/file';
+import * as process from 'node:process';
 
 @Injectable()
 export class AppService {
     private readonly storage: any;
     private readonly bucket: Bucket;
-    private readonly defaultFolder = 'root';
+    private readonly defaultFolder = process.env.NODE_ENVIRONMENT === 'production' ? 'production' : 'staging';
     private readonly firebaseAdmin: admin.app.App;
 
     constructor(private readonly authService: AuthService) {
