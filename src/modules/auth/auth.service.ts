@@ -1,6 +1,7 @@
 import {
     forwardRef,
-    HttpStatus, Inject,
+    HttpStatus,
+    Inject,
     Injectable,
     InternalServerErrorException,
     NotAcceptableException,
@@ -125,8 +126,10 @@ export class AuthService {
             throw new NotAcceptableException('User with this phone already exist.');
         }
 
-        if(role) {
-            throw new NotAcceptableException('Invalid role, please contact admin to add User role.');
+        if (!role) {
+            throw new NotAcceptableException(
+                'Invalid role, please contact admin to add User role.'
+            );
         }
 
         data.role = role._id.toString();
@@ -165,10 +168,13 @@ export class AuthService {
      * getProfile
      ******************************************************************/
     async getProfile(user: any, withPopulate: boolean = false) {
-        const profile = (await this.personService.findOneByQuery({
-            _id: new mongoose.Types.ObjectId(user.userId),
-            phone: user.phone,
-        }, withPopulate)) as any;
+        const profile = (await this.personService.findOneByQuery(
+            {
+                _id: new mongoose.Types.ObjectId(user.userId),
+                phone: user.phone,
+            },
+            withPopulate
+        )) as any;
 
         if (withPopulate) {
             return {
