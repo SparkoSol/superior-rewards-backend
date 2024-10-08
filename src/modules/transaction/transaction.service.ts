@@ -5,12 +5,14 @@ import mongoose, { Model } from 'mongoose';
 import { TransactionCreateRequest } from './dto/transaction.dto';
 import { TransactionType } from './enum/type.enum';
 import { PersonService } from '../person/person.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class TransactionService {
     constructor(
         @InjectModel(Transaction.name) private readonly model: Model<TransactionDocument>,
-        private readonly personService: PersonService
+        private readonly personService: PersonService,
+        private readonly notificationService: NotificationService
     ) {}
 
     /*******************************************************************
@@ -35,6 +37,16 @@ export class TransactionService {
             });
 
             // TODO: has to send notification
+            try {
+                await this.notificationService.sendNotificationToSingleDevice(
+                    'Congrats! You have received points.',
+                    `You have received ${transaction.points} points.`,
+                    transaction.user,
+                    person.fcmTokens
+                );
+            } catch (e) {
+                console.log('Error while sending notification on CREDIT type transactions: ', e);
+            }
         }
 
         return transaction;
