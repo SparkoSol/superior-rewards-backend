@@ -22,7 +22,7 @@ export class UserGiftTtlJob {
 
         if (expiredUserGiftsIds.length > 0) {
             this.logger.debug('Status updated!');
-            this.userGiftService.updateStatusOfExpiredUserGifts(expiredUserGiftsIds);
+            // this.userGiftService.updateStatusOfExpiredUserGifts(expiredUserGiftsIds);
         }
     }
 }

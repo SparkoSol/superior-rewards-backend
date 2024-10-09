@@ -17,6 +17,7 @@ import { GiftService } from '../gift/gift.service';
 import { GiftStatus } from './enum/status.enum';
 import { NoGeneratorUtils } from '../../utils/no-generator-utils';
 import { UserGiftTtlService } from '../user-gift-ttl/user-gift-ttl.service';
+import { helper } from '../../utils/helper';
 
 @Injectable()
 export class UserGiftService {
@@ -45,29 +46,35 @@ export class UserGiftService {
 
         // create entry in user-gift-ttl
         await this.UserGiftTtlService.create({
+            _id: userGift._id.toString(),
             userGift: userGift._id.toString(),
-            createdAt: new Date(new Date().toISOString().replace('Z', '+00:00')),
+            expireAt: helper.addCustomerDelay(
+                new Date(new Date().toISOString().replace('Z', '+00:00')),
+                2
+            ),
         });
+
+        console.log(`Gift Redeemed At: ${userGift._id} on ${new Date().toLocaleString()}`);
 
         // create DEBIT type transaction, when user redeemed a gift
-        await this.transactionService.create({
-            user: data.user,
-            customerPhone: person.phone,
-            points: gift.points,
-            type: TransactionType.DEBIT,
-        });
+        // await this.transactionService.create({
+        //     user: data.user,
+        //     customerPhone: person.phone,
+        //     points: gift.points,
+        //     type: TransactionType.DEBIT,
+        // });
 
         // Deduct git points from user current points
-        await this.personService.update(data.user, {
-            ...person._doc,
-            points: Number(person.points) - Number(gift.points),
-        });
+        // await this.personService.update(data.user, {
+        //     ...person._doc,
+        //     points: Number(person.points) - Number(gift.points),
+        // });
 
         // increase redeemedPoints
-        await this.personService.update(data.user, {
-            ...person._doc,
-            redeemedPoints: Number(person.redeemedPoints) + Number(gift.points),
-        });
+        // await this.personService.update(data.user, {
+        //     ...person._doc,
+        //     redeemedPoints: Number(person.redeemedPoints) + Number(gift.points),
+        // });
 
         // TODO: set notification here
 

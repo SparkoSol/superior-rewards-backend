@@ -10,8 +10,11 @@ export type UserGiftTtlDocument = HydratedDocument<UserGiftTtl>;
   expiredAt: Date;
 */
 
-@Schema({ timestamps: false })
+@Schema({ timestamps: false, _id: true })
 export class UserGiftTtl extends mongoose.Document {
+    @Prop({ type: mongoose.Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() })
+    _id: string;
+
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: UserGift.name }) userGift: string;
 
     @Prop({ type: Date, required: true }) expireAt: Date; // Dynamic TTL field
