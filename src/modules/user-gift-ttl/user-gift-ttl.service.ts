@@ -48,6 +48,14 @@ export class UserGiftTtlService implements OnModuleInit {
         return await this.model.create(data);
     }
 
+    async fetchById(id: string) {
+        return await this.model.findById(id).exec();
+    }
+
+    async fetch() {
+        return await this.model.find().exec();
+    }
+
     async getAllReferenceIdsInArray() {
         const records = await this.model.find().exec();
         return records.map((record) => record._id);

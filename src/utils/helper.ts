@@ -20,4 +20,18 @@ export class helper {
     static addCustomDelay(date: Date, delayInMinutes: number) {
         return new Date(date.getTime() + delayInMinutes * 60 * 1000);
     }
+
+    static getDifferenceInMinutes(isExpired: boolean, date1: string, date2: string) {
+        if (isExpired || !date1 || !date2) {
+            return 0;
+        }
+        const d1 = new Date(date1).getTime();
+        const d2 = new Date(date2).getTime();
+
+        // Get the difference in milliseconds
+        const differenceInMs = Math.abs(d2 - d1);
+
+        // Convert milliseconds to minutes
+        return Math.floor(differenceInMs / (1000 * 60));
+    }
 }
