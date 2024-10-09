@@ -1,20 +1,23 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { HydratedDocument } from 'mongoose';
-import { UserGift } from '../../user-gift/schema/user-gift.schema';
 
 export type UserGiftTtlDocument = HydratedDocument<UserGiftTtl>;
 
 /*
-  userGift: {},
+  _id: {} (userGift),
   expiredAt: Date;
 */
 
-@Schema({ timestamps: false })
+@Schema({ timestamps: false, _id: true })
 export class UserGiftTtl extends mongoose.Document {
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: UserGift.name }) userGift: string;
+    @Prop({ type: mongoose.Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() })
+    _id: string;
 
-    @Prop({ type: Date, expires: '5m', required: true }) createdAt: Date;
+    @Prop({ type: Date, required: true }) expireAt: Date; // Dynamic TTL field
 }
 
 export const UserGiftTtlSchema = SchemaFactory.createForClass(UserGiftTtl);
+
+// Create an index for expireAt field to handle dynamic TTL
+UserGiftTtlSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });

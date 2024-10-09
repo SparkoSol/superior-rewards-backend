@@ -5,7 +5,6 @@ import { forwardRef, Global, Module } from '@nestjs/common';
 import { UserGiftTtlJob } from './user-gift-ttl-job';
 import { UserGiftModule } from '../user-gift/user-gift.module';
 
-@Global()
 @Module({
     imports: [
         MongooseModule.forFeature([
