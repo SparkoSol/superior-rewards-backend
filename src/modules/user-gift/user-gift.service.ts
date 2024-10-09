@@ -19,6 +19,8 @@ import { NoGeneratorUtils } from '../../utils/no-generator-utils';
 import { UserGiftTtlService } from '../user-gift-ttl/user-gift-ttl.service';
 import { SettingService } from '../settings/setting.service';
 import { NotificationService } from '../notification/notification.service';
+import { helper } from '../../utils/helper';
+import * as process from 'process';
 
 @Injectable()
 export class UserGiftService {
@@ -31,7 +33,6 @@ export class UserGiftService {
         private readonly UserGiftTtlService: UserGiftTtlService,
         private readonly SettingService: SettingService,
         private readonly notificationService: NotificationService
-
     ) {}
 
     /*******************************************************************
@@ -49,12 +50,14 @@ export class UserGiftService {
         const userGift = await this.model.create(data);
         const settings = await this.SettingService.fetch();
         const settingsData = settings[0];
-        console.log('settingsData', settingsData);
 
         // create entry in user-gift-ttl
         await this.UserGiftTtlService.create({
-            userGift: userGift._id.toString(),
-            createdAt: new Date(new Date().toISOString().replace('Z', '+00:00')),
+            _id: userGift._id.toString(),
+            expireAt: helper.addCustomDelay(
+                new Date(new Date().toISOString().replace('Z', '+00:00')),
+                Number(process.env.REDEEMED_GIFT_EXPIRES) // 10
+            ),
         });
 
         // create DEBIT type transaction, when user redeemed a gift
@@ -62,7 +65,7 @@ export class UserGiftService {
             user: data.user,
             customerPhone: person.phone,
             points: gift.points,
-            amount: settingsData.points ? (gift.points / settingsData.points) : null,
+            amount: settingsData.points ? gift.points / settingsData.points : null,
             type: TransactionType.DEBIT,
         });
 
@@ -78,10 +81,10 @@ export class UserGiftService {
 
         try {
             await this.notificationService.sendNotificationToSingleDevice(
-              'Congrats! You have redeem a gift.',
-              `You have received ${gift.points} points gift.`,
-              person._id,
-              person.fcmTokens
+                'Congrats! You have redeem a gift.',
+                `You have received ${gift.points} points gift.`,
+                person._id,
+                person.fcmTokens
             );
         } catch (e) {
             console.log('Error while sending notification on redeem a gift: ', e);
@@ -98,11 +101,26 @@ export class UserGiftService {
         if (user) query['user'] = new mongoose.Types.ObjectId(user);
         if (gift) query['gift'] = new mongoose.Types.ObjectId(gift);
         if (status) query['status'] = status;
-        return this.model
+        const histories = (await this.model
             .find(query)
             .populate(withPopulate ? ['user', 'gift'] : [])
             .sort({ createdAt: -1 })
-            .exec();
+            .exec()) as any;
+
+        const allTtlItems = await this.UserGiftTtlService.fetch();
+
+        return histories.map((item: any) => {
+            const itemTtl = allTtlItems.find((ttlItem) => ttlItem._id.toString() === item._id.toString());
+
+            return {
+                ...item._doc,
+                diffInMinutes: helper.getDifferenceInMinutes(
+                    item.isExpired,
+                    item.createdAt,
+                    itemTtl ? itemTtl.expireAt.toString() : ''
+                ),
+            };
+        });
     }
 
     /*******************************************************************

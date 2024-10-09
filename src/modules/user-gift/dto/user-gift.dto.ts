@@ -23,8 +23,6 @@ export class UserGiftCreateRequest {
     @IsBoolean()
     isExpired: boolean;
 
-    @ApiProperty() @IsOptional() @IsString() redeemedAt: Date;
-
     @ApiProperty() @IsOptional() @IsString() qrCode?: string;
 }
 
@@ -44,8 +42,6 @@ export class UserGiftResponse {
 
     @ApiProperty({ default: false })
     isExpired: boolean;
-
-    @ApiProperty() redeemedAt: Date;
 
     @ApiProperty() qrCode?: string;
 
