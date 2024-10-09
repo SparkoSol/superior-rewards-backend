@@ -19,6 +19,8 @@ import { NoGeneratorUtils } from '../../utils/no-generator-utils';
 import { UserGiftTtlService } from '../user-gift-ttl/user-gift-ttl.service';
 import { SettingService } from '../settings/setting.service';
 import { NotificationService } from '../notification/notification.service';
+import { helper } from '../../utils/helper';
+import * as process from 'process';
 
 @Injectable()
 export class UserGiftService {
@@ -53,8 +55,11 @@ export class UserGiftService {
 
         // create entry in user-gift-ttl
         await this.UserGiftTtlService.create({
-            userGift: userGift._id.toString(),
-            createdAt: new Date(new Date().toISOString().replace('Z', '+00:00')),
+            _id: userGift._id.toString(),
+            expireAt: helper.addCustomDelay(
+              new Date(new Date().toISOString().replace('Z', '+00:00')),
+              Number(process.env.REDEEMED_GIFT_EXPIRES) // 10
+            ),
         });
 
         // create DEBIT type transaction, when user redeemed a gift

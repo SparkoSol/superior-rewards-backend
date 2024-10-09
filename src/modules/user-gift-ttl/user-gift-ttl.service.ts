@@ -30,7 +30,6 @@ export class UserGiftTtlService implements OnModuleInit {
 
         changeStream.on('change', async (change) => {
             const userGiftId = change.documentKey._id;
-            console.log(`UserGift deleted: ${userGiftId}`);
 
             // Reinsert the document with isExpired = true to prevent re-deletion
             await this.UserGiftService.update(userGiftId, { isExpired: true });
@@ -51,7 +50,7 @@ export class UserGiftTtlService implements OnModuleInit {
 
     async getAllReferenceIdsInArray() {
         const records = await this.model.find().exec();
-        return records.map((record) => record.userGift);
+        return records.map((record) => record._id);
     }
 
     async deleteById(userGiftTtlId: string) {

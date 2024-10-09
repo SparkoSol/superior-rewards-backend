@@ -1,5 +1,5 @@
 export class helper {
-    static convertSecondIntoUTCDataTime(timeInSeconds) {
+    static convertSecondIntoUTCDataTime(timeInSeconds: string) {
         const date = new Date(timeInSeconds);
 
         const year = date.getUTCFullYear();
@@ -17,7 +17,7 @@ export class helper {
         }${minutes}:${seconds < 10 ? '0' : ''}${seconds}.${millisecondsPart}Z`;
     }
 
-    static addCustomerDelay(date: Date, delayInMinutes: number) {
+    static addCustomDelay(date: Date, delayInMinutes: number) {
         return new Date(date.getTime() + delayInMinutes * 60 * 1000);
     }
 }
