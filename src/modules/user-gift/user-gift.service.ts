@@ -51,7 +51,6 @@ export class UserGiftService {
 
         const userGift = await this.model.create(data);
         const settings = await this.SettingService.fetch();
-        const settingsData = settings[0];
 
         // create entry in user-gift-ttl
         await this.UserGiftTtlService.create({
@@ -67,7 +66,7 @@ export class UserGiftService {
             user: data.user,
             customerPhone: person.phone,
             points: gift.points,
-            amount: settingsData.points ? gift.points / settingsData.points : null,
+            amount: settings.points ? gift.points / settings.points : null,
             type: TransactionType.DEBIT,
         });
 
