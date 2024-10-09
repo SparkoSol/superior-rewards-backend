@@ -13,7 +13,7 @@ import {
 } from '@nestjs/swagger';
 import { UserGiftService } from './user-gift.service';
 import { UserGiftCreateRequest, UserGiftResponse } from './dto/user-gift.dto';
-import { GiftStatus } from './enum/status.enum';
+import { UserGiftStatus } from './enum/status.enum';
 
 @ApiBearerAuth('access-token')
 @ApiTags('UserGifts')
@@ -27,7 +27,10 @@ export class UserGiftController {
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
     @ApiNotAcceptableResponse({ description: '1: Invalid user id!, 2: Invalid gift id!' })
-    @ApiOperation({ summary: 'To create gift' })
+    @ApiOperation({
+        summary: 'To create gift',
+        description: `status: ${Object.values(UserGiftStatus)}, optional: qrCode`,
+    })
     @Post()
     async create(@Request() req: any, @Body() data: UserGiftCreateRequest): Promise<any> {
         return await this.service.create(data);
@@ -71,7 +74,7 @@ export class UserGiftController {
     async fetch(
         @Query('user') user?: string,
         @Query('gift') gift?: string,
-        @Query('status') status?: GiftStatus,
+        @Query('status') status?: UserGiftStatus,
         @Query('withPopulate') withPopulate?: boolean
     ): Promise<any> {
         return await this.service.fetch(user, gift, status, withPopulate);
@@ -120,16 +123,6 @@ export class UserGiftController {
     findOne(@Param('id') id: string, @Query('withPopulate') withPopulate?: boolean) {
         return this.service.fetchById(id, withPopulate);
     }
-
-    /*******************************************************************
-     * update
-     ******************************************************************/
-    // @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiOkResponse({
-    //   type: UserGiftResponse, description: 'UserGift Updated Successfully',
-    // }) @ApiOperation({ summary: 'To update gift data' }) @Patch(':id')
-    // async update(@Param('id') id: string, @Body() data: UserGiftUpdateRequest) {
-    //   return await this.service.update(id, data);
-    // }
 
     /*******************************************************************
      * delete

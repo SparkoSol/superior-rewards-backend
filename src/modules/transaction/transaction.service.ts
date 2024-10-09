@@ -5,12 +5,14 @@ import mongoose, { Model } from 'mongoose';
 import { TransactionCreateRequest } from './dto/transaction.dto';
 import { TransactionType } from './enum/type.enum';
 import { PersonService } from '../person/person.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class TransactionService {
     constructor(
         @InjectModel(Transaction.name) private readonly model: Model<TransactionDocument>,
-        private readonly personService: PersonService
+        private readonly personService: PersonService,
+        private readonly notificationService: NotificationService
     ) {}
 
     /*******************************************************************
@@ -28,14 +30,22 @@ export class TransactionService {
 
         // if new transaction credit, it points should add in user's points.
         if (transaction.type === TransactionType.CREDIT) {
-            const person = (await this.personService.findOne(transaction.user)) as any;
+            const person = await this.personService.findOne(transaction.user);
 
             await this.personService.update(transaction.user, {
-                ...person._doc,
                 points: Number(person.points) + Number(transaction.points),
             });
 
-            // TODO: has to send notification
+            try {
+                await this.notificationService.sendNotificationToSingleDevice(
+                    'Congrats! You have received points.',
+                    `You have received ${transaction.points} points.`,
+                    transaction.user,
+                    person.fcmTokens
+                );
+            } catch (e) {
+                console.log('Error while sending notification on CREDIT type transactions: ', e);
+            }
         }
 
         return transaction;
@@ -68,26 +78,4 @@ export class TransactionService {
             throw new NotFoundException('No data found!');
         }
     }
-
-    /*******************************************************************
-     * update
-     ******************************************************************/
-    // async update(id: string, data: TransactionUpdateRequest) {
-    //   try {
-    //     return await this.model.findByIdAndUpdate(id, data, { new: true });
-    //   } catch (e) {
-    //     throw new InternalServerErrorException('Unexpected Error');
-    //   }
-    // }
-
-    /*******************************************************************
-     * delete
-     ******************************************************************/
-    // async delete(id: string) {
-    //   try {
-    //     return await this.model.findByIdAndDelete(id);
-    //   } catch (e) {
-    //     throw new InternalServerErrorException('Unexpected Error');
-    //   }
-    // }
 }

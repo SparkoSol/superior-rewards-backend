@@ -1,4 +1,4 @@
-export enum GiftStatus {
+export enum UserGiftStatus {
     PENDING = 'PENDING',
     REDEEMED = 'REDEEMED',
 }

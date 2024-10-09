@@ -14,10 +14,11 @@ import { TransactionService } from '../transaction/transaction.service';
 import { TransactionType } from '../transaction/enum/type.enum';
 import { PersonService } from '../person/person.service';
 import { GiftService } from '../gift/gift.service';
-import { GiftStatus } from './enum/status.enum';
+import { UserGiftStatus } from './enum/status.enum';
 import { NoGeneratorUtils } from '../../utils/no-generator-utils';
 import { UserGiftTtlService } from '../user-gift-ttl/user-gift-ttl.service';
-import { helper } from '../../utils/helper';
+import { SettingService } from '../settings/setting.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class UserGiftService {
@@ -27,7 +28,10 @@ export class UserGiftService {
         private readonly giftService: GiftService,
         private readonly transactionService: TransactionService,
         @Inject(forwardRef(() => UserGiftTtlService))
-        private readonly UserGiftTtlService: UserGiftTtlService
+        private readonly UserGiftTtlService: UserGiftTtlService,
+        private readonly SettingService: SettingService,
+        private readonly notificationService: NotificationService
+
     ) {}
 
     /*******************************************************************
@@ -43,40 +47,45 @@ export class UserGiftService {
         data['qrCode'] = await NoGeneratorUtils.generateCode();
 
         const userGift = await this.model.create(data);
+        const settings = await this.SettingService.fetch();
+        const settingsData = settings[0];
+        console.log('settingsData', settingsData);
 
         // create entry in user-gift-ttl
         await this.UserGiftTtlService.create({
-            _id: userGift._id.toString(),
             userGift: userGift._id.toString(),
-            expireAt: helper.addCustomerDelay(
-                new Date(new Date().toISOString().replace('Z', '+00:00')),
-                2
-            ),
+            createdAt: new Date(new Date().toISOString().replace('Z', '+00:00')),
         });
 
-        console.log(`Gift Redeemed At: ${userGift._id} on ${new Date().toLocaleString()}`);
-
         // create DEBIT type transaction, when user redeemed a gift
-        // await this.transactionService.create({
-        //     user: data.user,
-        //     customerPhone: person.phone,
-        //     points: gift.points,
-        //     type: TransactionType.DEBIT,
-        // });
+        await this.transactionService.create({
+            user: data.user,
+            customerPhone: person.phone,
+            points: gift.points,
+            amount: settingsData.points ? (gift.points / settingsData.points) : null,
+            type: TransactionType.DEBIT,
+        });
 
         // Deduct git points from user current points
-        // await this.personService.update(data.user, {
-        //     ...person._doc,
-        //     points: Number(person.points) - Number(gift.points),
-        // });
+        await this.personService.update(data.user, {
+            points: Number(person.points) - Number(gift.points),
+        });
 
         // increase redeemedPoints
-        // await this.personService.update(data.user, {
-        //     ...person._doc,
-        //     redeemedPoints: Number(person.redeemedPoints) + Number(gift.points),
-        // });
+        await this.personService.update(data.user, {
+            redeemedPoints: Number(person.redeemedPoints) + Number(gift.points),
+        });
 
-        // TODO: set notification here
+        try {
+            await this.notificationService.sendNotificationToSingleDevice(
+              'Congrats! You have redeem a gift.',
+              `You have received ${gift.points} points gift.`,
+              person._id,
+              person.fcmTokens
+            );
+        } catch (e) {
+            console.log('Error while sending notification on redeem a gift: ', e);
+        }
 
         return userGift;
     }
@@ -84,7 +93,7 @@ export class UserGiftService {
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch(user?: string, gift?: string, status?: GiftStatus, withPopulate?: boolean) {
+    async fetch(user?: string, gift?: string, status?: UserGiftStatus, withPopulate?: boolean) {
         const query = {};
         if (user) query['user'] = new mongoose.Types.ObjectId(user);
         if (gift) query['gift'] = new mongoose.Types.ObjectId(gift);
@@ -131,7 +140,7 @@ export class UserGiftService {
      * update
      ******************************************************************/
     async update(id: string, data: UserGiftUpdateRequest) {
-        if (data.status === GiftStatus.REDEEMED) {
+        if (data.status === UserGiftStatus.REDEEMED) {
             // remove entry from user-gift-ttl
             await this.UserGiftTtlService.deleteById(id);
         }

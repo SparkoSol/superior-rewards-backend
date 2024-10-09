@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Query } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
@@ -6,11 +6,16 @@ import {
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
-    ApiOperation,
+    ApiOperation, ApiQuery,
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { PasswordUpdateRequestDto, PersonResponseDto, PersonUpdateDto } from './dto/person.dto';
+import {
+    PasswordUpdateRequestDto,
+    PersonResponseDto,
+    PersonUpdateDto,
+    UpdateFcmTokenRequestDto,
+} from './dto/person.dto';
 import { PersonService } from './person.service';
 
 @ApiBearerAuth('access-token')
@@ -32,9 +37,14 @@ export class PersonController {
     })
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+    @ApiQuery({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
     @Get()
-    async fetch(): Promise<any> {
-        return await this.service.fetch();
+    async fetch(@Query('withPopulate') withPopulate?: boolean): Promise<any> {
+        return await this.service.fetch(withPopulate);
     }
 
     /*******************************************************************
@@ -47,9 +57,14 @@ export class PersonController {
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
     @ApiNotFoundResponse({ description: 'No data found!' })
+    @ApiQuery({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.service.fetchById(id);
+    findOne(@Param('id') id: string, @Query('withPopulate') withPopulate?: boolean) {
+        return this.service.fetchById(id, withPopulate);
     }
 
     /*******************************************************************
@@ -67,10 +82,44 @@ export class PersonController {
     }
 
     /*******************************************************************
+     * updateFcmToken (update a user's FCM token and subscribe to a notification channel)
+     * - This API updates the FCM (Firebase Cloud Messaging) token for a user and subscribes
+     *   the user to a notification channel.
+     * - It first fetches the user (person) by their ID. If the user is not found, the function returns.
+     * - The function determines the appropriate notification channel based on the environment:
+     *   - In production, it uses the "news" channel.
+     *   - In non-production environments, it uses the "news-staging" channel.
+     * - The user's FCM token is then subscribed to the determined notification channel.
+     * - The function checks if the user's FCM tokens array already contains the new token:
+     *   - If the token does not exist in the array and the array has fewer than 10 tokens,
+     *     it adds the new token.
+     *   - If the array has 10 tokens, it removes the oldest token before adding the new one.
+     * - If the user has no FCM tokens, a new array is created with the provided token.
+     * - The updated user document is saved and returned.
+     ******************************************************************/
+    @ApiTags('Person')
+    @ApiOkResponse({
+        type: PersonResponseDto,
+        description: 'Person Updated Successfully',
+    })
+    @ApiBadRequestResponse({ description: 'Issue in request data' })
+    @ApiInternalServerErrorResponse({
+        description:
+          '1: Internal server errors, 2:Something went wrong while updating token.',
+    })
+    @Patch(':id/update-fcmToken')
+    updateFcmToken(
+      @Param('id') id: string,
+      @Body() updateFcmTokenRequestDto: UpdateFcmTokenRequestDto,
+    ) {
+        return this.service.updateFcmToken(id, updateFcmTokenRequestDto);
+    }
+
+    /*******************************************************************
      * update
      ******************************************************************/
-    @ApiOkResponse({ type: PersonResponseDto, description: 'Person updated sccessfully' })
-    @ApiOperation({ summary: 'To update person data' })
+    @ApiOkResponse({ type: PersonResponseDto, description: 'Person updated successfully' })
+    @ApiOperation({ summary: 'To update person data', description: 'optional: address, profilePicture, fcmTokens, deletedAt' })
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Internal server errors!' })
     @Patch(':id')

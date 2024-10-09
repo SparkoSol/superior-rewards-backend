@@ -59,19 +59,6 @@ export class TermsHubService {
     }
 
     /*******************************************************************
-     * update
-     ******************************************************************/
-    async update(id: string, TermsHubUpdateDto: TermsHubUpdateDto) {
-        try {
-            return await this.model
-                .findByIdAndUpdate(id, TermsHubUpdateDto)
-                .setOptions({ new: true });
-        } catch (e) {
-            throw new InternalServerErrorException(e);
-        }
-    }
-
-    /*******************************************************************
      * delete
      ******************************************************************/
     async remove(id: string, res: any) {

@@ -1,6 +1,7 @@
-import { Role } from '../enum/role.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import * as mongoose from 'mongoose';
+import { Role } from '../../role/schema/role.schema';
 
 export type PersonDocument = HydratedDocument<Person>;
 
@@ -11,8 +12,8 @@ export type PersonDocument = HydratedDocument<Person>;
   address?: '',
   password: '',
   profilePicture?: '',
-  role: '',
-  fcmTokens: [''],
+  role: {},
+  fcmTokens?: [''],
   points: 0,
   redeemedPoints: 0,
   addedInOdoo: false,
@@ -22,13 +23,13 @@ export type PersonDocument = HydratedDocument<Person>;
 
 @Schema({ timestamps: true, autoIndex: true })
 export class Person {
-    @Prop({ required: true, unique: true }) odooCustomerId: number;
+    @Prop({ unique: true }) odooCustomerId?: number;
 
     @Prop() name: string;
 
     @Prop({ require: true }) phone: string;
 
-    @Prop() dob: Date;
+    @Prop() dob?: Date;
 
     @Prop() address?: string;
 
@@ -36,9 +37,9 @@ export class Person {
 
     @Prop() profilePicture?: string;
 
-    @Prop({ default: Role.USER }) role: string;
+    @Prop({type: mongoose.Schema.Types.ObjectId, ref: Role.name}) role: string;
 
-    @Prop({ type: [String] }) fcmTokens: string[];
+    @Prop({ type: [String] }) fcmTokens?: string[];
 
     @Prop({ default: 0 }) points: number;
 

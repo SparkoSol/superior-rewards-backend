@@ -17,9 +17,9 @@ async function bootstrap() {
             transform: true,
         })
     );
-    app.useStaticAssets(join(process.cwd(), '..', `${process.env.APP_NAME_SLUG}-uploads`), {
-        prefix: '/uploads/',
-    });
+    // app.useStaticAssets(join(process.cwd(), '..', `${process.env.APP_NAME_SLUG}-uploads`), {
+    //     prefix: '/uploads/',
+    // });
 
     if (
         process.env.NODE_ENVIRONMENT === 'development' ||
@@ -53,4 +53,4 @@ async function bootstrap() {
     Logger.log('<====================================================================>');
 }
 
-void bootstrap();
+bootstrap().then((r) => console.log(r));

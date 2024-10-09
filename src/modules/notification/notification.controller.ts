@@ -3,7 +3,7 @@ import { NotificationService } from './notification.service';
 import {
     NotificationResponseDto,
     NotificationPayloadForMultipleDeviceDto,
-    NotificationPayload,
+    NotificationPayload, NotificationCreateDto,
 } from './dto/notification.dto';
 import {
     ApiBearerAuth,
@@ -23,6 +23,17 @@ import {
 @Controller('notifications')
 export class NotificationController {
     constructor(private readonly notificationService: NotificationService) {}
+
+    /*******************************************************************
+     * create
+     ******************************************************************/
+    @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
+    @ApiInternalServerErrorResponse({ description: 'Error while creating notification' })
+    @ApiOperation({ summary: 'To create notification from admin' })
+    @Post()
+    async create(@Body() data: NotificationCreateDto): Promise<any> {
+        return await this.notificationService.create(data);
+    }
 
     /*******************************************************************
      * findAll

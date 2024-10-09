@@ -30,7 +30,7 @@ export class TermsHubController {
     @ApiUnauthorizedResponse({ description: 'Unauthorized' })
     @ApiInternalServerErrorResponse({ description: 'Error while creating terms-hub' })
     @ApiOperation({
-        description: `type: ${Object.values(TermsHubsType)}`,
+        description: `type: ${Object.values(TermsHubsType)}, optional: details`,
     })
     @ApiBody({ type: TermsHubCreateDto })
     @Post()
@@ -72,25 +72,6 @@ export class TermsHubController {
     findOne(@Param('id') id: string) {
         return this.termsHubService.findOne(id);
     }
-
-    // /*******************************************************************
-    //  * update
-    //  ******************************************************************/
-    // @ApiOkResponse({
-    //     type: TermsHubsResponseDto,
-    //     description: 'Data Updated Successfully',
-    // })
-    // @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-    // @ApiBadRequestResponse({ description: 'Invalid request data' })
-    // @ApiInternalServerErrorResponse({ description: 'Internal server errors' })
-    // @ApiOperation({
-    //     description: 'Update Specific Data',
-    // })
-    // @ApiBody({ type: TermsHubUpdateDto })
-    // @Patch(':id')
-    // update(@Param('id') id: string, @Body() TermsHubUpdateDto: TermsHubUpdateDto) {
-    //     return this.termsHubService.update(id, TermsHubUpdateDto);
-    // }
 
     /*******************************************************************
      * delete
