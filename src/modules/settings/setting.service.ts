@@ -12,9 +12,9 @@ export class SettingService {
      * createOrUpdate
      ******************************************************************/
     async createOrUpdate(data: SettingRequest) {
-        const settings = await this.model.findOne({ user: data.user });
-        if (settings) {
-            return this.model.findByIdAndUpdate(settings.id, data, { new: true });
+        const setting = await this.fetch();
+        if (setting) {
+            return this.model.findByIdAndUpdate(setting.id, data, { new: true });
         } else {
             return await this.model.create(data);
         }
@@ -23,20 +23,8 @@ export class SettingService {
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch(user?: string) {
-        const query = {};
-        if (user) query['user'] = new mongoose.Types.ObjectId(user);
-        return this.model.find(query).sort({ createdAt: -1 }).exec();
-    }
-
-    /*******************************************************************
-     * fetchById
-     ******************************************************************/
-    async fetchById(id: string): Promise<SettingDocument> {
-        try {
-            return this.model.findById(id).exec();
-        } catch (e) {
-            throw new NotFoundException('No data found!');
-        }
+    async fetch() {
+        const settings = await this.model.find().sort({ createdAt: -1 }).exec();
+        return settings[0];
     }
 }

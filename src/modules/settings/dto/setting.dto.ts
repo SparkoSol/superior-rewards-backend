@@ -2,12 +2,6 @@ import { IsMongoId, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SettingRequest {
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsString()
-    @IsMongoId()
-    user: string;
-
     @ApiProperty({ default: 1 })
     @IsNotEmpty()
     @IsNumber()
@@ -20,9 +14,6 @@ export class SettingRequest {
 }
 
 export class SettingResponse {
-    @ApiProperty()
-    user: object;
-
     @ApiProperty()
     amount: number;
 

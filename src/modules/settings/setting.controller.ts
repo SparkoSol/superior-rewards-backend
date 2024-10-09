@@ -1,11 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import {
-    ApiBadRequestResponse,
-    ApiBearerAuth, ApiBody,
+    ApiBearerAuth,
+    ApiBody,
     ApiInternalServerErrorResponse,
-    ApiNotFoundResponse,
     ApiOkResponse,
-    ApiOperation, ApiQuery,
+    ApiOperation,
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -23,9 +22,9 @@ export class SettingController {
      ******************************************************************/
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Error while creating settings' })
-    @ApiOkResponse({type: SettingResponse, description: 'Setting Created Successfully'})
+    @ApiOkResponse({ type: SettingResponse, description: 'Setting Created Successfully' })
     @ApiBody({ type: SettingRequest })
-    @ApiOperation({ summary: 'To create settings' })
+    @ApiOperation({ summary: 'To createOrUpdate settings' })
     @Post()
     async createOrUpdate(@Body() data: SettingRequest): Promise<any> {
         return await this.service.createOrUpdate(data);
@@ -39,36 +38,12 @@ export class SettingController {
     @ApiOkResponse({
         description: 'To get settings',
         type: SettingResponse,
-        isArray: true,
     })
     @ApiOperation({
         summary: 'To get settings',
     })
-    @ApiQuery({
-        required: false,
-        name: 'user',
-        description: 'for getting all settings of specific user',
-    })
     @Get()
-    async fetch(@Query('user') user?: string): Promise<any> {
-        return await this.service.fetch(user);
-    }
-
-    /*******************************************************************
-     * fetchById
-     ******************************************************************/
-    @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
-    @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-    @ApiNotFoundResponse({ description: 'No data found!' })
-    @ApiOkResponse({
-        description: 'Setting by Id',
-        type: SettingResponse,
-    })
-    @ApiOperation({
-        summary: 'To get specific settings',
-    })
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.service.fetchById(id);
+    async fetch(): Promise<any> {
+        return await this.service.fetch();
     }
 }
