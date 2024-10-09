@@ -26,7 +26,7 @@ export class UserGiftController {
      ******************************************************************/
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
-    @ApiNotAcceptableResponse({ description: '1: Invalid user id!, 2: Invalid gift id!' })
+    @ApiNotAcceptableResponse({ description: '1: Invalid user id!, 2: Invalid gift id!, 3: Insufficient points!' })
     @ApiOperation({
         summary: 'To create gift',
         description: `status: ${Object.values(UserGiftStatus)}, optional: qrCode`,

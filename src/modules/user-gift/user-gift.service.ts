@@ -45,6 +45,8 @@ export class UserGiftService {
         const gift = await this.giftService.fetchById(data.gift);
         if (!gift) throw new NotAcceptableException('Invalid gift id!');
 
+        if(person.points < gift.points) throw new NotAcceptableException('Insufficient points!');
+
         data['qrCode'] = await NoGeneratorUtils.generateCode();
 
         const userGift = await this.model.create(data);
