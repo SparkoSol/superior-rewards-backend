@@ -3,7 +3,8 @@ import { NotificationService } from './notification.service';
 import {
     NotificationResponseDto,
     NotificationPayloadForMultipleDeviceDto,
-    NotificationPayload, NotificationCreateDto,
+    NotificationPayload,
+    NotificationCreateDto,
 } from './dto/notification.dto';
 import {
     ApiBearerAuth,

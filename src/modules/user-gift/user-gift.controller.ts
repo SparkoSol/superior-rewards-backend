@@ -1,7 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, Request } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
-    ApiBearerAuth, ApiBody,
+    ApiBearerAuth,
+    ApiBody,
     ApiInternalServerErrorResponse,
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
@@ -12,7 +13,11 @@ import {
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { UserGiftService } from './user-gift.service';
-import { UserGiftCreateRequest, UserGiftPostQrCodeRequest, UserGiftResponse } from './dto/user-gift.dto';
+import {
+    UserGiftCreateRequest,
+    UserGiftPostQrCodeRequest,
+    UserGiftResponse,
+} from './dto/user-gift.dto';
 import { UserGiftStatus } from './enum/status.enum';
 
 @ApiBearerAuth('access-token')
@@ -26,7 +31,9 @@ export class UserGiftController {
      ******************************************************************/
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
-    @ApiNotAcceptableResponse({ description: '1: Invalid user id!, 2: Invalid gift id!, 3: Insufficient points!' })
+    @ApiNotAcceptableResponse({
+        description: '1: Invalid user id!, 2: Invalid gift id!, 3: Insufficient points!',
+    })
     @ApiOperation({
         summary: 'To create gift',
         description: `status: ${Object.values(UserGiftStatus)}, optional: qrCode`,
@@ -43,7 +50,10 @@ export class UserGiftController {
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
     @ApiNotAcceptableResponse({ description: 'Invalid QR Code!' })
-    @ApiOperation({ summary: 'To post QR Code', description: 'qrCode: it will update the existing user-gift status to redeemed' })
+    @ApiOperation({
+        summary: 'To post QR Code',
+        description: 'qrCode: it will update the existing user-gift status to redeemed',
+    })
     @ApiBody({ type: UserGiftPostQrCodeRequest })
     @Post('qr-code')
     async postQrCode(@Body() data: UserGiftPostQrCodeRequest): Promise<any> {

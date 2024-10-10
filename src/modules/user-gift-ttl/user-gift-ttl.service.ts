@@ -33,7 +33,9 @@ export class UserGiftTtlService implements OnModuleInit {
 
             // Reinsert the document with isExpired = true to prevent re-deletion
             await this.UserGiftService.update(userGiftId, { isExpired: true });
-            console.log(`Updated isExpired for UserGift: ${userGiftId} on ${new Date().toLocaleString()}`);
+            console.log(
+                `Updated isExpired for UserGift: ${userGiftId} on ${new Date().toLocaleString()}`
+            );
         });
 
         changeStream.on('error', (err) => {

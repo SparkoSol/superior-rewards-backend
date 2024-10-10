@@ -10,7 +10,11 @@ import {
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { PermissionService } from './permission.service';
-import { PermissionCreateRequest, PermissionResponse, PermissionUpdateRequest } from './dto/permission.dto';
+import {
+    PermissionCreateRequest,
+    PermissionResponse,
+    PermissionUpdateRequest,
+} from './dto/permission.dto';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Permissions')

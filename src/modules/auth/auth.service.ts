@@ -46,7 +46,7 @@ export class AuthService {
         };
         this.defaultApp = admin.initializeApp({
             credential: admin.credential.cert(adminParams),
-            storageBucket: process.env.FIREBASE_STORAGE_BUCKET
+            storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
         });
     }
 

@@ -24,5 +24,3 @@ export class DeleteFileDTO {
     @ApiProperty()
     id: string;
 }
-
-

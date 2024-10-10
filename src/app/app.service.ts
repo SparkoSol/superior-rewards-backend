@@ -14,7 +14,8 @@ import * as process from 'node:process';
 export class AppService {
     private readonly storage: any;
     private readonly bucket: Bucket;
-    private readonly defaultFolder = process.env.NODE_ENVIRONMENT === 'production' ? 'production' : 'staging';
+    private readonly defaultFolder =
+        process.env.NODE_ENVIRONMENT === 'production' ? 'production' : 'staging';
     private readonly firebaseAdmin: admin.app.App;
 
     constructor(private readonly authService: AuthService) {

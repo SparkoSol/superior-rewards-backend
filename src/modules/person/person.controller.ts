@@ -6,7 +6,8 @@ import {
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
-    ApiOperation, ApiQuery,
+    ApiOperation,
+    ApiQuery,
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -104,13 +105,12 @@ export class PersonController {
     })
     @ApiBadRequestResponse({ description: 'Issue in request data' })
     @ApiInternalServerErrorResponse({
-        description:
-          '1: Internal server errors, 2:Something went wrong while updating token.',
+        description: '1: Internal server errors, 2:Something went wrong while updating token.',
     })
     @Patch(':id/update-fcmToken')
     updateFcmToken(
-      @Param('id') id: string,
-      @Body() updateFcmTokenRequestDto: UpdateFcmTokenRequestDto,
+        @Param('id') id: string,
+        @Body() updateFcmTokenRequestDto: UpdateFcmTokenRequestDto
     ) {
         return this.service.updateFcmToken(id, updateFcmTokenRequestDto);
     }
@@ -119,7 +119,10 @@ export class PersonController {
      * update
      ******************************************************************/
     @ApiOkResponse({ type: PersonResponseDto, description: 'Person updated successfully' })
-    @ApiOperation({ summary: 'To update person data', description: 'optional: address, profilePicture, fcmTokens, deletedAt' })
+    @ApiOperation({
+        summary: 'To update person data',
+        description: 'optional: address, profilePicture, fcmTokens, deletedAt',
+    })
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Internal server errors!' })
     @Patch(':id')

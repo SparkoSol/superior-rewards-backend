@@ -37,7 +37,7 @@ export class Person {
 
     @Prop() profilePicture?: string;
 
-    @Prop({type: mongoose.Schema.Types.ObjectId, ref: Role.name}) role: string;
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Role.name }) role: string;
 
     @Prop({ type: [String] }) fcmTokens?: string[];
 

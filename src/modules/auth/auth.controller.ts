@@ -25,7 +25,11 @@ import {
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { Public } from './decorators/setmetadata.decorator';
 import { PersonResponseDto } from '../person/dto/person.dto';
-import { AdminCreateUserRequest, MobileSignUpRequest, SignUpResponse } from './dto/sign-up-request.dto';
+import {
+    AdminCreateUserRequest,
+    MobileSignUpRequest,
+    SignUpResponse,
+} from './dto/sign-up-request.dto';
 import { SignInRequest, SignInResponse } from './dto/sign-in-request.dto';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
@@ -67,7 +71,8 @@ export class AuthController {
         description: 'Error while signup || Internal server errors.',
     })
     @ApiNotAcceptableResponse({
-        description: '1: User with this phone already exist., 2: Invalid role, please contact admin to add User role.',
+        description:
+            '1: User with this phone already exist., 2: Invalid role, please contact admin to add User role.',
     })
     @Post('sign-up')
     signUp(@Body() data: MobileSignUpRequest): Promise<any> {

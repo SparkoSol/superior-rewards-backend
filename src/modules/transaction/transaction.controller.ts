@@ -2,7 +2,8 @@ import { Body, Controller, Delete, Get, Param, Post, Query, Request } from '@nes
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
-    ApiInternalServerErrorResponse, ApiNotAcceptableResponse,
+    ApiInternalServerErrorResponse,
+    ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -61,7 +62,10 @@ export class TransactionController {
         description: 'If true, will return populated data.',
     })
     @Get()
-    async fetch(@Query('user') user?: string, @Query('withPopulate') withPopulate?: boolean): Promise<any> {
+    async fetch(
+        @Query('user') user?: string,
+        @Query('withPopulate') withPopulate?: boolean
+    ): Promise<any> {
         return await this.service.fetch(user, withPopulate);
     }
 

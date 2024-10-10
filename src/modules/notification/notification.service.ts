@@ -3,7 +3,8 @@ import {
     HttpStatus,
     Inject,
     Injectable,
-    InternalServerErrorException, Logger,
+    InternalServerErrorException,
+    Logger,
     NotFoundException,
 } from '@nestjs/common';
 import { NotificationCreateDto, NotificationPayload } from './dto/notification.dto';

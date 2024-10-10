@@ -11,7 +11,6 @@ export class PermissionCreateRequest {
 export class PermissionUpdateRequest extends PartialType(PermissionCreateRequest) {}
 
 export class PermissionResponse {
-
     @ApiProperty()
     name: string;
 
