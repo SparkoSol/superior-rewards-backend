@@ -28,6 +28,6 @@ export class helper {
         const d1 = new Date(date1).getTime();
         const d2 = new Date(date2).getTime();
         const differenceInMs = Math.abs(d2 - d1);
-        return Math.floor(differenceInMs / (1000 * 60 * 60));
+        return Math.floor(differenceInMs / (1000));
     }
 }
