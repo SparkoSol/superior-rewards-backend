@@ -63,16 +63,7 @@ export class TermsHubService {
      ******************************************************************/
     async remove(id: string, res: any) {
         try {
-            const data = await this.findOne(id);
-            if (data) {
-                const result = await this.model.findByIdAndDelete(id);
-                res.status(200).send(result);
-            } else {
-                res.status(404).send({
-                    message: 'Data You are Trying to Delete Not Existed',
-                    statusCode: 404,
-                });
-            }
+            return await this.model.findByIdAndDelete(id).exec();
         } catch (e) {
             console.log('Error while deleting terms-hub: ', e);
             throw new InternalServerErrorException('Error while deleting terms-hub');
