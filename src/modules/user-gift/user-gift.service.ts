@@ -151,8 +151,8 @@ export class UserGiftService {
                 ...item._doc,
                 diffInSeconds: helper.getDifferenceInSeconds(
                     item.isExpired,
-                    item.createdAt,
-                    item.isExpired ? null : (itemTtl ? itemTtl.expireAt.toString() : null)
+                    new Date().toString(),
+                    item.isExpired ? null : itemTtl ? itemTtl.expireAt.toString() : null
                 ),
             };
         });
