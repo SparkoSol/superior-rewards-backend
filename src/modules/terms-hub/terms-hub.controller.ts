@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, Response } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import { TermsHubService } from './terms-hub.service';
 import {
     ApiBearerAuth,
@@ -87,7 +87,7 @@ export class TermsHubController {
     })
     @ApiOperation({ description: 'Delete Specific Data' })
     @Delete(':id')
-    remove(@Param('id') id: string, @Response() res: any) {
-        return this.termsHubService.remove(id, res);
+    remove(@Param('id') id: string) {
+        return this.termsHubService.remove(id);
     }
 }

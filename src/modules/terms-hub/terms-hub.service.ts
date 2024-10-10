@@ -61,7 +61,7 @@ export class TermsHubService {
     /*******************************************************************
      * delete
      ******************************************************************/
-    async remove(id: string, res: any) {
+    async remove(id: string) {
         try {
             return await this.model.findByIdAndDelete(id).exec();
         } catch (e) {
