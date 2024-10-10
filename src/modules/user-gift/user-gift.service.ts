@@ -118,7 +118,7 @@ export class UserGiftService {
                 diffInSeconds: helper.getDifferenceInSeconds(
                     item.isExpired,
                     new Date().toString(),
-                    item.isExpired ? null : itemTtl ? itemTtl.expireAt.toString() : null
+                    item.status === UserGiftStatus.REDEEMED ? null : itemTtl ? itemTtl.expireAt.toString() : null
                 ),
             };
         });
