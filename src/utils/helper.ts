@@ -27,7 +27,7 @@ export class helper {
         }
         const d1 = new Date(date1).getTime();
         const d2 = new Date(date2).getTime();
-        const differenceInMs = Math.abs(d2 - d1);
-        return Math.floor(differenceInMs / (1000));
+        const differenceInS = Math.abs(d2 - d1);
+        return Math.floor(differenceInS / (1000));
     }
 }
