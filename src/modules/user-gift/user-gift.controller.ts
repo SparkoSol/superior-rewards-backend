@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, Request } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
-    ApiBearerAuth,
+    ApiBearerAuth, ApiBody,
     ApiInternalServerErrorResponse,
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
@@ -31,8 +31,9 @@ export class UserGiftController {
         summary: 'To create gift',
         description: `status: ${Object.values(UserGiftStatus)}, optional: qrCode`,
     })
+    @ApiBody({ type: UserGiftCreateRequest })
     @Post()
-    async create(@Request() req: any, @Body() data: UserGiftCreateRequest): Promise<any> {
+    async create(@Body() data: UserGiftCreateRequest): Promise<any> {
         return await this.service.create(data);
     }
 
