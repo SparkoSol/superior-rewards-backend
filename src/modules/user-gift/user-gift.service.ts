@@ -115,10 +115,10 @@ export class UserGiftService {
 
             return {
                 ...item._doc,
-                diffInMinutes: helper.getDifferenceInMinutes(
+                diffInSeconds: helper.getDifferenceInSeconds(
                     item.isExpired,
                     item.createdAt,
-                    itemTtl ? itemTtl.expireAt.toString() : ''
+                    item.isExpired ? null : (itemTtl ? itemTtl.expireAt.toString() : null)
                 ),
             };
         });
