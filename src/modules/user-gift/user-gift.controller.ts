@@ -12,7 +12,7 @@ import {
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { UserGiftService } from './user-gift.service';
-import { UserGiftCreateRequest, UserGiftResponse } from './dto/user-gift.dto';
+import { UserGiftCreateRequest, UserGiftPostQrCodeRequest, UserGiftResponse } from './dto/user-gift.dto';
 import { UserGiftStatus } from './enum/status.enum';
 
 @ApiBearerAuth('access-token')
@@ -35,6 +35,19 @@ export class UserGiftController {
     @Post()
     async create(@Body() data: UserGiftCreateRequest): Promise<any> {
         return await this.service.create(data);
+    }
+
+    /*******************************************************************
+     * postQrCode
+     ******************************************************************/
+    @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
+    @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+    @ApiNotAcceptableResponse({ description: 'Invalid QR Code!' })
+    @ApiOperation({ summary: 'To post QR Code', description: 'qrCode: it will update the existing user-gift status to redeemed' })
+    @ApiBody({ type: UserGiftPostQrCodeRequest })
+    @Post('qr-code')
+    async postQrCode(@Body() data: UserGiftPostQrCodeRequest): Promise<any> {
+        return await this.service.postQrCode(data.qrCode);
     }
 
     /*******************************************************************

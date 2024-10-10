@@ -3,6 +3,7 @@ import {
     Inject,
     Injectable,
     InternalServerErrorException,
+    Logger,
     NotAcceptableException,
     NotFoundException,
 } from '@nestjs/common';
@@ -45,7 +46,7 @@ export class UserGiftService {
         const gift = await this.giftService.fetchById(data.gift);
         if (!gift) throw new NotAcceptableException('Invalid gift id!');
 
-        if(person.points < gift.points) throw new NotAcceptableException('Insufficient points!');
+        if (person.points < gift.points) throw new NotAcceptableException('Insufficient points!');
 
         data['qrCode'] = await NoGeneratorUtils.generateCode();
 
@@ -62,24 +63,39 @@ export class UserGiftService {
         });
 
         // create DEBIT type transaction, when user redeemed a gift
-        await this.transactionService.create({
-            user: data.user,
-            customerPhone: person.phone,
-            points: gift.points,
-            amount: settings.points ? gift.points / settings.points : null,
-            type: TransactionType.DEBIT,
-        });
+        try {
+            await this.transactionService.create({
+                user: data.user,
+                customerPhone: person.phone,
+                points: gift.points,
+                amount: settings.points ? gift.points / settings.points : null,
+                type: TransactionType.DEBIT,
+            });
+        } catch (error) {
+            Logger.error(`Error while creating transaction for redeeming gift: ${error}`);
+        }
 
         // Deduct git points from user current points
-        await this.personService.update(data.user, {
-            points: Number(person.points) - Number(gift.points),
-        });
+        try {
+            await this.personService.update(data.user, {
+                points: Number(person.points) - Number(gift.points),
+            });
+        } catch (error) {
+            Logger.error(`Error while updating user points after redeeming gift: ${error}`);
+        }
 
         // increase redeemedPoints
-        await this.personService.update(data.user, {
-            redeemedPoints: Number(person.redeemedPoints) + Number(gift.points),
-        });
+        try {
+            await this.personService.update(data.user, {
+                redeemedPoints: Number(person.redeemedPoints) + Number(gift.points),
+            });
+        } catch (error) {
+            Logger.error(
+                `Error while updating user redeemed points after redeeming gift: ${error}`
+            );
+        }
 
+        // send notification to user You have redeem a gift.
         try {
             await this.notificationService.sendNotificationToSingleDevice(
                 'Congrats! You have redeem a gift.',
@@ -88,10 +104,26 @@ export class UserGiftService {
                 person.fcmTokens
             );
         } catch (e) {
-            console.log('Error while sending notification on redeem a gift: ', e);
+            Logger.error(`Error while sending notification to user after redeeming gift: ${e}`);
         }
 
         return userGift;
+    }
+
+    /*******************************************************************
+     * postQrCode
+     ******************************************************************/
+    async postQrCode(qrCode: string) {
+        const userGift = await this.model.findOne({ qrCode });
+        if (!userGift) throw new NotAcceptableException('Invalid qrCode!');
+
+        return this.model.findByIdAndUpdate(
+            userGift._id,
+            {
+                status: UserGiftStatus.REDEEMED,
+            },
+            { new: true }
+        );
     }
 
     /*******************************************************************
@@ -111,7 +143,9 @@ export class UserGiftService {
         const allTtlItems = await this.UserGiftTtlService.fetch();
 
         return histories.map((item: any) => {
-            const itemTtl = allTtlItems.find((ttlItem) => ttlItem._id.toString() === item._id.toString());
+            const itemTtl = allTtlItems.find(
+                (ttlItem) => ttlItem._id.toString() === item._id.toString()
+            );
 
             return {
                 ...item._doc,

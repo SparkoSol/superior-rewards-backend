@@ -3,7 +3,7 @@ import {
     HttpStatus,
     Inject,
     Injectable,
-    InternalServerErrorException,
+    InternalServerErrorException, Logger,
     NotFoundException,
 } from '@nestjs/common';
 import { NotificationCreateDto, NotificationPayload } from './dto/notification.dto';
@@ -29,8 +29,7 @@ export class NotificationService {
         try {
             return await this.model.create(createNotificationDto);
         } catch (e) {
-            console.log('Error while creating notification: ', e);
-            throw new InternalServerErrorException();
+            throw new InternalServerErrorException(`Error while creating notification: ${e}`);
         }
     }
 
@@ -44,8 +43,7 @@ export class NotificationService {
             if (markAsRead) query['markAsRead'] = markAsRead;
             return await this.model.find(query).populate('user').sort({ createdAt: -1 }).exec();
         } catch (e) {
-            console.log('Error while getting notifications: ', e);
-            throw new InternalServerErrorException();
+            throw new InternalServerErrorException(`Error while getting notifications: ${e}`);
         }
     }
 
@@ -73,7 +71,7 @@ export class NotificationService {
                 message: 'subscribeToTopic successfully',
             };
         } catch (e) {
-            console.log('Error in subscribeToTopic: ', e);
+            Logger.error(`Error in subscribeToTopic: ${e}`);
         }
     }
 
@@ -96,7 +94,7 @@ export class NotificationService {
                 message: 'Notification sent successfully',
             };
         } catch (e) {
-            console.log('Error while sending sendNotificationToChannel: ', e);
+            Logger.error(`Error in sendNotificationToChannel: ${e}`);
         }
     }
 
@@ -153,14 +151,14 @@ export class NotificationService {
                 message: 'Notification sent successfully',
             };
         } catch (e) {
-            console.log('Error while sending sendNotificationToSingleDevice: ', e);
+            Logger.error(`Error while sending sendNotificationToSingleDevice: ${e}`);
         }
     }
 
     /*******************************************************************
      * sendNotificationToMultipleDevices
      ******************************************************************/
-    async sendNotificationToMultipleDevices(fcmTokens, title, body) {
+    async sendNotificationToMultipleDevices(fcmTokens: any, title: string, body: string) {
         try {
             for (let i = 0; i < fcmTokens.length; i++) {
                 const payload = {
@@ -179,14 +177,14 @@ export class NotificationService {
                 message: 'Multiple Notifications sent successfully',
             };
         } catch (e) {
-            console.log('Error while sending Multiple Notifications: ', e);
+            Logger.error(`Error while sending Multiple Notifications: ${e}`);
         }
     }
 
     /*******************************************************************
      * sendNotificationByUserId
      ******************************************************************/
-    async sendNotificationByUserId(personId: string, title, body) {
+    async sendNotificationByUserId(personId: string, title: string, body: string) {
         const person = await this.personService.findOne(personId);
         if (!person || (person && !person.fcmTokens)) return;
 

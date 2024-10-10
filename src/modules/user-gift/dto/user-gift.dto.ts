@@ -47,3 +47,7 @@ export class UserGiftResponse {
 
     @ApiProperty() updatedAt: Date;
 }
+
+export class UserGiftPostQrCodeRequest {
+    @ApiProperty() @IsNotEmpty() @IsString() qrCode: string;
+}
