@@ -185,6 +185,7 @@ export class UserGiftService {
     async getExpiredUserGiftsIds(excludedIds: any[]) {
         const items = await this.model.find({
             _id: { $nin: excludedIds },
+            status: UserGiftStatus.PENDING,
             isExpired: false,
         });
 

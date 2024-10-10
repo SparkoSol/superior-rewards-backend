@@ -22,8 +22,6 @@ export class UserGiftCreateRequest {
     @IsOptional()
     @IsBoolean()
     isExpired: boolean;
-
-    @ApiProperty() @IsOptional() @IsString() qrCode?: string;
 }
 
 export class UserGiftUpdateRequest extends PartialType(UserGiftCreateRequest) {}
