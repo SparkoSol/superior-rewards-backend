@@ -13,7 +13,7 @@ export class UserGiftTtlJob {
         private readonly userGiftTtlService: UserGiftTtlService
     ) {}
 
-    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+    @Cron(CronExpression.EVERY_MINUTE)
     async handleCron() {
         const allReferenceIds = await this.userGiftTtlService.getAllReferenceIdsInArray();
 
