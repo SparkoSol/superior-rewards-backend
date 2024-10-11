@@ -1,9 +1,10 @@
-import { forwardRef, Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserGiftTtl, UserGiftTtlDocument } from './schema/user-gift-ttl.schema';
 import { Model } from 'mongoose';
 import { UserGiftTtlCreateRequest } from './dto/user-gift-ttl.dto';
 import { UserGiftService } from '../user-gift/user-gift.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class UserGiftTtlService implements OnModuleInit {
@@ -12,7 +13,8 @@ export class UserGiftTtlService implements OnModuleInit {
     constructor(
         @InjectModel(UserGiftTtl.name) private readonly model: Model<UserGiftTtlDocument>,
         @Inject(forwardRef(() => UserGiftService))
-        private readonly UserGiftService: UserGiftService
+        private readonly UserGiftService: UserGiftService,
+        private readonly notificationService: NotificationService
     ) {}
 
     async onModuleInit() {
@@ -36,6 +38,22 @@ export class UserGiftTtlService implements OnModuleInit {
             console.log(
                 `Updated isExpired for UserGift: ${userGiftId} on ${new Date().toLocaleString()}`
             );
+
+            const userGift = await this.UserGiftService.fetchById(userGiftId, true) as any;
+
+            // send notification when a gift has expired.
+            try {
+                await this.notificationService.sendNotificationToSingleDevice(
+                  'Ops! Your gift has expired',
+                  `Your gift (${userGift.gift.name}) have been expired, batter luck next time.`,
+                  userGift.user._id.toString(),
+                  userGift.user.fcmTokens
+                );
+            } catch (e) {
+                Logger.error(`Error while sending notification when a gift has expired. : ${e}`);
+            }
+
+
         });
 
         changeStream.on('error', (err) => {

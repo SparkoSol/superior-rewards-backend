@@ -131,10 +131,10 @@ export class UserGiftService {
               'Congrats! You have Collect a gift.',
               `You have collected your gift (${userGift.gift.name}).`,
               userGift.user._id.toString(),
-              userGift.user._id.toString()
+              userGift.user.fcmTokens
             );
         } catch (e) {
-            Logger.error(`Error while sending notification to user after redeeming gift: ${e}`);
+            Logger.error(`Error while sending notification When a user collects a gift: ${e}`);
         }
 
         return history;
