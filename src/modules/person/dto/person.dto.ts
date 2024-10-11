@@ -26,6 +26,11 @@ export class PersonUpdateDto {
     dob?: Date;
 
     @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    address?: string;
+
+    @ApiProperty()
     @IsOptional()
     @IsString()
     profilePicture?: string;
@@ -71,6 +76,9 @@ export class PersonResponseDto {
 
     @ApiProperty()
     dob: Date;
+
+    @ApiProperty()
+    address?: string;
 
     @ApiProperty()
     profilePicture?: string;
