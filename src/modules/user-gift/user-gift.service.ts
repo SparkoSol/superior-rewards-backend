@@ -114,16 +114,30 @@ export class UserGiftService {
      * postQrCode
      ******************************************************************/
     async postQrCode(qrCode: string) {
-        const userGift = await this.model.findOne({ qrCode });
+        const userGift = await this.model.findOne({ qrCode }).populate(['user', 'gift']).exec() as any;
         if (!userGift) throw new NotAcceptableException('Invalid qrCode!');
 
-        return this.model.findByIdAndUpdate(
+        const history = this.model.findByIdAndUpdate(
             userGift._id,
             {
                 status: UserGiftStatus.REDEEMED,
             },
             { new: true }
         );
+
+        // send notification When a user collects a gift.
+        try {
+            await this.notificationService.sendNotificationToSingleDevice(
+              'Congrats! You have Collect a gift.',
+              `You have collected your gift (${userGift.gift.name}).`,
+              userGift.user._id.toString(),
+              userGift.user._id.toString()
+            );
+        } catch (e) {
+            Logger.error(`Error while sending notification to user after redeeming gift: ${e}`);
+        }
+
+        return history;
     }
 
     /*******************************************************************
