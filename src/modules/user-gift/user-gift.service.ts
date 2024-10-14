@@ -119,6 +119,8 @@ export class UserGiftService {
 
         if (userGift && userGift.isExpired) throw new NotAcceptableException('Gift is expired!');
 
+        if(userGift && userGift.status === UserGiftStatus.REDEEMED) throw new NotAcceptableException('Gift is already redeemed!');
+
         const history = this.model.findByIdAndUpdate(
             userGift._id,
             {
