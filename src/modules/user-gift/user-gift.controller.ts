@@ -49,7 +49,7 @@ export class UserGiftController {
      ******************************************************************/
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
-    @ApiNotAcceptableResponse({ description: 'Invalid QR Code!' })
+    @ApiNotAcceptableResponse({ description: '1: Invalid QR Code!, 2: Gift is expired!' })
     @ApiOperation({
         summary: 'To post QR Code',
         description: 'qrCode: it will update the existing user-gift status to redeemed',

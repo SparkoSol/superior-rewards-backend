@@ -117,6 +117,8 @@ export class UserGiftService {
         const userGift = await this.model.findOne({ qrCode }).populate(['user', 'gift']).exec() as any;
         if (!userGift) throw new NotAcceptableException('Invalid qrCode!');
 
+        if (userGift && userGift.isExpired) throw new NotAcceptableException('Gift is expired!');
+
         const history = this.model.findByIdAndUpdate(
             userGift._id,
             {
