@@ -188,7 +188,7 @@ export class AuthService {
         if (withPopulate) {
             return {
                 ...profile._doc,
-                role: this.getRoleWithPermissions(profile.role),
+                role: profile.role ? this.getRoleWithPermissions(profile.role) : null,
             };
         }
 

@@ -75,7 +75,7 @@ export class RoleService {
      * delete
      ******************************************************************/
     async delete(id: string) {
-        const persons = await this.personService.findOneByQuery({ role: id }, false) as any;
+        const persons = await this.personService.findByQuery({ role: id }) as any;
         const personIds = persons && persons.length ? persons.map((person) => person._id) : [];
 
         if(personIds.length) {

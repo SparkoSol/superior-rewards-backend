@@ -46,6 +46,13 @@ export class PersonService {
         return await this.model.findById(id).exec();
     }
 
+    async findByQuery(query: {}) {
+        return await this.model
+          .find(query)
+          .select('-password')
+          .exec();
+    }
+
     async findOneByQuery(query: {}, withPopulate?: boolean) {
         return await this.model
             .findOne(query)
