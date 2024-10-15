@@ -61,6 +61,14 @@ export class AuthService {
             };
         }
 
+        if(person && person.deletedAt) {
+            return {
+                status: HttpStatus.NOT_FOUND,
+                message: 'Account Deleted by Super Admin!',
+                data: null,
+            };
+        }
+
         if (person.password !== password) {
             return {
                 status: HttpStatus.UNAUTHORIZED,
