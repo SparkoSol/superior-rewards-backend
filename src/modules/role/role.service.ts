@@ -1,12 +1,15 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Role, RoleDocument } from './schema/role.schema';
 import { Model } from 'mongoose';
 import { RoleDto } from './dto/role.dto';
+import { PersonService } from '../person/person.service';
 
 @Injectable()
 export class RoleService {
-    constructor(@InjectModel(Role.name) private readonly model: Model<RoleDocument>) {}
+    constructor(@InjectModel(Role.name) private readonly model: Model<RoleDocument>,
+                @Inject(forwardRef(() => PersonService))
+                private readonly personService: PersonService) {}
 
     /*******************************************************************
      * create
@@ -72,6 +75,13 @@ export class RoleService {
      * delete
      ******************************************************************/
     async delete(id: string) {
+        const persons = await this.personService.findOneByQuery({ role: id }, false) as any;
+        const personIds = persons && persons.length ? persons.map((person) => person._id) : [];
+
+        if(personIds.length) {
+            await this.personService.revokeRoleFromPersonsIdsArray(personIds);
+        }
+
         try {
             return await this.model.findByIdAndDelete(id);
         } catch (e) {

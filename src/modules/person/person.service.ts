@@ -175,4 +175,15 @@ export class PersonService {
             throw new InternalServerErrorException('Unexpected Error');
         }
     }
+
+    async revokeRoleFromPersonsIdsArray(personIds: any) {
+        try {
+            return await this.model.updateMany(
+              { _id: { $in: personIds } },
+              { $set: { role: null } }
+            );
+        } catch (error) {
+            console.error('Error setting role to null:', error);
+        }
+    }
 }
