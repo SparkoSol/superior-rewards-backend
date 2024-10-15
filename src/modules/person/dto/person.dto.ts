@@ -26,7 +26,7 @@ export class PersonUpdateDto {
     dob?: Date;
 
     @ApiProperty()
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
     address?: string;
 
