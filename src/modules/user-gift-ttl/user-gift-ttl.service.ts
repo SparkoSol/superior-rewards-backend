@@ -65,12 +65,12 @@ export class UserGiftTtlService implements OnModuleInit {
 
         // Reinsert the document with isExpired = true to prevent re-deletion;
         await this.UserGiftService.update(userGiftId, { isExpired: true });
-        
+
         // send notification when a gift has expired.
         try {
           await this.notificationService.sendNotificationToSingleDevice(
             'Ops! Your gift has expired',
-            `Your gift (${userGift.gift.name}) have been expired, batter luck next time.`,
+            `Your gift (${userGift.gift.name}) have been expired, better luck next time.`,
             userGift.user._id.toString(),
             userGift.user.fcmTokens,
           );
