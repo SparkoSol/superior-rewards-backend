@@ -21,7 +21,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./Dockerfile
+          file: ./ProductionDockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/superior-rewards-api:main
           builder: ${{ steps.buildx.outputs.name }}
