@@ -10,6 +10,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { FileDTO } from '../../../uploadFileStructue/dto/file.dto';
+import { Type } from 'class-transformer';
 
 export class PersonCreateDto {
     @ApiProperty()
@@ -231,4 +232,18 @@ export class BulkUploadDTO {
     @IsOptional()
     @IsObject()
     file: FileDTO;
+}
+
+export class PersonPaginationDto {
+    @ApiProperty({ description: 'Page No - Starting Page is 1' })
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    page: number;
+
+    @ApiProperty({ description: 'Page Size - Default is 10' })
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    pageSize: number;
 }

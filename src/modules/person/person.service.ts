@@ -93,7 +93,7 @@ export class PersonService {
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch(withPopulate?: boolean) {
+    async fetch(page: number, pageSize: number, withPopulate?: boolean) {
         const query = {};
         // query['deletedAt'] = { $eq: null };
         return this.model
@@ -109,6 +109,8 @@ export class PersonService {
                       ]
                     : []
             )
+            .skip(pageSize * (page - 1))
+            .limit(pageSize)
             .sort({ createdAt: -1 })
             .exec();
     }

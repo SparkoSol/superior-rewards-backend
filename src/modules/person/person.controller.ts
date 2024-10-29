@@ -27,7 +27,7 @@ import {
 } from '@nestjs/swagger';
 import {
   BulkUploadDTO,
-  PasswordUpdateRequestDto, PersonCreateDto,
+  PasswordUpdateRequestDto, PersonCreateDto, PersonPaginationDto,
   PersonResponseDto,
   PersonUpdateDto,
   UpdateFcmTokenRequestDto,
@@ -79,8 +79,8 @@ export class PersonController {
     description: 'If true, will return populated data.',
   })
   @Get()
-  async fetch(@Query('withPopulate') withPopulate?: boolean): Promise<any> {
-    return await this.service.fetch(withPopulate);
+  async fetch(@Query() data: PersonPaginationDto, @Query('withPopulate') withPopulate?: boolean): Promise<any> {
+    return await this.service.fetch(data.page, data.pageSize, withPopulate);
   }
 
   /*******************************************************************
