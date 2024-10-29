@@ -45,7 +45,6 @@ import { Response } from 'express';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { RoleService } from '../role/role.service';
-import { contains } from 'class-validator';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Person')
@@ -159,6 +158,7 @@ export class PersonController {
     async bulkUpload(@UploadedFile() file: any, @Body() data: BulkUploadDTO, @Res() res: Response) {
         const xlsDocsItems = [];
         let failedDocsCount = 0;
+        let totalDocs = 0;
 
         const tempFilePath = path.join(os.tmpdir(), 'temp.csv');
 
@@ -166,17 +166,18 @@ export class PersonController {
 
         fs.writeFileSync(tempFilePath, fileData);
 
-        const sheetData = xlsx.utils.sheet_to_json(xlsx.readFile(tempFilePath).Sheets[xlsx.readFile(tempFilePath).SheetNames[0]]);
+        const sheetData = xlsx.utils.sheet_to_json(
+            xlsx.readFile(tempFilePath).Sheets[xlsx.readFile(tempFilePath).SheetNames[0]]
+        );
 
         const roleId = (await this.roleService.fetchByRoleName('User'))._id.toString();
         const lastOdooId = await this.service.getLastOdooCustomerId();
 
         if (!roleId) return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Invalid Role');
-
-        console.log('Sheet Data: ', sheetData.length);
+        totalDocs = sheetData.length;
 
         // Process each row from the sheet data as you did with CSV
-        for (let index = 0; index < sheetData.length; index++){
+        for (let index = 0; index < sheetData.length; index++) {
             const customer: any = sheetData[index];
             if (customer) {
                 const defaultKeys = [
@@ -207,14 +208,12 @@ export class PersonController {
                     addedInOdoo: true,
                     role: roleId,
                     odooCustomerId: lastOdooId + (index + 1),
+                    password: '12345678',
                 });
-            }
-            else {
+            } else {
                 failedDocsCount++;
             }
         }
-
-        console.log('XLS Docs Items: ', xlsDocsItems.length);
 
         try {
             const successDocs = await this.service.createMany(xlsDocsItems);
@@ -222,7 +221,7 @@ export class PersonController {
             failedDocsCount = failedDocsCount + (xlsDocsItems.length - successDocs.length);
 
             res.status(HttpStatus.CREATED).send({
-                totalDocs: xlsDocsItems.length,
+                totalDocs,
                 successDocs: successDocs.length,
                 failedDocs: failedDocsCount,
             });
