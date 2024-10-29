@@ -158,25 +158,22 @@ export class PersonController {
     @Post('bulk-upload')
     async bulkUpload(@UploadedFile() file: any, @Body() data: BulkUploadDTO, @Res() res: Response) {
         const xlsDocsItems = [];
+        let failedDocsCount = 0;
 
         const tempFilePath = path.join(os.tmpdir(), 'temp.csv');
 
-        // Check if `file` is a Buffer; if it's an object, use file.buffer or convert it to a string if appropriate.
         const fileData = Buffer.isBuffer(file) ? file : Buffer.from(file.buffer || file.data || '');
 
-        // Write buffer data to a temp file°
         fs.writeFileSync(tempFilePath, fileData);
 
-        // Read and parse the .xlsx file
-        const workbook = xlsx.readFile(tempFilePath);
-        const sheetName = workbook.SheetNames[0]; // Select the first sheet
-        const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]); // Convert sheet to JSON
+        const sheetData = xlsx.utils.sheet_to_json(xlsx.readFile(tempFilePath).Sheets[xlsx.readFile(tempFilePath).SheetNames[0]]);
 
         const roleId = (await this.roleService.fetchByRoleName('User'))._id.toString();
         const lastOdooId = await this.service.getLastOdooCustomerId();
 
         if (!roleId) return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Invalid Role');
-        if (xlsDocsItems.length === 0) return res.status(HttpStatus.CREATED).send('OK');
+
+        console.log('Sheet Data: ', sheetData.length);
 
         // Process each row from the sheet data as you did with CSV
         for (let index = 0; index < sheetData.length; index++){
@@ -191,7 +188,6 @@ export class PersonController {
                     'Complete Address',
                 ];
                 const csvKeys = Object.keys(customer);
-                console.log('csvKeys: ', csvKeys);
                 const isDefault = defaultKeys.some((key) => csvKeys.includes(key));
                 if (!isDefault) {
                     throw new Error(
@@ -213,15 +209,22 @@ export class PersonController {
                     odooCustomerId: lastOdooId + (index + 1),
                 });
             }
+            else {
+                failedDocsCount++;
+            }
         }
+
+        console.log('XLS Docs Items: ', xlsDocsItems.length);
 
         try {
             const successDocs = await this.service.createMany(xlsDocsItems);
 
+            failedDocsCount = failedDocsCount + (xlsDocsItems.length - successDocs.length);
+
             res.status(HttpStatus.CREATED).send({
                 totalDocs: xlsDocsItems.length,
                 successDocs: successDocs.length,
-                failedDocs: xlsDocsItems.length - successDocs.length,
+                failedDocs: failedDocsCount,
             });
         } catch (e) {
             console.log('Error while bulk upload: ', e);
