@@ -1,10 +1,11 @@
 import {
     Body,
     Controller,
-    Delete, forwardRef,
+    Delete,
+    forwardRef,
     Get,
-    HttpStatus, Inject,
-    NotAcceptableException,
+    HttpStatus,
+    Inject,
     Param,
     Patch,
     Post,
@@ -43,17 +44,17 @@ import { helper } from '../../utils/helper';
 import { Response } from 'express';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { NotificationService } from '../notification/notification.service';
 import { RoleService } from '../role/role.service';
+import { contains } from 'class-validator';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Person')
 @Controller('persons')
 export class PersonController {
     constructor(
-      private readonly service: PersonService,
-      @Inject(forwardRef(() => RoleService))
-      private readonly roleService: RoleService
+        private readonly service: PersonService,
+        @Inject(forwardRef(() => RoleService))
+        private readonly roleService: RoleService
     ) {}
 
     /*******************************************************************
@@ -156,11 +157,7 @@ export class PersonController {
     @UseGuards(AuthGuard('jwt'))
     @Post('bulk-upload')
     async bulkUpload(@UploadedFile() file: any, @Body() data: BulkUploadDTO, @Res() res: Response) {
-        let success = 0;
-        let failed = 0;
-        const listCSV = [];
-
-        console.log('file: ', file);
+        const xlsDocsItems = [];
 
         const tempFilePath = path.join(os.tmpdir(), 'temp.csv');
 
@@ -175,9 +172,15 @@ export class PersonController {
         const sheetName = workbook.SheetNames[0]; // Select the first sheet
         const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]); // Convert sheet to JSON
 
+        const roleId = (await this.roleService.fetchByRoleName('User'))._id.toString();
+        const lastOdooId = await this.service.getLastOdooCustomerId();
+
+        if (!roleId) return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Invalid Role');
+        if (xlsDocsItems.length === 0) return res.status(HttpStatus.CREATED).send('OK');
+
         // Process each row from the sheet data as you did with CSV
-        sheetData.forEach((customer: any) => {
-            console.log('customer: ', customer);
+        for (let index = 0; index < sheetData.length; index++){
+            const customer: any = sheetData[index];
             if (customer) {
                 const defaultKeys = [
                     'Display Name',
@@ -189,64 +192,41 @@ export class PersonController {
                 ];
                 const csvKeys = Object.keys(customer);
                 console.log('csvKeys: ', csvKeys);
-                const isDefault = defaultKeys.every((key) => csvKeys.includes(key));
+                const isDefault = defaultKeys.some((key) => csvKeys.includes(key));
                 if (!isDefault) {
                     throw new Error(
                         'Invalid File Format. Please check sample file format and try again.'
                     );
                 }
             }
-            if (!customer['Phone'] && !customer['Customer Number'] && !customer['Display Name']) {
-                failed++;
-            } else {
-                listCSV.push({
+            if (customer['Phone'] && customer['Customer Number'] && customer['Display Name']) {
+                xlsDocsItems.push({
                     name: helper.capitalizeFirstChar(customer['Display Name']),
-                    phone: customer['Phone'].replaceAll('-', ''),
+                    phone: customer['Phone'].replace(/[\(\)-]/g, ''),
                     email: customer['Email'] ?? '',
-                    country: customer['Country'],
+                    country: customer['Country'] ?? '',
                     points: customer['Loyalty Points.'],
                     customerNumber: customer['Customer Number'],
-                    address: customer['Complete Address'].replaceAll('\n', '').replaceAll('\r', ''),
+                    address: customer['Complete Address'].replace(/[\n\r]/g, ''),
+                    addedInOdoo: true,
+                    role: roleId,
+                    odooCustomerId: lastOdooId + (index + 1),
                 });
             }
-        });
-
-        console.log('listCSV: ', listCSV);
-
-        if (listCSV.length === 0) {
-            res.status(HttpStatus.CREATED).send('OK');
-        } else {
-            let success = 0,
-                failed = 0;
-            for (const item of listCSV) {
-                const role = await this.roleService.fetchByRoleName('User');
-
-                if(!role) {
-                    failed++;
-                    continue;
-                }
-
-                item.odooCustomerId = await this.service.getLastOdooCustomerId();
-                item.addedInOdoo = true;
-                item.role = role._id.toString();
-                try {
-                    if (await this.service.create(item)) {
-                        success++;
-                    } else {
-                        failed++;
-                    }
-                } catch (e) {
-                    console.log('Error while creating person: ', e);
-                    failed++;
-                }
-            }
-            res.status(HttpStatus.CREATED).send({
-                success,
-                failed,
-            });
         }
 
-        // Clean up temp file after processing
+        try {
+            const successDocs = await this.service.createMany(xlsDocsItems);
+
+            res.status(HttpStatus.CREATED).send({
+                totalDocs: xlsDocsItems.length,
+                successDocs: successDocs.length,
+                failedDocs: xlsDocsItems.length - successDocs.length,
+            });
+        } catch (e) {
+            console.log('Error while bulk upload: ', e);
+        }
+
         fs.unlinkSync(tempFilePath);
     }
 

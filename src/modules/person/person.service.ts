@@ -42,6 +42,10 @@ export class PersonService {
         return await this.model.create(data);
     }
 
+    async createMany(data: MobileSignUpRequest[] | AdminCreateUserRequest[]) {
+        return await this.model.insertMany(data, {ordered: false });
+    }
+
     async findOne(id: string) {
         return await this.model.findById(id).exec();
     }
