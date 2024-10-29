@@ -8,7 +8,6 @@ import {
     Patch,
     Post,
     Query,
-    Req,
     Res,
     UploadedFile,
     UseGuards,
@@ -35,12 +34,14 @@ import {
     UpdateFcmTokenRequestDto,
 } from './dto/person.dto';
 import { PersonService } from './person.service';
-import fs from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
+import * as fs from 'fs';
 import * as csv from 'csv-parser';
 import { helper } from '../../utils/helper';
 import { Response } from 'express';
+import * as os from 'node:os';
+import * as path from 'node:path';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Person')
@@ -154,8 +155,16 @@ export class PersonController {
 
         console.log('file: ', file);
 
+        const tempFilePath = path.join(os.tmpdir(), 'temp.csv');
+
+        // Check if `file` is a Buffer; if it's an object, use file.buffer or convert it to a string if appropriate.
+        const fileData = Buffer.isBuffer(file) ? file : Buffer.from(file.buffer || file.data || '');
+
+        // Write buffer data to a temp file°
+        fs.writeFileSync(tempFilePath, fileData);
+
         const result = fs
-            .createReadStream(file)
+            .createReadStream(tempFilePath)
             .pipe(csv())
             .on('data', (customer) => {
                 if (customer) {
@@ -221,12 +230,14 @@ export class PersonController {
                         failed,
                     });
                 }
+                fs.unlinkSync(tempFilePath);
             })
             .on('error', (err) => {
                 res.status(HttpStatus.BAD_REQUEST).send({
                     message: err.message,
                     statusCode: HttpStatus.BAD_REQUEST,
                 });
+                fs.unlinkSync(tempFilePath);
             });
     }
 
