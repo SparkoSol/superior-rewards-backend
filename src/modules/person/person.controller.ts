@@ -27,7 +27,7 @@ import {
 } from '@nestjs/swagger';
 import {
   BulkUploadDTO,
-  PasswordUpdateRequestDto,
+  PasswordUpdateRequestDto, PersonCreateDto,
   PersonResponseDto,
   PersonUpdateDto,
   UpdateFcmTokenRequestDto,
@@ -42,6 +42,22 @@ import { Response } from 'express';
 @Controller('persons')
 export class PersonController {
   constructor(private readonly service: PersonService) {
+  }
+  /*******************************************************************
+   * create
+   ******************************************************************/
+  @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
+  @ApiOkResponse({ type: PersonResponseDto, description: 'Customer Created Successfully' })
+  @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+  @ApiBody({ type: PersonCreateDto })
+  @ApiOperation({
+    summary: 'To create customer user',
+    description:
+      'optional: odooCustomerId(for management users), dob, address, profilePicture, fcmTokens, deletedAt, email, country, customerNumber',
+  })
+  @Post()
+  async create(@Body() data: PersonCreateDto): Promise<any> {
+    return await this.service.create(data);
   }
 
   /*******************************************************************

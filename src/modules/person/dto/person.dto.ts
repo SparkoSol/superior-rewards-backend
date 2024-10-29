@@ -3,12 +3,80 @@ import {
     IsBoolean,
     IsMongoId,
     IsNotEmpty,
-    IsNumber, IsObject,
+    IsNumber,
+    IsObject,
     IsOptional,
     IsString,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { FileDTO } from '../../../uploadFileStructue/dto/file.dto';
+
+export class PersonCreateDto {
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    name: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    phone: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    dob?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    address?: string;
+
+    @ApiProperty()
+    @IsNumber()
+    @IsString()
+    password: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    profilePicture?: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    role: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsNumber()
+    points: number;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsNumber()
+    redeemedPoints: number;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsBoolean()
+    addedInOdoo: boolean;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    email?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    country?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsNumber()
+    customerNumber?: number;
+}
 
 export class PersonUpdateDto {
     @ApiProperty()
@@ -66,6 +134,21 @@ export class PersonUpdateDto {
     @IsOptional()
     @IsString()
     deletedAt?: Date;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    email?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    country?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsNumber()
+    customerNumber?: number;
 }
 
 export class PersonResponseDto {
@@ -98,6 +181,15 @@ export class PersonResponseDto {
 
     @ApiProperty({ default: false })
     addedInOdoo: boolean;
+
+    @ApiProperty()
+    email?: string;
+
+    @ApiProperty()
+    country?: string;
+
+    @ApiProperty()
+    customerNumber?: number;
 
     @ApiProperty() deletedAt?: Date;
 

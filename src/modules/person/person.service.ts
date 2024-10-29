@@ -11,7 +11,7 @@ import { Model } from 'mongoose';
 import { Person, PersonDocument } from './schema/person.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import {
-    PasswordUpdateRequestDto,
+    PasswordUpdateRequestDto, PersonCreateDto,
     PersonUpdateDto,
     UpdateFcmTokenRequestDto,
 } from './dto/person.dto';
@@ -48,7 +48,7 @@ export class PersonService {
     /*******************************************************************
      * create
      ******************************************************************/
-    async create(data: MobileSignUpRequest | AdminCreateUserRequest) {
+    async create(data: MobileSignUpRequest | AdminCreateUserRequest | PersonCreateDto) {
         return await this.model.create(data);
     }
 
