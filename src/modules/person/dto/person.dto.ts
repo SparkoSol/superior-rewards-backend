@@ -34,7 +34,7 @@ export class PersonCreateDto {
     address?: string;
 
     @ApiProperty()
-    @IsNumber()
+    @IsNotEmpty()
     @IsString()
     password: string;
 
