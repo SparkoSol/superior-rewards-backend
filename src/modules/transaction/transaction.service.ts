@@ -39,7 +39,7 @@ export class TransactionService {
             try {
                 await this.notificationService.sendNotificationToSingleDevice(
                     'Congrats! You have received points.',
-                    `You have received ${transaction.points} points. ${transaction.details}`,
+                    `You have received ${transaction.points} points. ${transaction.details || ''}`,
                     transaction.user,
                     person.fcmTokens
                 );
