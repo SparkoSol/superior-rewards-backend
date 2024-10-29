@@ -1,9 +1,10 @@
 import {
     Body,
     Controller,
-    Delete,
+    Delete, forwardRef,
     Get,
-    HttpStatus,
+    HttpStatus, Inject,
+    NotAcceptableException,
     Param,
     Patch,
     Post,
@@ -37,17 +38,23 @@ import { PersonService } from './person.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
 import * as fs from 'fs';
-import * as csv from 'csv-parser';
+import * as xlsx from 'xlsx';
 import { helper } from '../../utils/helper';
 import { Response } from 'express';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import { NotificationService } from '../notification/notification.service';
+import { RoleService } from '../role/role.service';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Person')
 @Controller('persons')
 export class PersonController {
-    constructor(private readonly service: PersonService) {}
+    constructor(
+      private readonly service: PersonService,
+      @Inject(forwardRef(() => RoleService))
+      private readonly roleService: RoleService
+    ) {}
 
     /*******************************************************************
      * fetch
@@ -163,82 +170,84 @@ export class PersonController {
         // Write buffer data to a temp file°
         fs.writeFileSync(tempFilePath, fileData);
 
-        const result = fs
-            .createReadStream(tempFilePath)
-            .pipe(csv())
-            .on('data', (customer) => {
-                if (customer) {
-                    const defaultKeys = [
-                        'Display_Name',
-                        'Phone',
-                        'Email',
-                        'Country',
-                        'Loyalty_Points',
-                        'Customer_Number',
-                        'Created_On',
-                        'Complete_Address',
-                    ];
-                    const csvKeys = Object.keys(customer);
-                    const isDefault = defaultKeys.every((key) => csvKeys.includes(key));
-                    if (!isDefault) {
-                        result.destroy(
-                            new Error(
-                                'Invalid CSV File Format. Please check sample csv file format and try again.'
-                            )
-                        );
-                    }
+        // Read and parse the .xlsx file
+        const workbook = xlsx.readFile(tempFilePath);
+        const sheetName = workbook.SheetNames[0]; // Select the first sheet
+        const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]); // Convert sheet to JSON
+
+        // Process each row from the sheet data as you did with CSV
+        sheetData.forEach((customer: any) => {
+            console.log('customer: ', customer);
+            if (customer) {
+                const defaultKeys = [
+                    'Display Name',
+                    'Phone',
+                    'Country',
+                    'Loyalty Points.',
+                    'Customer Number',
+                    'Complete Address',
+                ];
+                const csvKeys = Object.keys(customer);
+                console.log('csvKeys: ', csvKeys);
+                const isDefault = defaultKeys.every((key) => csvKeys.includes(key));
+                if (!isDefault) {
+                    throw new Error(
+                        'Invalid File Format. Please check sample file format and try again.'
+                    );
                 }
-                if (!customer.Phone && !customer.Customer_Number && !customer.Display_Name) {
-                    failed++;
-                } else {
-                    listCSV.push({
-                        name: helper.capitalizeFirstChar(customer.Display_Name),
-                        phone: customer.Phone.replaceAll('-', ''),
-                        email: customer.Email,
-                        country: customer.Country,
-                        points: customer.Loyalty_Points,
-                        customerNumber: customer.Customer_Number,
-                        createdAt: helper.convertSecondIntoUTCDataTime(
-                            helper.convertToSeconds(customer.Created_On).toString()
-                        ),
-                        updatedAt: helper.convertSecondIntoUTCDataTime(
-                            helper.convertToSeconds(customer.Created_On).toString()
-                        ),
-                        address: customer.Complete_Address,
-                    });
-                }
-            })
-            .on('end', async () => {
-                console.log('listCSV: ', listCSV);
-                console.log('listCSV: ', listCSV.length);
-                if (listCSV.length === 0) {
-                    res.status(HttpStatus.CREATED).send('OK');
-                } else {
-                    for (const item of listCSV) {
-                        try {
-                            if (await this.service.create(item)) {
-                                success++;
-                            } else {
-                                failed++;
-                            }
-                        } catch (e) {
-                            failed++;
-                        }
-                    }
-                    res.status(HttpStatus.CREATED).send({
-                        success,
-                        failed,
-                    });
-                }
-                fs.unlinkSync(tempFilePath);
-            })
-            .on('error', (err) => {
-                res.status(HttpStatus.BAD_REQUEST).send({
-                    message: err.message,
-                    statusCode: HttpStatus.BAD_REQUEST,
+            }
+            if (!customer['Phone'] && !customer['Customer Number'] && !customer['Display Name']) {
+                failed++;
+            } else {
+                listCSV.push({
+                    name: helper.capitalizeFirstChar(customer['Display Name']),
+                    phone: customer['Phone'].replaceAll('-', ''),
+                    email: customer['Email'] ?? '',
+                    country: customer['Country'],
+                    points: customer['Loyalty Points.'],
+                    customerNumber: customer['Customer Number'],
+                    address: customer['Complete Address'].replaceAll('\n', '').replaceAll('\r', ''),
                 });
-                fs.unlinkSync(tempFilePath);
+            }
+        });
+
+        console.log('listCSV: ', listCSV);
+
+        if (listCSV.length === 0) {
+            res.status(HttpStatus.CREATED).send('OK');
+        } else {
+            let success = 0,
+                failed = 0;
+            for (const item of listCSV) {
+                const role = await this.roleService.fetchByRoleName('User');
+
+                if(!role) {
+                    failed++;
+                    continue;
+                }
+
+                item.odooCustomerId = await this.service.getLastOdooCustomerId();
+                item.addedInOdoo = true;
+                item.role = role._id.toString();
+                try {
+                    if (await this.service.create(item)) {
+                        success++;
+                    } else {
+                        failed++;
+                    }
+                } catch (e) {
+                    console.log('Error while creating person: ', e);
+                    failed++;
+                }
+            }
+            res.status(HttpStatus.CREATED).send({
+                success,
+                failed,
             });
+        }
+
+        // Clean up temp file after processing
+        fs.unlinkSync(tempFilePath);
     }
 
     /*******************************************************************
