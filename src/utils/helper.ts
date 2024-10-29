@@ -1,4 +1,14 @@
 export class helper {
+    static convertToSeconds(dateTimeString) {
+        // Create a Date object from the date-time string
+        const date = new Date(dateTimeString);
+
+        // Convert to seconds by dividing milliseconds by 1000
+        const seconds = Math.floor(date.getTime() / 1000);
+
+        return seconds;
+    }
+
     static convertSecondIntoUTCDataTime(timeInSeconds: string) {
         const date = new Date(timeInSeconds);
 
@@ -30,4 +40,19 @@ export class helper {
         const differenceInS = Math.abs(d2 - d1);
         return Math.floor(differenceInS / (1000));
     }
+
+    static capitalizeFirstChar(inputString: string) {
+        const words = inputString.split(' ');
+
+        const capitalizedWords = words.map((word) => {
+            if (word.length > 0) {
+                return word.charAt(0).toUpperCase() + word.slice(1);
+            } else {
+                return '';
+            }
+        });
+
+        return capitalizedWords.join(' ');
+    }
 }
+

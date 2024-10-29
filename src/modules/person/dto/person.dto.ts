@@ -3,11 +3,12 @@ import {
     IsBoolean,
     IsMongoId,
     IsNotEmpty,
-    IsNumber,
+    IsNumber, IsObject,
     IsOptional,
     IsString,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { FileDTO } from '../../../uploadFileStructue/dto/file.dto';
 
 export class PersonUpdateDto {
     @ApiProperty()
@@ -126,4 +127,16 @@ export class PasswordUpdateRequestDto {
     @IsString()
     @ApiProperty({ required: true })
     newPassword: string;
+}
+
+export class BulkUploadDTO {
+    @ApiProperty({
+        required: true,
+        type: 'string',
+        format: 'binary',
+        description: 'CSV File',
+    })
+    @IsOptional()
+    @IsObject()
+    file: FileDTO;
 }

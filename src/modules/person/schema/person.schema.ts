@@ -6,9 +6,10 @@ import { Role } from '../../role/schema/role.schema';
 export type PersonDocument = HydratedDocument<Person>;
 
 /*
+  odooCustomerId?: number; // Unique and auto generated
   name: '',
   phone: '',
-  dob: '',
+  dob?: Date,
   address?: '',
   password: '',
   profilePicture?: '',
@@ -18,6 +19,11 @@ export type PersonDocument = HydratedDocument<Person>;
   redeemedPoints: 0,
   addedInOdoo: false,
   deletedAt?: Date;
+
+  //NEW FIELDS FROM EXCEL
+  email?: '',
+  country?: '',
+  customerNumber?: number,
 
 */
 
@@ -37,7 +43,7 @@ export class Person {
 
     @Prop() profilePicture?: string;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Role.name }) role?: string;
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Role.name }) role: string;
 
     @Prop({ type: [String] }) fcmTokens?: string[];
 
@@ -48,6 +54,12 @@ export class Person {
     @Prop({ default: false }) addedInOdoo: boolean;
 
     @Prop() deletedAt?: Date;
+
+    @Prop() email?: string;
+
+    @Prop() country?: string;
+
+    @Prop() customerNumber?: number;
 }
 
 export const PersonSchema = SchemaFactory.createForClass(Person);
