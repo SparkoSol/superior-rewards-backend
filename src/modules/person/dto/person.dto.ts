@@ -77,6 +77,8 @@ export class PersonCreateDto {
     @IsOptional()
     @IsNumber()
     customerNumber?: number;
+
+    odooCustomerId?: number;
 }
 
 export class PersonUpdateDto {

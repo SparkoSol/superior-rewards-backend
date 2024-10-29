@@ -60,6 +60,7 @@ export class PersonController {
     })
     @Post()
     async create(@Body() data: PersonCreateDto): Promise<any> {
+        data.odooCustomerId = await this.service.getLastOdooCustomerId();
         return await this.service.create(data);
     }
 
