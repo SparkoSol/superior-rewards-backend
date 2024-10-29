@@ -11,7 +11,8 @@ import { Model } from 'mongoose';
 import { Person, PersonDocument } from './schema/person.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import {
-    PasswordUpdateRequestDto, PersonCreateDto,
+    PasswordUpdateRequestDto,
+    PersonCreateDto,
     PersonUpdateDto,
     UpdateFcmTokenRequestDto,
 } from './dto/person.dto';
@@ -96,7 +97,7 @@ export class PersonService {
     async fetch(page: number, pageSize: number, withPopulate?: boolean) {
         const query = {};
         // query['deletedAt'] = { $eq: null };
-        return this.model
+        const users = await this.model
             .find(query)
             .populate(
                 withPopulate
@@ -109,10 +110,24 @@ export class PersonService {
                       ]
                     : []
             )
-            .skip(pageSize * (page - 1))
-            .limit(pageSize)
             .sort({ createdAt: -1 })
             .exec();
+
+        // Apply pagination
+        const totalCount = users.length;
+        const totalPages = Math.ceil(totalCount / pageSize);
+        const startIndex = (page - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, totalCount);
+
+        // Slice the contacts array to get the contacts for the current page
+        const paginationUsers = users.slice(startIndex, endIndex);
+
+        return {
+            data: paginationUsers,
+            page: page,
+            total_pages: totalPages,
+            count: paginationUsers.length,
+        };
     }
 
     /*******************************************************************
@@ -270,12 +285,14 @@ export class PersonService {
             }
         }
 
-        const existingPhones = await this.model.find(
-          { phone: { $in: xlsDocsItems.map((item) => item.phone) } },
-          { phone: 1 } // Only select the `phone` field to reduce payload
-        ).then(results => results.map(doc => doc.phone));
+        const existingPhones = await this.model
+            .find(
+                { phone: { $in: xlsDocsItems.map((item) => item.phone) } },
+                { phone: 1 } // Only select the `phone` field to reduce payload
+            )
+            .then((results) => results.map((doc) => doc.phone));
 
-        const newRecords = xlsDocsItems.filter(item => !existingPhones.includes(item.phone));
+        const newRecords = xlsDocsItems.filter((item) => !existingPhones.includes(item.phone));
 
         try {
             const successDocs = await this.createMany(newRecords);
