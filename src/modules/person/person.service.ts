@@ -124,9 +124,9 @@ export class PersonService {
 
         return {
             data: paginationUsers,
-            page: page,
-            total_pages: totalPages,
-            count: paginationUsers.length,
+            page,
+            pageSize: paginationUsers.length,
+            totalPages,
         };
     }
 
