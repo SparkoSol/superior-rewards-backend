@@ -74,7 +74,7 @@ export class PersonController {
     @ApiBody({ type: FiltersDto, })
     @ApiOperation({
         summary: 'To get filtered persons',
-        description: "optional => withPopulated, usedFor, filters => name[eq]: 'test', tags[like]: 'test', points[lt]: 10, points[gt]: 10",
+        description: "optional => withPopulated, usedFor(users, customers) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31']",
     })
     @Post('filters')
     async filteredStories(@Body() data: FiltersDto) {

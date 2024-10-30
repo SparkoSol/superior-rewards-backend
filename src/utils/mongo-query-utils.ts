@@ -3,6 +3,12 @@ export class MongoQueryUtils {
         const query = {};
 
         Object.keys(filters).forEach((field) => {
+            const match = field.match(/(\w+)\['?(\w+)'?\]/);
+
+            if (!match) {
+                throw new Error(`Invalid filter format: ${field}`);
+            }
+
             const [key, operator] = field.match(/(\w+)\['?(\w+)'?\]/).slice(1);
             const value = filters[field];
 
@@ -13,13 +19,27 @@ export class MongoQueryUtils {
                 case 'like':
                     query[key] = { $regex: value, $options: 'i' };
                     break;
-                case 'lt':
-                    query[key] = { $lt: value };
+                case 'range': // value [min, max]
+                    if (Array.isArray(value) && value.length === 2) {
+                        query[key] = { $gte: value[0], $lte: value[1] };
+                    } else {
+                        throw new Error(
+                            `Range filter requires an array with two [min,max] for field: ${key}`
+                        );
+                    }
                     break;
-                case 'gt':
-                    query[key] = { $gt: value };
+                case 'date':
+                    if (Array.isArray(value) && value.length === 2) {
+                        query[key] = { $gte: new Date(value[0]), $lte: new Date(value[1]) };
+                    } else if (typeof value === 'string' || value instanceof Date) {
+                        query[key] = { $eq: new Date(value) };
+                    } else {
+                        throw new Error(
+                            `Date filter requires a single date or an array with two dates for field: ${key}`
+                        );
+                    }
                     break;
-              // Add more cases for different operators as needed
+                // Add more cases for different operators as needed
                 default:
                     throw new Error(`Unsupported operator: ${operator}`);
             }
@@ -46,4 +66,3 @@ export class MongoQueryUtils {
         };
     }
 }
-

@@ -65,28 +65,24 @@ export class PersonService {
     async filters(data: FiltersDto) {
         const { page, pageSize, usedFor, filters, withPopulate } = data;
 
-        if(filters) {
-            const query = MongoQueryUtils.getQueryFromFilters(filters);
-            console.log('query', JSON.stringify(query));
-            const users = await this.model.find(query).sort({ createdAt: -1 }).exec();
-            return await MongoQueryUtils.getPaginatedResponse(users, page, pageSize);
-        }
+        const query = MongoQueryUtils.getQueryFromFilters(filters);
+        console.log('query', JSON.stringify(query));
 
-        let users = (await this.model
-          .find()
-          .populate(
-            withPopulate
-              ? [
-                  'role',
-                  {
-                      path: 'role',
-                      populate: { path: 'permissions' },
-                  },
-              ]
-              : []
-          )
-          .sort({ createdAt: -1 })
-          .exec()) as any;
+        let users = await this.model
+            .find(query)
+            .populate(
+                withPopulate
+                    ? [
+                          'role',
+                          {
+                              path: 'role',
+                              populate: { path: 'permissions' },
+                          },
+                      ]
+                    : []
+            )
+            .sort({ createdAt: -1 })
+            .exec();
 
         if (usedFor && usedFor === 'users')
             users = users.filter((user: any) => user.role.name !== 'User');
