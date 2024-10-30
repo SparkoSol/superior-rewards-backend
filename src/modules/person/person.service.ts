@@ -11,6 +11,7 @@ import { Model } from 'mongoose';
 import { Person, PersonDocument } from './schema/person.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import {
+    FiltersDto,
     PasswordUpdateRequestDto,
     PersonCreateDto,
     PersonUpdateDto,
@@ -25,6 +26,7 @@ import { Response } from 'express';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { RoleService } from '../role/role.service';
+import { MongoQueryUtils } from '../../utils/mongo-query-utils';
 
 export type User = any;
 
@@ -55,6 +57,43 @@ export class PersonService {
 
     async createMany(data: MobileSignUpRequest[] | AdminCreateUserRequest[]) {
         return await this.model.insertMany(data, { ordered: false });
+    }
+
+    /*******************************************************************
+     * filters
+     ******************************************************************/
+    async filters(data: FiltersDto) {
+        const { page, pageSize, usedFor, filters, withPopulate } = data;
+
+        if(filters) {
+            const query = MongoQueryUtils.getQueryFromFilters(filters);
+            console.log('query', JSON.stringify(query));
+            const users = await this.model.find(query).sort({ createdAt: -1 }).exec();
+            return await MongoQueryUtils.getPaginatedResponse(users, page, pageSize);
+        }
+
+        let users = (await this.model
+          .find()
+          .populate(
+            withPopulate
+              ? [
+                  'role',
+                  {
+                      path: 'role',
+                      populate: { path: 'permissions' },
+                  },
+              ]
+              : []
+          )
+          .sort({ createdAt: -1 })
+          .exec()) as any;
+
+        if (usedFor && usedFor === 'users')
+            users = users.filter((user: any) => user.role.name !== 'User');
+        if (usedFor && usedFor === 'customers')
+            users = users.filter((user: any) => user.role.name === 'User');
+
+        return await MongoQueryUtils.getPaginatedResponse(users, page, pageSize);
     }
 
     async findOne(id: string) {
@@ -95,10 +134,8 @@ export class PersonService {
      * fetch
      ******************************************************************/
     async fetch(page: number, pageSize: number, usedFor?: string, withPopulate?: boolean) {
-        const query = {};
-        // query['deletedAt'] = { $eq: null };
         let users = (await this.model
-            .find(query)
+            .find()
             .populate(
                 withPopulate
                     ? [
@@ -118,21 +155,7 @@ export class PersonService {
         if (usedFor && usedFor === 'customers')
             users = users.filter((user: any) => user.role.name === 'User');
 
-        // Apply pagination
-        const totalCount = users.length;
-        const totalPages = Math.ceil(totalCount / pageSize);
-        const startIndex = (page - 1) * pageSize;
-        const endIndex = Math.min(startIndex + pageSize, totalCount);
-
-        // Slice the contacts array to get the contacts for the current page
-        const paginationUsers = users.slice(startIndex, endIndex);
-
-        return {
-            data: paginationUsers,
-            page,
-            pageSize: paginationUsers.length,
-            totalPages,
-        };
+        return await MongoQueryUtils.getPaginatedResponse(users, page, pageSize);
     }
 
     /*******************************************************************
@@ -173,6 +196,9 @@ export class PersonService {
         }
     }
 
+    /*******************************************************************
+     * updateFcmToken
+     ******************************************************************/
     async updateFcmToken(id: string, data: UpdateFcmTokenRequestDto) {
         const person = await this.model.findById(id).exec();
         if (!person) return;
@@ -195,40 +221,7 @@ export class PersonService {
     }
 
     /*******************************************************************
-     * update
-     ******************************************************************/
-    async update(id: string, data: PersonUpdateDto) {
-        try {
-            return await this.model.findByIdAndUpdate(id, data, { new: true });
-        } catch (e) {
-            throw new InternalServerErrorException('Unexpected Error');
-        }
-    }
-
-    /*******************************************************************
-     * delete
-     ******************************************************************/
-    async delete(id: string) {
-        try {
-            return await this.model.findByIdAndUpdate(id, { deletedAt: new Date() }, { new: true });
-        } catch (e) {
-            throw new InternalServerErrorException('Unexpected Error');
-        }
-    }
-
-    async revokeRoleFromPersonsIdsArray(personIds: any) {
-        try {
-            return await this.model.updateMany(
-                { _id: { $in: personIds } },
-                { $set: { role: null } }
-            );
-        } catch (error) {
-            console.error('Error setting role to null:', error);
-        }
-    }
-
-    /*******************************************************************
-     *
+     * bulkUpload
      ******************************************************************/
     async bulkUpload(file: any, res: Response) {
         const xlsDocsItems = [];
@@ -314,5 +307,38 @@ export class PersonService {
         }
 
         fs.unlinkSync(tempFilePath);
+    }
+
+    /*******************************************************************
+     * update
+     ******************************************************************/
+    async update(id: string, data: PersonUpdateDto) {
+        try {
+            return await this.model.findByIdAndUpdate(id, data, { new: true });
+        } catch (e) {
+            throw new InternalServerErrorException('Unexpected Error');
+        }
+    }
+
+    /*******************************************************************
+     * delete
+     ******************************************************************/
+    async delete(id: string) {
+        try {
+            return await this.model.findByIdAndUpdate(id, { deletedAt: new Date() }, { new: true });
+        } catch (e) {
+            throw new InternalServerErrorException('Unexpected Error');
+        }
+    }
+
+    async revokeRoleFromPersonsIdsArray(personIds: any) {
+        try {
+            return await this.model.updateMany(
+                { _id: { $in: personIds } },
+                { $set: { role: null } }
+            );
+        } catch (error) {
+            console.error('Error setting role to null:', error);
+        }
     }
 }

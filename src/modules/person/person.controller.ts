@@ -28,6 +28,7 @@ import {
 } from '@nestjs/swagger';
 import {
     BulkUploadDTO,
+    FiltersDto,
     PaginatedPersonResponseDto,
     PasswordUpdateRequestDto,
     PersonCreateDto,
@@ -63,6 +64,21 @@ export class PersonController {
     async create(@Body() data: PersonCreateDto): Promise<any> {
         data.odooCustomerId = await this.service.getLastOdooCustomerId();
         return await this.service.create(data);
+    }
+
+    /*******************************************************************
+     * filters
+     ******************************************************************/
+    @ApiOkResponse({ type: PaginatedPersonResponseDto })
+    @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+    @ApiBody({ type: FiltersDto, })
+    @ApiOperation({
+        summary: 'To get filtered persons',
+        description: "like => name[eq]: 'test', tags[like]: 'test', points[lt]: 10, points[gt]: 10",
+    })
+    @Post('filters')
+    async filteredStories(@Body() data: FiltersDto) {
+        return this.service.filters(data);
     }
 
     /*******************************************************************

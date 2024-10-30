@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { FileDTO } from '../../../uploadFileStructue/dto/file.dto';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 export class PersonCreateDto {
     @ApiProperty()
@@ -236,6 +236,50 @@ export class BulkUploadDTO {
     file: FileDTO;
 }
 
+class filterPayload {
+    @ApiProperty()
+    "field[op]": string;
+}
+
+export class FiltersDto {
+    @ApiProperty({ description: 'Page No - Starting Page is 1', default: 1 })
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    page: number;
+
+    @ApiProperty({ description: 'Page Size - Default is 10', default: 10 })
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    pageSize: number;
+
+    @ApiProperty({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
+    @IsOptional()
+    @IsBoolean()
+    @Type(() => Boolean)
+    withPopulate?: boolean;
+
+    @ApiProperty({
+        required: false,
+        name: 'usedFor',
+        description: 'for determine whether the request is from "users" or "customers"',
+    })
+    @IsOptional()
+    @IsString()
+    usedFor?: string;
+
+    @ApiProperty({ description: 'Filter object' })
+    @IsOptional()
+    @IsObject()
+    // filters?: Record<string, any>;
+    filters?: filterPayload;
+}
+
 export class PersonQueryDto {
     @ApiProperty({ description: 'Page No - Starting Page is 1' })
     @IsNumber()
@@ -256,6 +300,7 @@ export class PersonQueryDto {
     })
     @IsOptional()
     @IsBoolean()
+    @Type(() => Boolean)
     withPopulate?: boolean;
 
     @ApiProperty({
