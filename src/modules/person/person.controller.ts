@@ -27,10 +27,9 @@ import {
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import {
-    BulkUploadDTO,
+    BulkUploadDto, BulkUploadResponseDto,
     PasswordUpdateRequestDto,
     PersonCreateDto,
-    PersonPaginationDto,
     PersonResponseDto,
     PersonUpdateDto,
     UpdateFcmTokenRequestDto,
@@ -79,21 +78,12 @@ export class PersonController {
     @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
     @ApiQuery({
         required: false,
-        name: 'from',
-        description: 'for determine whether the request is from "users" or "customers"',
-    })
-    @ApiQuery({
-        required: false,
         name: 'withPopulate',
         description: 'If true, will return populated data.',
     })
     @Get()
-    async fetch(
-        @Query() data: PersonPaginationDto,
-        @Query('from') from?: string,
-        @Query('withPopulate') withPopulate?: boolean
-    ): Promise<any> {
-        return await this.service.fetch(data.page, data.pageSize, from,  withPopulate);
+    async fetch(@Query('withPopulate') withPopulate?: boolean): Promise<any> {
+        return await this.service.fetch(withPopulate);
     }
 
     /*******************************************************************
@@ -131,20 +121,7 @@ export class PersonController {
     }
 
     /*******************************************************************
-     * updateFcmToken (update a user's FCM token and subscribe to a notification channel)
-     * - This API updates the FCM (Firebase Cloud Messaging) token for a user and subscribes
-     *   the user to a notification channel.
-     * - It first fetches the user (person) by their ID. If the user is not found, the function returns.
-     * - The function determines the appropriate notification channel based on the environment:
-     *   - In production, it uses the "news" channel.
-     *   - In non-production environments, it uses the "news-staging" channel.
-     * - The user's FCM token is then subscribed to the determined notification channel.
-     * - The function checks if the user's FCM tokens array already contains the new token:
-     *   - If the token does not exist in the array and the array has fewer than 10 tokens,
-     *     it adds the new token.
-     *   - If the array has 10 tokens, it removes the oldest token before adding the new one.
-     * - If the user has no FCM tokens, a new array is created with the provided token.
-     * - The updated user document is saved and returned.
+     * updateFcmToken (PATCH)
      ******************************************************************/
     @ApiTags('Person')
     @ApiOkResponse({
@@ -167,10 +144,15 @@ export class PersonController {
      * bulkUpload
      ******************************************************************/
     @UseInterceptors(FileInterceptor('file'))
-    @ApiOkResponse({ description: 'Upload CSV File' })
-    @ApiOperation({ description: 'Contact bulk uploading route for Admin' })
+    @ApiOperation({
+        summary: 'bulk import customers form excel',
+        description: 'Customers bulk uploading route for Admin',
+    })
     @ApiConsumes('multipart/form-data')
-    @ApiBody({ type: BulkUploadDTO })
+    @ApiBody({ type: BulkUploadDto })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
+    @ApiInternalServerErrorResponse({ description: 'Invalid Role' })
+    @ApiOkResponse({ type: BulkUploadResponseDto })
     @UseGuards(AuthGuard('jwt'))
     @Post('bulk-upload')
     async bulkUpload(@UploadedFile() file: any, @Res() res: Response) {

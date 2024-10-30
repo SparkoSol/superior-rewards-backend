@@ -94,10 +94,10 @@ export class PersonService {
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch(page: number, pageSize: number, from?:string,  withPopulate?: boolean) {
+    async fetch(withPopulate?: boolean) {
         const query = {};
         // query['deletedAt'] = { $eq: null };
-        let users = await this.model
+       return await this.model
             .find(query)
             .populate(
                 withPopulate
@@ -112,25 +112,6 @@ export class PersonService {
             )
             .sort({ createdAt: -1 })
             .exec() as any;
-
-        if(from && from === 'users') users = users.filter((user: any) => user.role.name !== 'User');
-        if(from && from === 'customers') users = users.filter((user: any) => user.role.name === 'User');
-
-        // Apply pagination
-        const totalCount = users.length;
-        const totalPages = Math.ceil(totalCount / pageSize);
-        const startIndex = (page - 1) * pageSize;
-        const endIndex = Math.min(startIndex + pageSize, totalCount);
-
-        // Slice the contacts array to get the contacts for the current page
-        const paginationUsers = users.slice(startIndex, endIndex);
-
-        return {
-            data: paginationUsers,
-            page,
-            pageSize: paginationUsers.length,
-            totalPages,
-        };
     }
 
     /*******************************************************************
@@ -302,7 +283,7 @@ export class PersonService {
 
             failedDocsCount = failedDocsCount + (xlsDocsItems.length - successDocs.length);
 
-            res.status(HttpStatus.CREATED).send({
+            res.status(HttpStatus.OK).send({
                 totalDocs,
                 successDocs: successDocs.length,
                 failedDocs: failedDocsCount,

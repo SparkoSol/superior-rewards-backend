@@ -224,16 +224,27 @@ export class PasswordUpdateRequestDto {
     newPassword: string;
 }
 
-export class BulkUploadDTO {
+export class BulkUploadDto {
     @ApiProperty({
         required: true,
         type: 'string',
         format: 'binary',
-        description: 'CSV File',
+        description: 'Excel File',
     })
     @IsOptional()
     @IsObject()
     file: FileDTO;
+}
+
+export class BulkUploadResponseDto {
+    @ApiProperty()
+    totalDocs: number;
+
+    @ApiProperty()
+    successDocs: number;
+
+    @ApiProperty()
+    failedDocs: number;
 }
 
 export class PersonPaginationDto {
