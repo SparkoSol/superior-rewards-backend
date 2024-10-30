@@ -39,6 +39,14 @@ export class MongoQueryUtils {
                         );
                     }
                     break;
+                case 'exists':
+                    // Check if the field should exist (true) or not (false)
+                    if (typeof value === 'boolean') {
+                        query[key] = { $exists: value };
+                    } else {
+                        throw new Error(`Exists filter requires a boolean value for field: ${key}`);
+                    }
+                    break;
                 // Add more cases for different operators as needed
                 default:
                     throw new Error(`Unsupported operator: ${operator}`);
