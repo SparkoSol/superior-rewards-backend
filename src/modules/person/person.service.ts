@@ -64,8 +64,8 @@ export class PersonService {
      ******************************************************************/
     async filters(data: FiltersDto) {
         const { page, pageSize, usedFor, filters, withPopulate } = data;
-
-        const query = MongoQueryUtils.getQueryFromFilters(filters);
+        let query = {};
+        if(filters) query = MongoQueryUtils.getQueryFromFilters(filters);
         console.log('query', JSON.stringify(query));
 
         let users = await this.model
