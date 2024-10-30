@@ -94,10 +94,10 @@ export class PersonService {
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch(page: number, pageSize: number, from?:string,  withPopulate?: boolean) {
+    async fetch(page: number, pageSize: number, usedFor?: string, withPopulate?: boolean) {
         const query = {};
         // query['deletedAt'] = { $eq: null };
-        let users = await this.model
+        let users = (await this.model
             .find(query)
             .populate(
                 withPopulate
@@ -111,10 +111,12 @@ export class PersonService {
                     : []
             )
             .sort({ createdAt: -1 })
-            .exec() as any;
+            .exec()) as any;
 
-        if(from && from === 'users') users = users.filter((user: any) => user.role.name !== 'User');
-        if(from && from === 'customers') users = users.filter((user: any) => user.role.name === 'User');
+        if (usedFor && usedFor === 'users')
+            users = users.filter((user: any) => user.role.name !== 'User');
+        if (usedFor && usedFor === 'customers')
+            users = users.filter((user: any) => user.role.name === 'User');
 
         // Apply pagination
         const totalCount = users.length;

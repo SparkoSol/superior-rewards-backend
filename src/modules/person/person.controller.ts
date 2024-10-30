@@ -28,9 +28,10 @@ import {
 } from '@nestjs/swagger';
 import {
     BulkUploadDTO,
+    PaginatedPersonResponseDto,
     PasswordUpdateRequestDto,
     PersonCreateDto,
-    PersonPaginationDto,
+    PersonQueryDto,
     PersonResponseDto,
     PersonUpdateDto,
     UpdateFcmTokenRequestDto,
@@ -69,7 +70,7 @@ export class PersonController {
      ******************************************************************/
     @ApiOkResponse({
         description: 'To get persons',
-        type: PersonResponseDto,
+        type: PaginatedPersonResponseDto,
         isArray: true,
     })
     @ApiOperation({
@@ -77,23 +78,10 @@ export class PersonController {
     })
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-    @ApiQuery({
-        required: false,
-        name: 'from',
-        description: 'for determine whether the request is from "users" or "customers"',
-    })
-    @ApiQuery({
-        required: false,
-        name: 'withPopulate',
-        description: 'If true, will return populated data.',
-    })
     @Get()
-    async fetch(
-        @Query() data: PersonPaginationDto,
-        @Query('from') from?: string,
-        @Query('withPopulate') withPopulate?: boolean
-    ): Promise<any> {
-        return await this.service.fetch(data.page, data.pageSize, from,  withPopulate);
+    async fetch(@Query() data: PersonQueryDto): Promise<any> {
+        const { page, pageSize, usedFor, withPopulate } = data;
+        return await this.service.fetch(page, pageSize, usedFor, withPopulate);
     }
 
     /*******************************************************************
@@ -131,20 +119,7 @@ export class PersonController {
     }
 
     /*******************************************************************
-     * updateFcmToken (update a user's FCM token and subscribe to a notification channel)
-     * - This API updates the FCM (Firebase Cloud Messaging) token for a user and subscribes
-     *   the user to a notification channel.
-     * - It first fetches the user (person) by their ID. If the user is not found, the function returns.
-     * - The function determines the appropriate notification channel based on the environment:
-     *   - In production, it uses the "news" channel.
-     *   - In non-production environments, it uses the "news-staging" channel.
-     * - The user's FCM token is then subscribed to the determined notification channel.
-     * - The function checks if the user's FCM tokens array already contains the new token:
-     *   - If the token does not exist in the array and the array has fewer than 10 tokens,
-     *     it adds the new token.
-     *   - If the array has 10 tokens, it removes the oldest token before adding the new one.
-     * - If the user has no FCM tokens, a new array is created with the provided token.
-     * - The updated user document is saved and returned.
+     * updateFcmToken
      ******************************************************************/
     @ApiTags('Person')
     @ApiOkResponse({

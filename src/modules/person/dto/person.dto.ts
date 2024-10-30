@@ -236,7 +236,7 @@ export class BulkUploadDTO {
     file: FileDTO;
 }
 
-export class PersonPaginationDto {
+export class PersonQueryDto {
     @ApiProperty({ description: 'Page No - Starting Page is 1' })
     @IsNumber()
     @IsOptional()
@@ -248,4 +248,36 @@ export class PersonPaginationDto {
     @IsOptional()
     @Type(() => Number)
     pageSize: number;
+
+    @ApiProperty({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
+    @IsOptional()
+    @IsBoolean()
+    withPopulate?: boolean;
+
+    @ApiProperty({
+        required: false,
+        name: 'usedFor',
+        description: 'for determine whether the request is from "users" or "customers"',
+    })
+    @IsOptional()
+    @IsString()
+    usedFor?: string;
+}
+
+export class PaginatedPersonResponseDto {
+    @ApiProperty({ type: [PersonResponseDto] })
+    data: [PersonResponseDto];
+
+    @ApiProperty()
+    page: number;
+
+    @ApiProperty()
+    pageSize: number;
+
+    @ApiProperty()
+    totalPages: number;
 }
