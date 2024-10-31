@@ -68,6 +68,8 @@ export class PersonService {
         if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
         console.log('query', JSON.stringify(query));
 
+        const totalCount = await this.model.countDocuments(query);
+
         let users = await this.model
             .find(query)
             .populate(
@@ -82,6 +84,8 @@ export class PersonService {
                     : []
             )
             .sort({ createdAt: -1 })
+            .skip((page - 1) * pageSize)
+            .limit(pageSize)
             .exec();
 
         if (usedFor && usedFor === 'users')
@@ -89,7 +93,18 @@ export class PersonService {
         if (usedFor && usedFor === 'customers')
             users = users.filter((user: any) => user.role.name === 'User');
 
-        return await MongoQueryUtils.getPaginatedResponse(users, filters || {}, page, pageSize);
+        const totalPages = Math.ceil(totalCount / pageSize);
+
+        // Structure the response
+        return {
+            data: users,
+            page,
+            pageSize: users.length,
+            totalPages,
+            filters,
+        };
+
+        // return await MongoQueryUtils.getPaginatedResponse(users, filters || {}, page, pageSize);
     }
 
     async findOne(id: string) {
