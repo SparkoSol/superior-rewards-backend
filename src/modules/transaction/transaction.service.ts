@@ -63,11 +63,13 @@ export class TransactionService {
 
         if (user) query['user'] = new mongoose.Types.ObjectId(user);
 
-        const transactions = this.model
+        const transactions = await this.model
           .find(query)
           .populate(withPopulate ? ['user'] : [])
           .sort({ createdAt: -1 })
           .exec();
+
+        console.log('transactions', transactions);
 
         return await MongoQueryUtils.getPaginatedResponse(transactions, filters || {}, page, pageSize);
     }
