@@ -27,12 +27,9 @@ import {
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import {
-    BulkUploadDTO,
-    PaginatedPersonResponseDto,
+    BulkUploadDto, BulkUploadResponseDto,
     PasswordUpdateRequestDto,
     PersonCreateDto,
-    PersonFiltersDto,
-    PersonQueryDto,
     PersonResponseDto,
     PersonUpdateDto,
     UpdateFcmTokenRequestDto,
@@ -136,7 +133,7 @@ export class PersonController {
     }
 
     /*******************************************************************
-     * updateFcmToken
+     * updateFcmToken (PATCH)
      ******************************************************************/
     @ApiTags('Person')
     @ApiOkResponse({
@@ -159,10 +156,15 @@ export class PersonController {
      * bulkUpload
      ******************************************************************/
     @UseInterceptors(FileInterceptor('file'))
-    @ApiOkResponse({ description: 'Upload CSV File' })
-    @ApiOperation({ description: 'Contact bulk uploading route for Admin' })
+    @ApiOperation({
+        summary: 'bulk import customers form excel',
+        description: 'Customers bulk uploading route for Admin',
+    })
     @ApiConsumes('multipart/form-data')
-    @ApiBody({ type: BulkUploadDTO })
+    @ApiBody({ type: BulkUploadDto })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
+    @ApiInternalServerErrorResponse({ description: 'Invalid Role' })
+    @ApiOkResponse({ type: BulkUploadResponseDto })
     @UseGuards(AuthGuard('jwt'))
     @Post('bulk-upload')
     async bulkUpload(@UploadedFile() file: any, @Res() res: Response) {

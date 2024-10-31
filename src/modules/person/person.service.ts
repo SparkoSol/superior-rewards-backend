@@ -293,7 +293,7 @@ export class PersonService {
 
             failedDocsCount = failedDocsCount + (xlsDocsItems.length - successDocs.length);
 
-            res.status(HttpStatus.CREATED).send({
+            res.status(HttpStatus.OK).send({
                 totalDocs,
                 successDocs: successDocs.length,
                 failedDocs: failedDocsCount,
