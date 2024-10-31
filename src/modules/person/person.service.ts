@@ -66,7 +66,6 @@ export class PersonService {
         const { page, pageSize, usedFor, filters, withPopulate } = data;
         let query = {};
         if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
-        console.log('query', JSON.stringify(query));
 
         const totalCount = await this.model.countDocuments(query);
 

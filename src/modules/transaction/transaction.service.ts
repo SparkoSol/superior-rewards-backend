@@ -59,7 +59,6 @@ export class TransactionService {
         const { page, pageSize, user, filters, withPopulate } = data;
         let query = {};
         if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
-        console.log('query', JSON.stringify(query));
 
         const totalCount = await this.model.countDocuments(query);
 
