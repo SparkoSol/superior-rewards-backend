@@ -314,6 +314,9 @@ export class PersonQueryDto {
 }
 
 export class PaginatedPersonResponseDto {
+    @ApiProperty()
+    filters?: filterPayload;
+
     @ApiProperty({ type: [PersonResponseDto] })
     data: [PersonResponseDto];
 

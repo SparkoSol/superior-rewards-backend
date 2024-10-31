@@ -56,7 +56,7 @@ export class MongoQueryUtils {
         return query;
     }
 
-    static async getPaginatedResponse(items: any, page: number = 1, pageSize: number = 10) {
+    static async getPaginatedResponse(items: any, filters: any = {},  page: number = 1, pageSize: number = 10) {
         // Apply pagination
         const totalCount = items.length;
         const totalPages = Math.ceil(totalCount / pageSize);
@@ -67,6 +67,7 @@ export class MongoQueryUtils {
         const paginationItems = items.slice(startIndex, endIndex);
 
         return {
+            filters,
             data: paginationItems,
             page,
             pageSize: paginationItems.length,

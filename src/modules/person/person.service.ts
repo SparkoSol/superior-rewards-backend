@@ -89,7 +89,7 @@ export class PersonService {
         if (usedFor && usedFor === 'customers')
             users = users.filter((user: any) => user.role.name === 'User');
 
-        return await MongoQueryUtils.getPaginatedResponse(users, page, pageSize);
+        return await MongoQueryUtils.getPaginatedResponse(users, filters || {}, page, pageSize);
     }
 
     async findOne(id: string) {
@@ -151,7 +151,7 @@ export class PersonService {
         if (usedFor && usedFor === 'customers')
             users = users.filter((user: any) => user.role.name === 'User');
 
-        return await MongoQueryUtils.getPaginatedResponse(users, page, pageSize);
+        return await MongoQueryUtils.getPaginatedResponse(users,{}, page, pageSize);
     }
 
     /*******************************************************************
