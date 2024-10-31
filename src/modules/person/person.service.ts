@@ -67,8 +67,6 @@ export class PersonService {
         let query = {};
         if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
 
-        const totalCount = await this.model.countDocuments(query);
-
         let users = await this.model
             .find(query)
             .populate(
@@ -88,10 +86,18 @@ export class PersonService {
             .sort({ createdAt: -1 })
             .exec();
 
-        if (usedFor && usedFor === 'users')
+
+        // TODO: have to change this logic
+        let totalCount = 0;
+
+        if (usedFor && usedFor === 'users') {
             users = users.filter((user: any) => user.role.name !== 'User');
-        if (usedFor && usedFor === 'customers')
+            totalCount = users.length || 0;
+        }
+        if (usedFor && usedFor === 'customers') {
             users = users.filter((user: any) => user.role.name === 'User');
+            totalCount = await this.model.countDocuments(query);
+        }
 
         const totalPages = Math.ceil(totalCount / pageSize);
 
