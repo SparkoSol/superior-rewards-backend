@@ -47,9 +47,7 @@ async function bootstrap() {
     await app.listen(port);
 
     Logger.log('<=====================================================================>');
-    Logger.log(
-        `App is running on Port [${port}] & Environment is set to [${process.env.NODE_ENVIRONMENT}]`
-    );
+    Logger.log(`App is running on Port [${port}] & Environment is set to [${process.env.NODE_ENVIRONMENT}]`);
     Logger.log('<====================================================================>');
 }
 
