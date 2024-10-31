@@ -10,7 +10,11 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { UserGift, UserGiftDocument } from './schema/user-gift.schema';
 import mongoose, { Model } from 'mongoose';
-import { UserGiftCreateRequest, UserGiftUpdateRequest } from './dto/user-gift.dto';
+import {
+    UserGiftCreateRequest,
+    UserGiftFiltersDto,
+    UserGiftUpdateRequest,
+} from './dto/user-gift.dto';
 import { TransactionService } from '../transaction/transaction.service';
 import { TransactionType } from '../transaction/enum/type.enum';
 import { PersonService } from '../person/person.service';
@@ -22,6 +26,7 @@ import { SettingService } from '../settings/setting.service';
 import { NotificationService } from '../notification/notification.service';
 import { helper } from '../../utils/helper';
 import * as process from 'process';
+import { MongoQueryUtils } from '../../utils/mongo-query-utils';
 
 @Injectable()
 export class UserGiftService {
@@ -111,15 +116,40 @@ export class UserGiftService {
     }
 
     /*******************************************************************
+     * filters
+     ******************************************************************/
+    async filters(data: UserGiftFiltersDto) {
+        const { page, pageSize, user, gift, status, filters, withPopulate } = data;
+        let query = {};
+        if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
+        console.log('query', JSON.stringify(query));
+
+        if (user) query['user'] = new mongoose.Types.ObjectId(user);
+        if (gift) query['gift'] = new mongoose.Types.ObjectId(gift);
+        if (status) query['status'] = status;
+        const histories = (await this.model
+            .find(query)
+            .populate(withPopulate ? ['user', 'gift'] : [])
+            .sort({ createdAt: -1 })
+            .exec()) as any;
+
+        return await MongoQueryUtils.getPaginatedResponse(histories, filters || {}, page, pageSize);
+    }
+
+    /*******************************************************************
      * postQrCode
      ******************************************************************/
     async postQrCode(qrCode: string) {
-        const userGift = await this.model.findOne({ qrCode }).populate(['user', 'gift']).exec() as any;
+        const userGift = (await this.model
+            .findOne({ qrCode })
+            .populate(['user', 'gift'])
+            .exec()) as any;
         if (!userGift) throw new NotAcceptableException('Invalid qrCode!');
 
         if (userGift && userGift.isExpired) throw new NotAcceptableException('Gift is expired!');
 
-        if(userGift && userGift.status === UserGiftStatus.REDEEMED) throw new NotAcceptableException('Gift is already redeemed!');
+        if (userGift && userGift.status === UserGiftStatus.REDEEMED)
+            throw new NotAcceptableException('Gift is already redeemed!');
 
         const history = this.model.findByIdAndUpdate(
             userGift._id,
@@ -132,10 +162,10 @@ export class UserGiftService {
         // send notification When a user collects a gift.
         try {
             await this.notificationService.sendNotificationToSingleDevice(
-              'Congrats! You have Collect a gift.',
-              `You have collected your gift (${userGift.gift.name}).`,
-              userGift.user._id.toString(),
-              userGift.user.fcmTokens
+                'Congrats! You have Collect a gift.',
+                `You have collected your gift (${userGift.gift.name}).`,
+                userGift.user._id.toString(),
+                userGift.user.fcmTokens
             );
         } catch (e) {
             Logger.error(`Error while sending notification When a user collects a gift: ${e}`);
@@ -170,7 +200,11 @@ export class UserGiftService {
                 diffInSeconds: helper.getDifferenceInSeconds(
                     item.isExpired,
                     new Date().toString(),
-                    item.status === UserGiftStatus.REDEEMED ? null : itemTtl ? itemTtl.expireAt.toString() : null
+                    item.status === UserGiftStatus.REDEEMED
+                        ? null
+                        : itemTtl
+                          ? itemTtl.expireAt.toString()
+                          : null
                 ),
             };
         });

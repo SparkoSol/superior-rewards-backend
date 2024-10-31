@@ -14,7 +14,8 @@ import {
 } from '@nestjs/swagger';
 import { UserGiftService } from './user-gift.service';
 import {
-    UserGiftCreateRequest,
+    PaginatedUserGiftResponseDto,
+    UserGiftCreateRequest, UserGiftFiltersDto,
     UserGiftPostQrCodeRequest,
     UserGiftResponse,
 } from './dto/user-gift.dto';
@@ -58,6 +59,22 @@ export class UserGiftController {
     @Post('qr-code')
     async postQrCode(@Body() data: UserGiftPostQrCodeRequest): Promise<any> {
         return await this.service.postQrCode(data.qrCode);
+    }
+
+    /*******************************************************************
+     * filters
+     ******************************************************************/
+    @ApiOkResponse({ type: PaginatedUserGiftResponseDto })
+    @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+    @ApiBody({ type: UserGiftFiltersDto })
+    @ApiOperation({
+        summary: 'To get filtered user-gifts history',
+        description:
+          "optional => withPopulated, used(mongoId), gift(mongoId), status(string) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31'], exists=> deletedAt[exists]: true",
+    })
+    @Post('filters')
+    async filteredStories(@Body() data: UserGiftFiltersDto) {
+        return this.service.filters(data);
     }
 
     /*******************************************************************

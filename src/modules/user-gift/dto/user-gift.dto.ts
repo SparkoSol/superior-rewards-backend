@@ -1,6 +1,8 @@
-import { IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { UserGiftStatus } from '../enum/status.enum';
+import { Type } from 'class-transformer';
+import { filterPayload, PersonResponseDto } from '../../person/dto/person.dto';
 
 export class UserGiftCreateRequest {
     @ApiProperty() @IsNotEmpty() @IsString() @IsMongoId() user: string;
@@ -50,4 +52,78 @@ export class UserGiftResponse {
 
 export class UserGiftPostQrCodeRequest {
     @ApiProperty() @IsNotEmpty() @IsString() qrCode: string;
+}
+
+export class UserGiftFiltersDto {
+    @ApiProperty({ description: 'Page No - Starting Page is 1', default: 1 })
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    page: number;
+
+    @ApiProperty({ description: 'Page Size - Default is 10', default: 10 })
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    pageSize: number;
+
+    @ApiProperty({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
+    @IsOptional()
+    @IsBoolean()
+    @Type(() => Boolean)
+    withPopulate?: boolean;
+
+    @ApiProperty({
+        required: false,
+        name: 'gift',
+        description: 'for getting all gifts of specific gift',
+    })
+    @IsOptional()
+    @IsString()
+    gift?: string;
+
+    @ApiProperty({
+        required: false,
+        name: 'user',
+        description: 'for getting all gifts of specific user',
+    })
+    @IsOptional()
+    @IsString()
+    user?: string;
+
+    @ApiProperty({
+        required: false,
+        name: 'status',
+        description: 'for getting all gifts of specific status',
+    })
+    @IsOptional()
+    @IsString()
+    status?: string;
+
+    @ApiProperty({ description: 'Filter object' })
+    @IsOptional()
+    @IsObject()
+      // filters?: Record<string, any>;
+    filters?: filterPayload;
+}
+
+export class PaginatedUserGiftResponseDto {
+    @ApiProperty()
+    filters?: filterPayload;
+
+    @ApiProperty({ type: [UserGiftResponse] })
+    data: [UserGiftResponse];
+
+    @ApiProperty()
+    page: number;
+
+    @ApiProperty()
+    pageSize: number;
+
+    @ApiProperty()
+    totalPages: number;
 }
