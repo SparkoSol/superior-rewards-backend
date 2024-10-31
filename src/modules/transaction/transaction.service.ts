@@ -61,19 +61,36 @@ export class TransactionService {
         if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
         console.log('query', JSON.stringify(query));
 
+        const totalCount = await this.model.countDocuments(query);
+
         if (user) query['user'] = new mongoose.Types.ObjectId(user);
 
         const transactions = await this.model
-          .find(query)
-          .populate(withPopulate ? ['user'] : [])
-          .sort({ createdAt: -1 })
-          .exec();
+            .find(query)
+            .populate(withPopulate ? ['user'] : [])
+            .skip((page - 1) * pageSize)
+            .limit(pageSize)
+            .sort({ createdAt: -1 })
+            .exec();
 
-        console.log('transactions', transactions);
+        const totalPages = Math.ceil(totalCount / pageSize);
 
-        return await MongoQueryUtils.getPaginatedResponse(transactions, filters || {}, page, pageSize);
+        // Structure the response
+        return {
+            data: transactions,
+            page,
+            pageSize: transactions.length,
+            totalPages,
+            filters,
+        };
+
+        // return await MongoQueryUtils.getPaginatedResponse(
+        //     transactions,
+        //     filters || {},
+        //     page,
+        //     pageSize
+        // );
     }
-
 
     /*******************************************************************
      * fetch

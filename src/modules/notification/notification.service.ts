@@ -44,11 +44,28 @@ export class NotificationService {
         if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
         console.log('query', JSON.stringify(query));
 
+        const totalCount = await this.model.countDocuments(query);
+
         if (user) query['user'] = new mongoose.Types.ObjectId(user);
         if (markAsRead) query['markAsRead'] = markAsRead;
-        const notificaitons = await this.model.find(query).populate('user').sort({ createdAt: -1 }).exec();
+        const notifications = await this.model.find(query).populate('user') .sort({ createdAt: -1 })
+          .skip((page - 1) * pageSize)
+          .limit(pageSize)
+          .sort({ createdAt: -1 })
+          .exec();
 
-        return await MongoQueryUtils.getPaginatedResponse(notificaitons, filters || {}, page, pageSize);
+        const totalPages = Math.ceil(totalCount / pageSize);
+
+        // Structure the response
+        return {
+            data: notifications,
+            page,
+            pageSize: notifications.length,
+            totalPages,
+            filters,
+        };
+
+        // return await MongoQueryUtils.getPaginatedResponse(notificaitons, filters || {}, page, pageSize);
     }
 
     /*******************************************************************

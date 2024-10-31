@@ -124,16 +124,30 @@ export class UserGiftService {
         if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
         console.log('query', JSON.stringify(query));
 
+        const totalCount = await this.model.countDocuments(query);
+
         if (user) query['user'] = new mongoose.Types.ObjectId(user);
         if (gift) query['gift'] = new mongoose.Types.ObjectId(gift);
         if (status) query['status'] = status;
         const histories = (await this.model
             .find(query)
             .populate(withPopulate ? ['user', 'gift'] : [])
+            .skip((page - 1) * pageSize)
+            .limit(pageSize)
             .sort({ createdAt: -1 })
             .exec()) as any;
 
-        return await MongoQueryUtils.getPaginatedResponse(histories, filters || {}, page, pageSize);
+        const totalPages = Math.ceil(totalCount / pageSize);
+
+        return {
+            data: histories,
+            page,
+            pageSize: histories.length,
+            totalPages,
+            filters,
+        };
+
+        // return await MongoQueryUtils.getPaginatedResponse(histories, filters || {}, page, pageSize);
     }
 
     /*******************************************************************

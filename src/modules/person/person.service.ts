@@ -86,6 +86,7 @@ export class PersonService {
             .sort({ createdAt: -1 })
             .skip((page - 1) * pageSize)
             .limit(pageSize)
+            .sort({ createdAt: -1 })
             .exec();
 
         if (usedFor && usedFor === 'users')
