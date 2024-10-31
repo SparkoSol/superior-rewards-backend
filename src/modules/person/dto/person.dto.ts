@@ -247,7 +247,7 @@ export class BulkUploadResponseDto {
     failedDocs: number;
 }
 
-export class PersonPaginationDto {
+export class PersonQueryDto {
     @ApiProperty({ description: 'Page No - Starting Page is 1' })
     @IsNumber()
     @IsOptional()
