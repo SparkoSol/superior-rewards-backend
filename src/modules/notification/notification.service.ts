@@ -42,7 +42,6 @@ export class NotificationService {
         const { page, pageSize, user,  markAsRead, filters, withPopulate } = data;
         let query = {};
         if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
-        console.log('query', JSON.stringify(query));
 
         const totalCount = await this.model.countDocuments(query);
 

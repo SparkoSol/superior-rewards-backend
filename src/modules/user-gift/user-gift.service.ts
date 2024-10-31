@@ -122,7 +122,6 @@ export class UserGiftService {
         const { page, pageSize, user, gift, status, filters, withPopulate } = data;
         let query = {};
         if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
-        console.log('query', JSON.stringify(query));
 
         const totalCount = await this.model.countDocuments(query);
 
