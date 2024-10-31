@@ -1,6 +1,8 @@
-import { IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { TransactionType } from '../enum/type.enum';
+import { Type } from 'class-transformer';
+import { filterPayload, PersonResponseDto } from '../../person/dto/person.dto';
 
 export class TransactionCreateRequest {
     @ApiProperty() @IsNotEmpty() @IsString() @IsMongoId() user: string;
@@ -27,8 +29,6 @@ export class TransactionCreateRequest {
     type: string;
 }
 
-export class TransactionUpdateRequest extends PartialType(TransactionCreateRequest) {}
-
 export class TransactionResponse {
     @ApiProperty() user: object;
 
@@ -52,4 +52,60 @@ export class TransactionResponse {
     @ApiProperty() createdAt: Date;
 
     @ApiProperty() updatedAt: Date;
+}
+
+export class TransactionFiltersDto {
+    @ApiProperty({ description: 'Page No - Starting Page is 1', default: 1 })
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    page: number;
+
+    @ApiProperty({ description: 'Page Size - Default is 10', default: 10 })
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    pageSize: number;
+
+    @ApiProperty({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
+    @IsOptional()
+    @IsBoolean()
+    @Type(() => Boolean)
+    withPopulate?: boolean;
+
+    @ApiProperty({
+        required: false,
+        name: 'user',
+        description: 'Find all transactions by UserId',
+    })
+    @IsOptional()
+    @IsString()
+    user?: string;
+
+    @ApiProperty({ description: 'Filter object' })
+    @IsOptional()
+    @IsObject()
+      // filters?: Record<string, any>;
+    filters?: filterPayload;
+}
+
+export class PaginatedTransactionResponseDto {
+    @ApiProperty()
+    filters?: filterPayload;
+
+    @ApiProperty({ type: [TransactionResponse] })
+    data: [TransactionResponse];
+
+    @ApiProperty()
+    page: number;
+
+    @ApiProperty()
+    pageSize: number;
+
+    @ApiProperty()
+    totalPages: number;
 }

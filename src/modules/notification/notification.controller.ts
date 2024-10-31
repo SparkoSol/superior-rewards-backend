@@ -4,7 +4,7 @@ import {
     NotificationResponseDto,
     NotificationPayloadForMultipleDeviceDto,
     NotificationPayload,
-    NotificationCreateDto,
+    NotificationCreateDto, NotificationFiltersDto, PaginatedNotificationResponseDto,
 } from './dto/notification.dto';
 import {
     ApiBearerAuth,
@@ -34,6 +34,22 @@ export class NotificationController {
     @Post()
     async create(@Body() data: NotificationCreateDto): Promise<any> {
         return await this.notificationService.create(data);
+    }
+
+    /*******************************************************************
+     * filters
+     ******************************************************************/
+    @ApiOkResponse({ type: PaginatedNotificationResponseDto })
+    @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+    @ApiBody({ type: NotificationFiltersDto })
+    @ApiOperation({
+        summary: 'To get filtered notifications',
+        description:
+          "optional => withPopulated, usedId(mongoId), markAsRead(true|false) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31'], exists=> deletedAt[exists]: true",
+    })
+    @Post('filters')
+    async filteredStories(@Body() data: NotificationFiltersDto) {
+        return this.notificationService.filters(data);
     }
 
     /*******************************************************************

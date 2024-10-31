@@ -2,10 +2,11 @@ import { Injectable, NotAcceptableException, NotFoundException } from '@nestjs/c
 import { InjectModel } from '@nestjs/mongoose';
 import { Transaction, TransactionDocument } from './schema/transaction.schema';
 import mongoose, { Model } from 'mongoose';
-import { TransactionCreateRequest } from './dto/transaction.dto';
+import { TransactionCreateRequest, TransactionFiltersDto } from './dto/transaction.dto';
 import { TransactionType } from './enum/type.enum';
 import { PersonService } from '../person/person.service';
 import { NotificationService } from '../notification/notification.service';
+import { MongoQueryUtils } from '../../utils/mongo-query-utils';
 
 @Injectable()
 export class TransactionService {
@@ -50,6 +51,27 @@ export class TransactionService {
 
         return transaction;
     }
+
+    /*******************************************************************
+     * filters
+     ******************************************************************/
+    async filters(data: TransactionFiltersDto) {
+        const { page, pageSize, user, filters, withPopulate } = data;
+        let query = {};
+        if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
+        console.log('query', JSON.stringify(query));
+
+        if (user) query['user'] = new mongoose.Types.ObjectId(user);
+
+        const transactions = this.model
+          .find(query)
+          .populate(withPopulate ? ['user'] : [])
+          .sort({ createdAt: -1 })
+          .exec();
+
+        return await MongoQueryUtils.getPaginatedResponse(transactions, filters || {}, page, pageSize);
+    }
+
 
     /*******************************************************************
      * fetch

@@ -7,13 +7,14 @@ import {
     Logger,
     NotFoundException,
 } from '@nestjs/common';
-import { NotificationCreateDto, NotificationPayload } from './dto/notification.dto';
+import { NotificationCreateDto, NotificationFiltersDto, NotificationPayload } from './dto/notification.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Notification, NotificationDocument } from '../notification/schema/notification.schema';
 import * as mongoose from 'mongoose';
 import { Model } from 'mongoose';
 import { PersonService } from '../person/person.service';
 import { AuthService } from '../auth/auth.service';
+import { MongoQueryUtils } from '../../utils/mongo-query-utils';
 
 @Injectable()
 export class NotificationService {
@@ -32,6 +33,22 @@ export class NotificationService {
         } catch (e) {
             throw new InternalServerErrorException(`Error while creating notification: ${e}`);
         }
+    }
+
+    /*******************************************************************
+     * filters
+     ******************************************************************/
+    async filters(data: NotificationFiltersDto) {
+        const { page, pageSize, user,  markAsRead, filters, withPopulate } = data;
+        let query = {};
+        if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
+        console.log('query', JSON.stringify(query));
+
+        if (user) query['user'] = new mongoose.Types.ObjectId(user);
+        if (markAsRead) query['markAsRead'] = markAsRead;
+        const notificaitons = await this.model.find(query).populate('user').sort({ createdAt: -1 }).exec();
+
+        return await MongoQueryUtils.getPaginatedResponse(notificaitons, filters || {}, page, pageSize);
     }
 
     /*******************************************************************

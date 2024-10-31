@@ -11,9 +11,9 @@ import { Model } from 'mongoose';
 import { Person, PersonDocument } from './schema/person.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import {
-    FiltersDto,
     PasswordUpdateRequestDto,
     PersonCreateDto,
+    PersonFiltersDto,
     PersonUpdateDto,
     UpdateFcmTokenRequestDto,
 } from './dto/person.dto';
@@ -62,10 +62,10 @@ export class PersonService {
     /*******************************************************************
      * filters
      ******************************************************************/
-    async filters(data: FiltersDto) {
+    async filters(data: PersonFiltersDto) {
         const { page, pageSize, usedFor, filters, withPopulate } = data;
         let query = {};
-        if(filters) query = MongoQueryUtils.getQueryFromFilters(filters);
+        if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
         console.log('query', JSON.stringify(query));
 
         let users = await this.model
@@ -151,7 +151,7 @@ export class PersonService {
         if (usedFor && usedFor === 'customers')
             users = users.filter((user: any) => user.role.name === 'User');
 
-        return await MongoQueryUtils.getPaginatedResponse(users,{}, page, pageSize);
+        return await MongoQueryUtils.getPaginatedResponse(users, {}, page, pageSize);
     }
 
     /*******************************************************************

@@ -236,12 +236,45 @@ export class BulkUploadDTO {
     file: FileDTO;
 }
 
-class filterPayload {
+export class PersonQueryDto {
+    @ApiProperty({ description: 'Page No - Starting Page is 1' })
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    page: number;
+
+    @ApiProperty({ description: 'Page Size - Default is 10' })
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    pageSize: number;
+
+    @ApiProperty({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
+    @IsOptional()
+    @IsBoolean()
+    @Type(() => Boolean)
+    withPopulate?: boolean;
+
+    @ApiProperty({
+        required: false,
+        name: 'usedFor',
+        description: 'for determine whether the request is from "users" or "customers"',
+    })
+    @IsOptional()
+    @IsString()
+    usedFor?: string;
+}
+
+export class filterPayload {
     @ApiProperty()
     "field[op]": string;
 }
 
-export class FiltersDto {
+export class PersonFiltersDto {
     @ApiProperty({ description: 'Page No - Starting Page is 1', default: 1 })
     @IsNumber()
     @IsOptional()
@@ -278,39 +311,6 @@ export class FiltersDto {
     @IsObject()
     // filters?: Record<string, any>;
     filters?: filterPayload;
-}
-
-export class PersonQueryDto {
-    @ApiProperty({ description: 'Page No - Starting Page is 1' })
-    @IsNumber()
-    @IsOptional()
-    @Type(() => Number)
-    page: number;
-
-    @ApiProperty({ description: 'Page Size - Default is 10' })
-    @IsNumber()
-    @IsOptional()
-    @Type(() => Number)
-    pageSize: number;
-
-    @ApiProperty({
-        required: false,
-        name: 'withPopulate',
-        description: 'If true, will return populated data.',
-    })
-    @IsOptional()
-    @IsBoolean()
-    @Type(() => Boolean)
-    withPopulate?: boolean;
-
-    @ApiProperty({
-        required: false,
-        name: 'usedFor',
-        description: 'for determine whether the request is from "users" or "customers"',
-    })
-    @IsOptional()
-    @IsString()
-    usedFor?: string;
 }
 
 export class PaginatedPersonResponseDto {

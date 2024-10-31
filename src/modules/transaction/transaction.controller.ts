@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, Request } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
-    ApiBearerAuth,
+    ApiBearerAuth, ApiBody,
     ApiInternalServerErrorResponse,
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
@@ -12,7 +12,12 @@ import {
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { TransactionService } from './transaction.service';
-import { TransactionCreateRequest, TransactionResponse } from './dto/transaction.dto';
+import {
+    PaginatedTransactionResponseDto,
+    TransactionCreateRequest,
+    TransactionFiltersDto,
+    TransactionResponse,
+} from './dto/transaction.dto';
 import { TransactionType } from './enum/type.enum';
 
 @ApiBearerAuth('access-token')
@@ -38,6 +43,22 @@ export class TransactionController {
     }
 
     /*******************************************************************
+     * filters
+     ******************************************************************/
+    @ApiOkResponse({ type: PaginatedTransactionResponseDto })
+    @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+    @ApiBody({ type: TransactionFiltersDto })
+    @ApiOperation({
+        summary: 'To get filtered transactions',
+        description:
+          "optional => withPopulated, markAsRead(true|false) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31'], exists=> deletedAt[exists]: true",
+    })
+    @Post('filters')
+    async filteredStories(@Body() data: TransactionFiltersDto) {
+        return this.service.filters(data);
+    }
+
+    /*******************************************************************
      * fetch
      ******************************************************************/
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
@@ -54,7 +75,7 @@ export class TransactionController {
     @ApiQuery({
         required: false,
         name: 'user',
-        description: 'for getting all gifts of specific user',
+        description: 'for getting all transactions of specific user',
     })
     @ApiQuery({
         required: false,

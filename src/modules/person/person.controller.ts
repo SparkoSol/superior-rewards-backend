@@ -28,10 +28,10 @@ import {
 } from '@nestjs/swagger';
 import {
     BulkUploadDTO,
-    FiltersDto,
     PaginatedPersonResponseDto,
     PasswordUpdateRequestDto,
     PersonCreateDto,
+    PersonFiltersDto,
     PersonQueryDto,
     PersonResponseDto,
     PersonUpdateDto,
@@ -71,13 +71,14 @@ export class PersonController {
      ******************************************************************/
     @ApiOkResponse({ type: PaginatedPersonResponseDto })
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
-    @ApiBody({ type: FiltersDto, })
+    @ApiBody({ type: PersonFiltersDto })
     @ApiOperation({
         summary: 'To get filtered persons',
-        description: "optional => withPopulated, usedFor(users, customers) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31'], exists=> deletedAt[exists]: true",
+        description:
+            "optional => withPopulated, usedFor(users, customers) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31'], exists=> deletedAt[exists]: true",
     })
     @Post('filters')
-    async filteredStories(@Body() data: FiltersDto) {
+    async filteredStories(@Body() data: PersonFiltersDto) {
         return this.service.filters(data);
     }
 
