@@ -17,12 +17,9 @@ async function bootstrap() {
             transform: true,
         })
     );
-
-    console.log(`${process.env.APP_NAME_SLUG}-uploads`);
-
-    app.useStaticAssets(join(process.cwd(), '..', `${process.env.APP_NAME_SLUG}-uploads`), {
-        prefix: '/uploads/',
-    });
+    // app.useStaticAssets(join(process.cwd(), '..', `${process.env.APP_NAME_SLUG}-uploads`), {
+    //     prefix: '/uploads/',
+    // });
 
     if (
         process.env.NODE_ENVIRONMENT === 'development' ||
@@ -53,4 +50,5 @@ async function bootstrap() {
     Logger.log(`App is running on Port [${port}] & Environment is set to [${process.env.NODE_ENVIRONMENT}]`);
     Logger.log('<====================================================================>');
 }
+
 bootstrap().then((r) => console.log(r));

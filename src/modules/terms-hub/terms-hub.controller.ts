@@ -1,7 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Response } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import { TermsHubService } from './terms-hub.service';
 import {
-    ApiBadRequestResponse,
     ApiBearerAuth,
     ApiBody,
     ApiInternalServerErrorResponse,
@@ -12,11 +11,12 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { TermsHubCreateDto, TermsHubsResponseDto, TermsHubUpdateDto } from './dto/terms-hub.dto';
+import { TermsHubCreateDto, TermsHubsResponseDto } from './dto/terms-hub.dto';
+import { TermsHubsType } from './enum/type.enum';
 
 @ApiBearerAuth('access-token')
 @ApiTags('TermsHub')
-@Controller('terms-hubs')
+@Controller('terms-hub')
 export class TermsHubController {
     constructor(private readonly termsHubService: TermsHubService) {}
 
@@ -30,7 +30,7 @@ export class TermsHubController {
     @ApiUnauthorizedResponse({ description: 'Unauthorized' })
     @ApiInternalServerErrorResponse({ description: 'Error while creating terms-hub' })
     @ApiOperation({
-        description: 'Creating Data',
+        description: `type: ${Object.values(TermsHubsType)}, optional: details`,
     })
     @ApiBody({ type: TermsHubCreateDto })
     @Post()
@@ -74,25 +74,6 @@ export class TermsHubController {
     }
 
     /*******************************************************************
-     * update
-     ******************************************************************/
-    @ApiOkResponse({
-        type: TermsHubsResponseDto,
-        description: 'Data Updated Successfully',
-    })
-    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-    @ApiBadRequestResponse({ description: 'Invalid request data' })
-    @ApiInternalServerErrorResponse({ description: 'Internal server errors' })
-    @ApiOperation({
-        description: 'Update Specific Data',
-    })
-    @ApiBody({ type: TermsHubUpdateDto })
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() TermsHubUpdateDto: TermsHubUpdateDto) {
-        return this.termsHubService.update(id, TermsHubUpdateDto);
-    }
-
-    /*******************************************************************
      * delete
      ******************************************************************/
     @ApiOkResponse({
@@ -106,7 +87,7 @@ export class TermsHubController {
     })
     @ApiOperation({ description: 'Delete Specific Data' })
     @Delete(':id')
-    remove(@Param('id') id: string, @Response() res: any) {
-        return this.termsHubService.remove(id, res);
+    remove(@Param('id') id: string) {
+        return this.termsHubService.remove(id);
     }
 }

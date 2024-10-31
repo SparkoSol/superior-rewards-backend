@@ -2,6 +2,7 @@ export class Validations {
     static ValidateUserRole = async (role: string): Promise<boolean> => {
         switch (role) {
             case 'ADMIN':
+            case 'SUB_ADMIN':
             case 'USER':
                 return true;
             default:

@@ -16,7 +16,7 @@ export type TransactionDocument = HydratedDocument<Transaction>;
 */
 
 @Schema({ timestamps: true })
-export class Transaction {
+export class Transaction extends mongoose.Document {
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name }) user: string;
 
     @Prop() customerPhone: string;

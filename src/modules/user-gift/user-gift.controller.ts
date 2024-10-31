@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Query, Request } from '@nes
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
+    ApiBody,
     ApiInternalServerErrorResponse,
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
@@ -12,8 +13,13 @@ import {
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { UserGiftService } from './user-gift.service';
-import { UserGiftCreateRequest, UserGiftResponse } from './dto/user-gift.dto';
-import { GiftStatus } from './enum/status.enum';
+import {
+    PaginatedUserGiftResponseDto,
+    UserGiftCreateRequest, UserGiftFiltersDto,
+    UserGiftPostQrCodeRequest,
+    UserGiftResponse,
+} from './dto/user-gift.dto';
+import { UserGiftStatus } from './enum/status.enum';
 
 @ApiBearerAuth('access-token')
 @ApiTags('UserGifts')
@@ -26,11 +32,49 @@ export class UserGiftController {
      ******************************************************************/
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
-    @ApiNotAcceptableResponse({ description: '1: Invalid user id!, 2: Invalid gift id!' })
-    @ApiOperation({ summary: 'To create gift' })
+    @ApiNotAcceptableResponse({
+        description: '1: Invalid user id!, 2: Invalid gift id!, 3: Insufficient points!',
+    })
+    @ApiOperation({
+        summary: 'To create gift',
+        description: `status: ${Object.values(UserGiftStatus)}, optional: qrCode`,
+    })
+    @ApiBody({ type: UserGiftCreateRequest })
     @Post()
-    async create(@Request() req: any, @Body() data: UserGiftCreateRequest): Promise<any> {
+    async create(@Body() data: UserGiftCreateRequest): Promise<any> {
         return await this.service.create(data);
+    }
+
+    /*******************************************************************
+     * postQrCode
+     ******************************************************************/
+    @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
+    @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+    @ApiNotAcceptableResponse({ description: '1: Invalid QR Code!, 2: Gift is expired!, 3: Gift is already redeemed!' })
+    @ApiOperation({
+        summary: 'To post QR Code',
+        description: 'qrCode: it will update the existing user-gift status to redeemed',
+    })
+    @ApiBody({ type: UserGiftPostQrCodeRequest })
+    @Post('qr-code')
+    async postQrCode(@Body() data: UserGiftPostQrCodeRequest): Promise<any> {
+        return await this.service.postQrCode(data.qrCode);
+    }
+
+    /*******************************************************************
+     * filters
+     ******************************************************************/
+    @ApiOkResponse({ type: PaginatedUserGiftResponseDto })
+    @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+    @ApiBody({ type: UserGiftFiltersDto })
+    @ApiOperation({
+        summary: 'To get filtered user-gifts history',
+        description:
+          "optional => withPopulated, used(mongoId), gift(mongoId), status(string) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31'], exists=> deletedAt[exists]: true",
+    })
+    @Post('filters')
+    async filteredStories(@Body() data: UserGiftFiltersDto) {
+        return this.service.filters(data);
     }
 
     /*******************************************************************
@@ -54,12 +98,27 @@ export class UserGiftController {
     })
     @ApiQuery({
         required: false,
+        name: 'gift',
+        description: 'for getting all gifts of specific gift',
+    })
+    @ApiQuery({
+        required: false,
         name: 'status',
         description: 'for getting all gifts of specific status',
     })
+    @ApiQuery({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
     @Get()
-    async fetch(@Query('user') user?: string, @Query('status') status?: GiftStatus): Promise<any> {
-        return await this.service.fetch(user, status);
+    async fetch(
+        @Query('user') user?: string,
+        @Query('gift') gift?: string,
+        @Query('status') status?: UserGiftStatus,
+        @Query('withPopulate') withPopulate?: boolean
+    ): Promise<any> {
+        return await this.service.fetch(user, gift, status, withPopulate);
     }
 
     /*******************************************************************
@@ -70,9 +129,17 @@ export class UserGiftController {
     @ApiOperation({
         summary: 'To get gift w.r.t to userId',
     })
+    @ApiQuery({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
     @Get('byUserId/:user')
-    async fetchAllGiftByUser(@Param('user') user?: string): Promise<any> {
-        return await this.service.fetchAllGiftByUser(user);
+    async fetchAllGiftByUser(
+        @Param('user') user?: string,
+        @Query('withPopulate') withPopulate?: boolean
+    ): Promise<any> {
+        return await this.service.fetchAllGiftByUser(user, withPopulate);
     }
 
     /*******************************************************************
@@ -88,20 +155,15 @@ export class UserGiftController {
     @ApiOperation({
         summary: 'To get specific gift',
     })
+    @ApiQuery({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.service.fetchById(id);
+    findOne(@Param('id') id: string, @Query('withPopulate') withPopulate?: boolean) {
+        return this.service.fetchById(id, withPopulate);
     }
-
-    /*******************************************************************
-     * update
-     ******************************************************************/
-    // @ApiUnauthorizedResponse({ description: 'Unauthorized!' }) @ApiInternalServerErrorResponse({ description: 'Unexpected Error' }) @ApiBadRequestResponse({ description: 'Issue in request data' }) @ApiOkResponse({
-    //   type: UserGiftResponse, description: 'UserGift Updated Successfully',
-    // }) @ApiOperation({ summary: 'To update gift data' }) @Patch(':id')
-    // async update(@Param('id') id: string, @Body() data: UserGiftUpdateRequest) {
-    //   return await this.service.update(id, data);
-    // }
 
     /*******************************************************************
      * delete

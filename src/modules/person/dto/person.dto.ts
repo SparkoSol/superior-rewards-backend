@@ -1,69 +1,198 @@
 import {
     IsArray,
     IsBoolean,
-    IsEnum,
     IsMongoId,
     IsNotEmpty,
     IsNumber,
+    IsObject,
     IsOptional,
     IsString,
 } from 'class-validator';
-import { Role } from '../enum/role.enum';
 import { ApiProperty } from '@nestjs/swagger';
+import { FileDTO } from '../../../uploadFileStructue/dto/file.dto';
+import { Transform, Type } from 'class-transformer';
 
-export class PersonUpdateDto {
-    @ApiProperty() @IsOptional() @IsString() name: string;
+export class PersonCreateDto {
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    name: string;
 
-    @ApiProperty() @IsOptional() @IsString() phone: string;
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    phone: string;
 
-    @ApiProperty() @IsOptional() @IsString() dob: Date;
-
-    @ApiProperty() @IsOptional() @IsString() profilePicture?: string;
-
-    @ApiProperty({
-        required: true,
-        type: String,
-        default: Role.ADMIN,
-    })
+    @ApiProperty()
     @IsOptional()
-    @IsEnum(Role, {
-        message: 'Role must be ' + Object.values(Role).join(', '),
-    })
+    @IsString()
+    dob?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    address?: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    password: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    profilePicture?: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
     role: string;
 
-    @ApiProperty({ type: [String] }) @IsOptional() @IsArray() fcmTokens: string[];
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsNumber()
+    points: number;
 
-    @ApiProperty({ default: 0 }) @IsOptional() @IsNumber() points: number;
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsNumber()
+    redeemedPoints: number;
 
-    @ApiProperty({ default: 0 }) @IsOptional() @IsNumber() redeemedPoints: number;
+    @ApiProperty()
+    @IsOptional()
+    @IsBoolean()
+    addedInOdoo: boolean;
 
-    @ApiProperty({ default: false }) @IsOptional() @IsBoolean() addedInOdoo: boolean;
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    email?: string;
 
-    @ApiProperty() @IsOptional() @IsString() deletedAt?: Date;
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    country?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsNumber()
+    customerNumber?: number;
+
+    odooCustomerId?: number;
+}
+
+export class PersonUpdateDto {
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    name?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    phone?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    dob?: Date;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    address?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    profilePicture?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    @IsMongoId()
+    role?: string;
+
+    @ApiProperty({ type: [String] })
+    @IsOptional()
+    @IsArray()
+    fcmTokens?: string[];
+
+    @ApiProperty({ default: 0 })
+    @IsOptional()
+    @IsNumber()
+    points?: number;
+
+    @ApiProperty({ default: 0 })
+    @IsOptional()
+    @IsNumber()
+    redeemedPoints?: number;
+
+    @ApiProperty({ default: false })
+    @IsOptional()
+    @IsBoolean()
+    addedInOdoo?: boolean;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    deletedAt?: Date;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    email?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    country?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsNumber()
+    customerNumber?: number;
 }
 
 export class PersonResponseDto {
-    @ApiProperty() name: string;
+    @ApiProperty()
+    name: string;
 
-    @ApiProperty() phone: string;
+    @ApiProperty()
+    phone: string;
 
-    @ApiProperty() dob: Date;
+    @ApiProperty()
+    dob: Date;
 
-    @ApiProperty() profilePicture?: string;
+    @ApiProperty()
+    address?: string;
 
-    @ApiProperty({
-        enum: Role,
-        example: Role.ADMIN,
-    })
-    role: string;
+    @ApiProperty()
+    profilePicture?: string;
 
-    @ApiProperty({ type: [String] }) fcmTokens: string[];
+    @ApiProperty()
+    role: object;
 
-    @ApiProperty({ default: 0 }) points: number;
+    @ApiProperty({ type: [String] })
+    fcmTokens?: string[];
 
-    @ApiProperty({ default: 0 }) redeemedPoints: number;
+    @ApiProperty({ default: 0 })
+    points: number;
 
-    @ApiProperty({ default: false }) addedInOdoo: boolean;
+    @ApiProperty({ default: 0 })
+    redeemedPoints: number;
+
+    @ApiProperty({ default: false })
+    addedInOdoo: boolean;
+
+    @ApiProperty()
+    email?: string;
+
+    @ApiProperty()
+    country?: string;
+
+    @ApiProperty()
+    customerNumber?: number;
 
     @ApiProperty() deletedAt?: Date;
 
@@ -73,7 +202,10 @@ export class PersonResponseDto {
 }
 
 export class UpdateFcmTokenRequestDto {
-    @ApiProperty({ required: true }) @IsNotEmpty() @IsString() fcmToken: string;
+    @ApiProperty({ required: true })
+    @IsNotEmpty()
+    @IsString()
+    fcmToken: string;
 }
 
 export class PasswordUpdateRequestDto {
@@ -90,4 +222,121 @@ export class PasswordUpdateRequestDto {
     @IsString()
     @ApiProperty({ required: true })
     newPassword: string;
+}
+
+export class BulkUploadDto {
+    @ApiProperty({
+        required: true,
+        type: 'string',
+        format: 'binary',
+        description: 'Excel File',
+    })
+    @IsOptional()
+    @IsObject()
+    file: FileDTO;
+}
+
+export class BulkUploadResponseDto {
+    @ApiProperty()
+    totalDocs: number;
+
+    @ApiProperty()
+    successDocs: number;
+
+    @ApiProperty()
+    failedDocs: number;
+}
+
+export class PersonQueryDto {
+    @ApiProperty({ description: 'Page No - Starting Page is 1' })
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    page: number;
+
+    @ApiProperty({ description: 'Page Size - Default is 10' })
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    pageSize: number;
+
+    @ApiProperty({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
+    @IsOptional()
+    @IsBoolean()
+    @Type(() => Boolean)
+    withPopulate?: boolean;
+
+    @ApiProperty({
+        required: false,
+        name: 'usedFor',
+        description: 'for determine whether the request is from "users" or "customers"',
+    })
+    @IsOptional()
+    @IsString()
+    usedFor?: string;
+}
+
+export class filterPayload {
+    @ApiProperty()
+    "field[op]": string;
+}
+
+export class PersonFiltersDto {
+    @ApiProperty({ description: 'Page No - Starting Page is 1', default: 1 })
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    page: number;
+
+    @ApiProperty({ description: 'Page Size - Default is 10', default: 10 })
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    pageSize: number;
+
+    @ApiProperty({
+        required: false,
+        name: 'withPopulate',
+        description: 'If true, will return populated data.',
+    })
+    @IsOptional()
+    @IsBoolean()
+    @Type(() => Boolean)
+    withPopulate?: boolean;
+
+    @ApiProperty({
+        required: false,
+        name: 'usedFor',
+        description: 'for determine whether the request is from "users" or "customers"',
+    })
+    @IsOptional()
+    @IsString()
+    usedFor?: string;
+
+    @ApiProperty({ description: 'Filter object' })
+    @IsOptional()
+    @IsObject()
+    // filters?: Record<string, any>;
+    filters?: filterPayload;
+}
+
+export class PaginatedPersonResponseDto {
+    @ApiProperty()
+    filters?: filterPayload;
+
+    @ApiProperty({ type: [PersonResponseDto] })
+    data: [PersonResponseDto];
+
+    @ApiProperty()
+    page: number;
+
+    @ApiProperty()
+    pageSize: number;
+
+    @ApiProperty()
+    totalPages: number;
 }

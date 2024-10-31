@@ -1,26 +1,27 @@
 import {
+    Body,
     Controller,
     Get,
     InternalServerErrorException,
-    Param,
     Post,
     UploadedFile,
     UseInterceptors,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import {
+    ApiBearerAuth,
     ApiBody,
     ApiConsumes,
     ApiCreatedResponse,
     ApiInternalServerErrorResponse,
     ApiOkResponse,
-    ApiParam,
+    ApiOperation,
     ApiTags,
 } from '@nestjs/swagger';
-import { FileDTO, SaveFileDTO } from '../uploadFileStructue/dto/file.dto';
+import { DeleteFileDTO, FileDTO, SaveFileDTO } from '../uploadFileStructue/dto/file.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ImageUtils } from '../utils/image-utils';
 import { Public } from '../modules/auth/decorators/setmetadata.decorator';
+import { getDownloadURL } from 'firebase-admin/storage';
 
 @Controller()
 export class AppController {
@@ -35,43 +36,46 @@ export class AppController {
     /*******************************************************************
      * saveFile
      ******************************************************************/
-    @Public()
+    @ApiBearerAuth('access-token')
     @ApiTags('FileUpload')
     @ApiCreatedResponse({
         type: FileDTO,
         description: 'File Saved Successfully',
     })
-    @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+    @ApiOperation({ summary: 'Save File' })
     @ApiBody({ type: SaveFileDTO })
     @ApiConsumes('multipart/form-data')
-    @Post('save-file')
+    @Post('save')
     @UseInterceptors(FileInterceptor('file'))
-    saveFile(@UploadedFile() file): any {
-        try {
-            if (file) return { name: file.filename, path: file.path };
-            else return {};
-        } catch (error) {
-            throw new InternalServerErrorException(error);
-        }
+    async saveFile(@UploadedFile() file: Express.Multer.File): Promise<FileDTO> {
+        const uploaded_file = await this.appService.uploadFile(file);
+        const downloadURL = await getDownloadURL(uploaded_file);
+
+        return {
+            id: uploaded_file.id.split('%2F').join('/'),
+            path: downloadURL,
+        };
     }
 
     /*******************************************************************
      * deleteFile
      ******************************************************************/
-    @Public()
+    @ApiBearerAuth('access-token')
     @ApiTags('FileUpload')
     @ApiOkResponse({ description: 'File deleted Successfully' })
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
-    @ApiParam({
-        name: 'name',
-        type: 'String',
-        required: true,
-    })
-    @Post('delete-file/:name')
-    deleteFile(@Param('name') name: string): any {
-        const imagePath = ImageUtils.imagePath + '/' + name;
+    @Post('delete-file')
+    async deleteFile(@Body() data: DeleteFileDTO) {
+        // const imagePath = ImageUtils.imagePath + '/' + name;
+        // try {
+        //     ImageUtils.deleteImages(imagePath, true);
+        //     return { status: 200, message: 'File deleted Successfully' };
+        // } catch (error) {
+        //     throw new InternalServerErrorException(error);
+        // }
+
         try {
-            ImageUtils.deleteImages(imagePath, true);
+            await this.appService.deleteFile(data.id);
             return { status: 200, message: 'File deleted Successfully' };
         } catch (error) {
             throw new InternalServerErrorException(error);

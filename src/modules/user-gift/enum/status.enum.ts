@@ -1,5 +1,4 @@
-export enum GiftStatus {
-    IN_PROGRESS = 'IN_PROGRESS',
+export enum UserGiftStatus {
     PENDING = 'PENDING',
     REDEEMED = 'REDEEMED',
 }
