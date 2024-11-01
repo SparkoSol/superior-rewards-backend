@@ -71,7 +71,7 @@ export class MongoQueryUtils {
                     // Create a dynamic match stage
                     matchStages.push({
                         $match: {
-                            [`${table}.${field}`]: value,
+                            [`${table}.${field}`]: { $regex: value, $options: 'i' },
                         },
                     });
                 }
