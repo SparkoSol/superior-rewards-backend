@@ -63,40 +63,48 @@ export class PersonService {
      * filters
      ******************************************************************/
     async filters(data: PersonFiltersDto) {
-        const { page, pageSize, usedFor, filters, withPopulate } = data;
+        const { page, pageSize, usedFor, filters, populated, withPopulate } = data;
         const skip = (page - 1) * pageSize;
 
         const role = await this.roleService.fetchByRoleName('User');
 
         if (!role) {
             throw new NotAcceptableException(
-              'Invalid role, please contact admin to add User role.'
+                'Invalid role, please contact admin to add User role.'
             );
         }
 
         let query = {};
         if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
 
-        if(usedFor === 'customers') query['role'] = { $eq: role._id };
-        if(usedFor === 'users') query['role'] = { $ne: role._id };
-
+        if (usedFor === 'customers') query['role'] = { $eq: role._id };
+        if (usedFor === 'users') query['role'] = { $ne: role._id };
         const pipeline: any[] = [
             { $match: query },
             {
-                $facet: {
-                    paginatedResults: [
-                        { $skip: skip },
-                        { $limit: pageSize }
-                    ],
-                    totalCount: [
-                        { $count: 'count' }
-                    ]
-                }
+                $lookup: {
+                    from: 'roles',
+                    localField: 'role',
+                    foreignField: '_id',
+                    as: 'role',
+                },
             },
-            { $sort: { createdAt: -1 } },
+            { $unwind: '$role' },
         ];
 
-        console.log('pipeline', JSON.stringify(pipeline));
+        if (populated) {
+            const populatedMatchStages = MongoQueryUtils.createDynamicMatchStages(populated);
+            pipeline.push(...populatedMatchStages);
+        }
+
+        pipeline.push({
+            $facet: {
+                paginatedResults: [{ $skip: skip }, { $limit: pageSize }],
+                totalCount: [{ $count: 'count' }],
+            },
+        });
+
+        pipeline.push({ $sort: { createdAt: -1 } });
         const result = await this.model.aggregate(pipeline).exec();
 
         const users = result[0].paginatedResults;

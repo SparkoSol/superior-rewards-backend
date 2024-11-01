@@ -327,6 +327,11 @@ export class PersonFiltersDto {
     @IsObject()
     // filters?: Record<string, any>;
     filters?: filterPayload;
+
+    @ApiProperty({ description: 'PopulatedFilter object' })
+    @IsOptional()
+    @IsObject()
+    populated?: populatedPayload;
 }
 
 export class PaginatedPersonResponseDto {

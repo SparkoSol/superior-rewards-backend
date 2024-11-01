@@ -184,7 +184,6 @@ export class UserGiftService {
 
             if (populated) {
                 const populatedMatchStages = MongoQueryUtils.createDynamicMatchStages(populated);
-                // console.log('populatedMatchStages', populatedMatchStages);
                 query.push(...populatedMatchStages);
             }
 
