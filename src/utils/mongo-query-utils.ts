@@ -21,7 +21,8 @@ export class MongoQueryUtils {
                     break;
                 case 'range': // value [min, max]
                     if (Array.isArray(value) && value.length === 2) {
-                        query[key] = { $gte: value[0], $lte: value[1] };
+                        query[key] = { $gte: Number(value[0]), $lte: Number(value[1]) };
+                        console.log('query[key]', query);
                     } else {
                         throw new Error(
                             `Range filter requires an array with two [min,max] for field: ${key}`
@@ -42,7 +43,7 @@ export class MongoQueryUtils {
                 case 'exists':
                     // Check if the field should exist (true) or not (false)
                     if (typeof value === 'boolean') {
-                        query[key] = { $exists: value };
+                        query[key] = { $exists: Boolean(value) };
                     } else {
                         throw new Error(`Exists filter requires a boolean value for field: ${key}`);
                     }
@@ -54,6 +55,30 @@ export class MongoQueryUtils {
         });
 
         return query;
+    }
+
+    static createDynamicMatchStages(populatedOrFilters: Record<string, any>) {
+        const matchStages = [];
+
+        for (const key in populatedOrFilters) {
+            if (Object.prototype.hasOwnProperty.call(populatedOrFilters, key)) {
+                const value = populatedOrFilters[key];
+
+                const match = key.match(/(.+)\[(.+)\]/);
+                if (match) {
+                    const [, table, field] = match;
+
+                    // Create a dynamic match stage
+                    matchStages.push({
+                        $match: {
+                            [`${table}.${field}`]: { $regex: value, $options: 'i' },
+                        },
+                    });
+                }
+            }
+        }
+
+        return matchStages;
     }
 
     static async getPaginatedResponse(items: any, filters: any = {},  page: number = 1, pageSize: number = 10) {

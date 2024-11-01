@@ -2,7 +2,7 @@ import { IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsObject, IsOptiona
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { UserGiftStatus } from '../enum/status.enum';
 import { Type } from 'class-transformer';
-import { filterPayload, PersonResponseDto } from '../../person/dto/person.dto';
+import { filterPayload, PersonResponseDto, populatedPayload } from '../../person/dto/person.dto';
 
 export class UserGiftCreateRequest {
     @ApiProperty() @IsNotEmpty() @IsString() @IsMongoId() user: string;
@@ -107,8 +107,12 @@ export class UserGiftFiltersDto {
     @ApiProperty({ description: 'Filter object' })
     @IsOptional()
     @IsObject()
-      // filters?: Record<string, any>;
     filters?: filterPayload;
+
+    @ApiProperty({ description: 'PopulatedFilter object' })
+    @IsOptional()
+    @IsObject()
+    populated?: populatedPayload;
 }
 
 export class PaginatedUserGiftResponseDto {

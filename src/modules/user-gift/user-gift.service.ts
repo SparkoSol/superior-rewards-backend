@@ -119,22 +119,92 @@ export class UserGiftService {
      * filters
      ******************************************************************/
     async filters(data: UserGiftFiltersDto) {
-        const { page, pageSize, user, gift, status, filters, withPopulate } = data;
-        let query = {};
-        if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
+        const { page, pageSize, user, gift, status, filters, populated, withPopulate } = data;
+        const query = [];
 
-        const totalCount = await this.model.countDocuments(query);
+        if (filters) {
+            query.push({ $match: MongoQueryUtils.getQueryFromFilters(filters) });
+        }
 
-        if (user) query['user'] = new mongoose.Types.ObjectId(user);
-        if (gift) query['gift'] = new mongoose.Types.ObjectId(gift);
-        if (status) query['status'] = status;
-        const histories = (await this.model
-            .find(query)
-            .populate(withPopulate ? ['user', 'gift'] : [])
-            .skip((page - 1) * pageSize)
-            .limit(pageSize)
-            .sort({ createdAt: -1 })
-            .exec()) as any;
+        // Apply specific match conditions if user or gift is provided
+        if (user) {
+            query.push({
+                $match: {
+                    user: new mongoose.Types.ObjectId(user),
+                },
+            });
+        }
+        if (gift) {
+            query.push({
+                $match: {
+                    gift: new mongoose.Types.ObjectId(gift),
+                },
+            });
+        }
+        if (status) {
+            query.push({
+                $match: {
+                    status: status,
+                },
+            });
+        }
+
+        // Add lookups for populating user and gift collections if needed
+        if (withPopulate) {
+            query.push(
+              {
+                  $lookup: {
+                      from: 'people',
+                      localField: 'user',
+                      foreignField: '_id',
+                      as: 'user',
+                  },
+              },
+              {
+                  $unwind: {
+                      path: '$user',
+                      preserveNullAndEmptyArrays: true,
+                  },
+              },
+              {
+                  $lookup: {
+                      from: 'gifts', // Replace 'gifts' with your actual gifts collection name
+                      localField: 'gift',
+                      foreignField: '_id',
+                      as: 'gift',
+                  },
+              },
+              {
+                  $unwind: {
+                      path: '$gift',
+                      preserveNullAndEmptyArrays: true,
+                  },
+              }
+            );
+
+            if (populated) {
+                const populatedMatchStages = MongoQueryUtils.createDynamicMatchStages(populated);
+                query.push(...populatedMatchStages);
+            }
+
+        }
+
+        // Get total count for pagination
+        const totalCountPipeline = [...query, { $count: 'totalCount' }];
+        const totalCountResult = await this.model.aggregate(totalCountPipeline).exec();
+        const totalCount = totalCountResult.length > 0 ? totalCountResult[0].totalCount : 0;
+
+        // Apply pagination
+        query.push(
+          { $sort: { createdAt: -1 } },
+          { $skip: (page - 1) * pageSize },
+          { $limit: pageSize }
+        );
+
+        // console.log('query', JSON.stringify(query));
+
+        // Execute the main query
+        const histories = await this.model.aggregate(query).exec();
 
         const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -145,9 +215,8 @@ export class UserGiftService {
             totalPages,
             filters,
         };
-
-        // return await MongoQueryUtils.getPaginatedResponse(histories, filters || {}, page, pageSize);
     }
+
 
     /*******************************************************************
      * postQrCode

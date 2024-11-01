@@ -63,45 +63,54 @@ export class PersonService {
      * filters
      ******************************************************************/
     async filters(data: PersonFiltersDto) {
-        const { page, pageSize, usedFor, filters, withPopulate } = data;
+        const { page, pageSize, usedFor, filters, populated, withPopulate } = data;
+        const skip = (page - 1) * pageSize;
+
+        const role = await this.roleService.fetchByRoleName('User');
+
+        if (!role) {
+            throw new NotAcceptableException(
+                'Invalid role, please contact admin to add User role.'
+            );
+        }
+
         let query = {};
         if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
 
-        let users = await this.model
-            .find(query)
-            .populate(
-                withPopulate
-                    ? [
-                          'role',
-                          {
-                              path: 'role',
-                              populate: { path: 'permissions' },
-                          },
-                      ]
-                    : []
-            )
-            .sort({ createdAt: -1 })
-            .skip((page - 1) * pageSize)
-            .limit(pageSize)
-            .sort({ createdAt: -1 })
-            .exec();
+        if (usedFor === 'customers') query['role'] = { $eq: role._id };
+        if (usedFor === 'users') query['role'] = { $ne: role._id };
+        const pipeline: any[] = [
+            { $match: query },
+            {
+                $lookup: {
+                    from: 'roles',
+                    localField: 'role',
+                    foreignField: '_id',
+                    as: 'role',
+                },
+            },
+            { $unwind: '$role' },
+        ];
 
-
-        // TODO: have to change this logic
-        let totalCount = 0;
-
-        if (usedFor && usedFor === 'users') {
-            users = users.filter((user: any) => user.role.name !== 'User');
-            totalCount = users.length || 0;
-        }
-        if (usedFor && usedFor === 'customers') {
-            users = users.filter((user: any) => user.role.name === 'User');
-            totalCount = await this.model.countDocuments(query);
+        if (populated) {
+            const populatedMatchStages = MongoQueryUtils.createDynamicMatchStages(populated);
+            pipeline.push(...populatedMatchStages);
         }
 
+        pipeline.push({
+            $facet: {
+                paginatedResults: [{ $skip: skip }, { $limit: pageSize }],
+                totalCount: [{ $count: 'count' }],
+            },
+        });
+
+        pipeline.push({ $sort: { createdAt: -1 } });
+        const result = await this.model.aggregate(pipeline).exec();
+
+        const users = result[0].paginatedResults;
+        const totalCount = result[0].totalCount[0] ? result[0].totalCount[0].count : 0;
         const totalPages = Math.ceil(totalCount / pageSize);
 
-        // Structure the response
         return {
             data: users,
             page,
@@ -109,8 +118,6 @@ export class PersonService {
             totalPages,
             filters,
         };
-
-        // return await MongoQueryUtils.getPaginatedResponse(users, filters || {}, page, pageSize);
     }
 
     async findOne(id: string) {

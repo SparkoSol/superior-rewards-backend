@@ -285,6 +285,11 @@ export class filterPayload {
     "field[op]": string;
 }
 
+export class populatedPayload {
+    @ApiProperty()
+    "table[filed]": string;
+}
+
 export class PersonFiltersDto {
     @ApiProperty({ description: 'Page No - Starting Page is 1', default: 1 })
     @IsNumber()
@@ -322,6 +327,11 @@ export class PersonFiltersDto {
     @IsObject()
     // filters?: Record<string, any>;
     filters?: filterPayload;
+
+    @ApiProperty({ description: 'PopulatedFilter object' })
+    @IsOptional()
+    @IsObject()
+    populated?: populatedPayload;
 }
 
 export class PaginatedPersonResponseDto {

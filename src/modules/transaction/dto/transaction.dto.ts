@@ -2,7 +2,7 @@ import { IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsObject, IsOptiona
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { TransactionType } from '../enum/type.enum';
 import { Type } from 'class-transformer';
-import { filterPayload, PersonResponseDto } from '../../person/dto/person.dto';
+import { filterPayload, PersonResponseDto, populatedPayload } from '../../person/dto/person.dto';
 
 export class TransactionCreateRequest {
     @ApiProperty() @IsNotEmpty() @IsString() @IsMongoId() user: string;
@@ -91,6 +91,11 @@ export class TransactionFiltersDto {
     @IsObject()
       // filters?: Record<string, any>;
     filters?: filterPayload;
+
+    @ApiProperty({ description: 'PopulatedFilter object' })
+    @IsOptional()
+    @IsObject()
+    populated?: populatedPayload;
 }
 
 export class PaginatedTransactionResponseDto {
