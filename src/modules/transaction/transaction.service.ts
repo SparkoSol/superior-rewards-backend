@@ -56,25 +56,59 @@ export class TransactionService {
      * filters
      ******************************************************************/
     async filters(data: TransactionFiltersDto) {
-        const { page, pageSize, user, filters, withPopulate } = data;
-        let query = {};
-        if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
+        const { page, pageSize, user, filters, populated, withPopulate } = data;
+        const query = [];
 
-        const totalCount = await this.model.countDocuments(query);
+        if (filters) {
+            query.push({ $match: MongoQueryUtils.getQueryFromFilters(filters) });
+        }
 
-        if (user) query['user'] = new mongoose.Types.ObjectId(user);
+        if (user) {
+            query.push({
+                $match: {
+                    user: new mongoose.Types.ObjectId(user),
+                },
+            });
+        }
 
-        const transactions = await this.model
-            .find(query)
-            .populate(withPopulate ? ['user'] : [])
-            .skip((page - 1) * pageSize)
-            .limit(pageSize)
-            .sort({ createdAt: -1 })
-            .exec();
+        if (withPopulate) {
+            query.push(
+              {
+                  $lookup: {
+                      from: 'people',
+                      localField: 'user',
+                      foreignField: '_id',
+                      as: 'user',
+                  },
+              },
+              {
+                  $unwind: {
+                      path: '$user',
+                      preserveNullAndEmptyArrays: true,
+                  },
+              }
+            );
+
+            if (populated) {
+                const populatedMatchStages = MongoQueryUtils.createDynamicMatchStages(populated);
+                query.push(...populatedMatchStages);
+            }
+        }
+
+        const totalCountPipeline = [...query, { $count: 'totalCount' }];
+        const totalCountResult = await this.model.aggregate(totalCountPipeline).exec();
+        const totalCount = totalCountResult.length > 0 ? totalCountResult[0].totalCount : 0;
+
+        query.push(
+          { $sort: { createdAt: -1 } },
+          { $skip: (page - 1) * pageSize },
+          { $limit: pageSize }
+        );
+
+        const transactions = await this.model.aggregate(query).exec();
 
         const totalPages = Math.ceil(totalCount / pageSize);
 
-        // Structure the response
         return {
             data: transactions,
             page,
@@ -82,13 +116,6 @@ export class TransactionService {
             totalPages,
             filters,
         };
-
-        // return await MongoQueryUtils.getPaginatedResponse(
-        //     transactions,
-        //     filters || {},
-        //     page,
-        //     pageSize
-        // );
     }
 
     /*******************************************************************
