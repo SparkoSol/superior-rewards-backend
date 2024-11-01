@@ -21,7 +21,8 @@ export class MongoQueryUtils {
                     break;
                 case 'range': // value [min, max]
                     if (Array.isArray(value) && value.length === 2) {
-                        query[key] = { $gte: value[0], $lte: value[1] };
+                        query[key] = { $gte: Number(value[0]), $lte: Number(value[1]) };
+                        console.log('query[key]', query);
                     } else {
                         throw new Error(
                             `Range filter requires an array with two [min,max] for field: ${key}`
@@ -42,7 +43,7 @@ export class MongoQueryUtils {
                 case 'exists':
                     // Check if the field should exist (true) or not (false)
                     if (typeof value === 'boolean') {
-                        query[key] = { $exists: value };
+                        query[key] = { $exists: Boolean(value) };
                     } else {
                         throw new Error(`Exists filter requires a boolean value for field: ${key}`);
                     }
