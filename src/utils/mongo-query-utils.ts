@@ -56,6 +56,30 @@ export class MongoQueryUtils {
         return query;
     }
 
+    static createDynamicMatchStages(populatedOrFilters: Record<string, any>) {
+        const matchStages = [];
+
+        for (const key in populatedOrFilters) {
+            if (Object.prototype.hasOwnProperty.call(populatedOrFilters, key)) {
+                const value = populatedOrFilters[key];
+
+                const match = key.match(/(.+)\[(.+)\]/);
+                if (match) {
+                    const [, table, field] = match;
+
+                    // Create a dynamic match stage
+                    matchStages.push({
+                        $match: {
+                            [`${table}.${field}`]: value,
+                        },
+                    });
+                }
+            }
+        }
+
+        return matchStages;
+    }
+
     static async getPaginatedResponse(items: any, filters: any = {},  page: number = 1, pageSize: number = 10) {
         // Apply pagination
         const totalCount = items.length;
