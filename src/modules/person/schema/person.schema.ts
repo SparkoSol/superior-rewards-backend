@@ -27,9 +27,9 @@ export type PersonDocument = HydratedDocument<Person>;
 
 */
 
-@Schema({ timestamps: true, autoIndex: true })
+@Schema({ timestamps: true })
 export class Person {
-    @Prop({ unique: true }) odooCustomerId?: number;
+    @Prop() odooCustomerId?: number;
 
     @Prop() name: string;
 
