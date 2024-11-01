@@ -39,23 +39,61 @@ export class NotificationService {
      * filters
      ******************************************************************/
     async filters(data: NotificationFiltersDto) {
-        const { page, pageSize, user,  markAsRead, filters, withPopulate } = data;
-        let query = {};
-        if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
+        const { page, pageSize, user, markAsRead, filters, withPopulate } = data;
+        const query = [];
 
-        const totalCount = await this.model.countDocuments(query);
+        if (filters) {
+            query.push({ $match: MongoQueryUtils.getQueryFromFilters(filters) });
+        }
 
-        if (user) query['user'] = new mongoose.Types.ObjectId(user);
-        if (markAsRead) query['markAsRead'] = markAsRead;
-        const notifications = await this.model.find(query).populate('user') .sort({ createdAt: -1 })
-          .skip((page - 1) * pageSize)
-          .limit(pageSize)
-          .sort({ createdAt: -1 })
-          .exec();
+        if (user) {
+            query.push({
+                $match: {
+                    user: new mongoose.Types.ObjectId(user),
+                },
+            });
+        }
+        if (markAsRead !== undefined) {
+            query.push({
+                $match: {
+                    markAsRead: markAsRead,
+                },
+            });
+        }
+
+        if (withPopulate) {
+            query.push(
+              {
+                  $lookup: {
+                      from: 'people',
+                      localField: 'user',
+                      foreignField: '_id',
+                      as: 'user',
+                  },
+              },
+              {
+                  $unwind: {
+                      path: '$user',
+                      preserveNullAndEmptyArrays: true,
+                  },
+              }
+            );
+        }
+
+        const totalCountPipeline = [...query, { $count: 'totalCount' }];
+        const totalCountResult = await this.model.aggregate(totalCountPipeline).exec();
+        const totalCount = totalCountResult.length > 0 ? totalCountResult[0].totalCount : 0;
+
+        query.push(
+          { $sort: { createdAt: -1 } },
+          { $skip: (page - 1) * pageSize },
+          { $limit: pageSize }
+        );
+
+        const notifications = await this.model.aggregate(query).exec();
 
         const totalPages = Math.ceil(totalCount / pageSize);
 
-        // Structure the response
         return {
             data: notifications,
             page,
@@ -63,9 +101,8 @@ export class NotificationService {
             totalPages,
             filters,
         };
-
-        // return await MongoQueryUtils.getPaginatedResponse(notificaitons, filters || {}, page, pageSize);
     }
+
 
     /*******************************************************************
      * findAll
