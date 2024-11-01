@@ -64,44 +64,54 @@ export class PersonService {
      ******************************************************************/
     async filters(data: PersonFiltersDto) {
         const { page, pageSize, usedFor, filters, withPopulate } = data;
+        const skip = (page - 1) * pageSize;
+
+        // Convert the filters to a query object if provided
         let query = {};
         if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
 
-        let users = await this.model
-            .find(query)
-            .populate(
-                withPopulate
-                    ? [
-                          'role',
-                          {
-                              path: 'role',
-                              populate: { path: 'permissions' },
-                          },
-                      ]
-                    : []
-            )
-            .sort({ createdAt: -1 })
-            .skip((page - 1) * pageSize)
-            .limit(pageSize)
-            .sort({ createdAt: -1 })
-            .exec();
+        // Create an aggregation pipeline
+        const pipeline: any[] = [
+            { $match: query },  // Apply initial filters from query
+            {
+                $lookup: {
+                    from: 'roles',  // The name of the roles collection
+                    localField: 'role',
+                    foreignField: '_id',
+                    as: 'role'
+                }
+            },
+            { $unwind: '$role' },  // Unwind to handle roleDetails as an object instead of an array
+            {
+                $match: {
+                    ...(usedFor === 'users' ? { 'role.name': { $ne: 'User' } } : {}),
+                    ...(usedFor === 'customers' ? { 'role.name': 'User' } : {})
+                }
+            },
+            { $sort: { createdAt: -1 } },  // Sort by creation date
+            {
+                $facet: {
+                    paginatedResults: [
+                        { $skip: skip },
+                        { $limit: pageSize }
+                    ],
+                    totalCount: [
+                        { $count: 'count' }
+                    ]
+                }
+            }
+        ];
 
+        // Execute the aggregation pipeline
+        // console.log('pipeline', JSON.stringify(pipeline));
+        const result = await this.model.aggregate(pipeline).exec();
 
-        // TODO: have to change this logic
-        let totalCount = 0;
-
-        if (usedFor && usedFor === 'users') {
-            users = users.filter((user: any) => user.role.name !== 'User');
-            totalCount = users.length || 0;
-        }
-        if (usedFor && usedFor === 'customers') {
-            users = users.filter((user: any) => user.role.name === 'User');
-            totalCount = await this.model.countDocuments(query);
-        }
-
+        // Extract paginated data and total count
+        const users = result[0].paginatedResults;
+        const totalCount = result[0].totalCount[0] ? result[0].totalCount[0].count : 0;
         const totalPages = Math.ceil(totalCount / pageSize);
 
-        // Structure the response
+        // Return structured response
         return {
             data: users,
             page,
@@ -109,9 +119,8 @@ export class PersonService {
             totalPages,
             filters,
         };
-
-        // return await MongoQueryUtils.getPaginatedResponse(users, filters || {}, page, pageSize);
     }
+
 
     async findOne(id: string) {
         return await this.model.findById(id).exec();
