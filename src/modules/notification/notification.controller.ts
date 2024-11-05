@@ -1,4 +1,4 @@
-import { Post, Body, Controller, Get, Param, Query } from '@nestjs/common';
+import { Post, Body, Controller, Get, Param, Query, Delete } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import {
     NotificationResponseDto,
@@ -139,5 +139,18 @@ export class NotificationController {
         @Body() data: NotificationPayload
     ) {
         return this.notificationService.sendNotificationToChannel(channel, data);
+    }
+
+    /*******************************************************************
+     * delete
+     ******************************************************************/
+    @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
+    @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+    @ApiOperation({
+        summary: 'To delete a notification',
+    })
+    @Delete(':id')
+    async delete(@Param('id') id: string) {
+        return await this.notificationService.delete(id);
     }
 }
