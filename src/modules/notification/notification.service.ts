@@ -7,7 +7,11 @@ import {
     Logger,
     NotFoundException,
 } from '@nestjs/common';
-import { NotificationCreateDto, NotificationFiltersDto, NotificationPayload } from './dto/notification.dto';
+import {
+    NotificationCreateDto,
+    NotificationFiltersDto,
+    NotificationPayload,
+} from './dto/notification.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Notification, NotificationDocument } from '../notification/schema/notification.schema';
 import * as mongoose from 'mongoose';
@@ -63,20 +67,20 @@ export class NotificationService {
 
         if (withPopulate) {
             query.push(
-              {
-                  $lookup: {
-                      from: 'people',
-                      localField: 'user',
-                      foreignField: '_id',
-                      as: 'user',
-                  },
-              },
-              {
-                  $unwind: {
-                      path: '$user',
-                      preserveNullAndEmptyArrays: true,
-                  },
-              }
+                {
+                    $lookup: {
+                        from: 'people',
+                        localField: 'user',
+                        foreignField: '_id',
+                        as: 'user',
+                    },
+                },
+                {
+                    $unwind: {
+                        path: '$user',
+                        preserveNullAndEmptyArrays: true,
+                    },
+                }
             );
         }
 
@@ -85,9 +89,9 @@ export class NotificationService {
         const totalCount = totalCountResult.length > 0 ? totalCountResult[0].totalCount : 0;
 
         query.push(
-          { $sort: { createdAt: -1 } },
-          { $skip: (page - 1) * pageSize },
-          { $limit: pageSize }
+            { $sort: { createdAt: -1 } },
+            { $skip: (page - 1) * pageSize },
+            { $limit: pageSize }
         );
 
         const notifications = await this.model.aggregate(query).exec();
@@ -102,7 +106,6 @@ export class NotificationService {
             filters,
         };
     }
-
 
     /*******************************************************************
      * findAll
@@ -260,5 +263,16 @@ export class NotificationService {
         if (!person || (person && !person.fcmTokens)) return;
 
         await this.sendNotificationToSingleDevice(title, body, personId, person.fcmTokens, true);
+    }
+
+    /*******************************************************************
+     * delete
+     ******************************************************************/
+    async delete(id: string) {
+        try {
+            return await this.model.findByIdAndDelete(id);
+        } catch (e) {
+            throw new InternalServerErrorException('Unexpected Error');
+        }
     }
 }
