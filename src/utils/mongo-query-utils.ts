@@ -14,7 +14,8 @@ export class MongoQueryUtils {
 
             switch (operator) {
                 case 'eq':
-                    query[key] = { $eq: value };
+                    if(key === 'phone') return query[key] = { $eq: value};
+                    query[key] = { $eq: isNaN(value) ? value : Number(value) };
                     break;
                 case 'like':
                     query[key] = { $regex: value, $options: 'i' };
