@@ -7,7 +7,7 @@ import {
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
-    ApiOperation,
+    ApiOperation, ApiParam,
     ApiQuery,
     ApiTags,
     ApiUnauthorizedResponse,
@@ -16,7 +16,7 @@ import { UserGiftService } from './user-gift.service';
 import {
     PaginatedUserGiftResponseDto,
     UserGiftCreateRequest, UserGiftFiltersDto,
-    UserGiftPostQrCodeRequest,
+    UserGiftPostQrCodeRequest, UserGiftRedeemedRequest,
     UserGiftResponse,
 } from './dto/user-gift.dto';
 import { UserGiftStatus } from './enum/status.enum';
@@ -43,6 +43,22 @@ export class UserGiftController {
     @Post()
     async create(@Body() data: UserGiftCreateRequest): Promise<any> {
         return await this.service.create(data);
+    }
+
+    /*******************************************************************
+     * redeem
+     ******************************************************************/
+    @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
+    @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+    @ApiNotAcceptableResponse({ description: '1: Invalid QR Code!, 2: Gift is expired!, 3: Gift is already redeemed!' })
+    @ApiOperation({
+        summary: 'To redeem a userGift w.r.t userGiftId',
+        description: 'it will update the existing user-gift history status to redeemed',
+    })
+    @ApiBody({ type: UserGiftRedeemedRequest })
+    @Post('redeem')
+    async redeem(@Body() data: UserGiftRedeemedRequest): Promise<any> {
+        return await this.service.redeem(data.userGiftId);
     }
 
     /*******************************************************************

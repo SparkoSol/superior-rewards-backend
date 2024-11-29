@@ -59,6 +59,21 @@ export class TransactionService {
         const { page, pageSize, user, filters, populated, withPopulate } = data;
         const query = [];
 
+        for (const key in filters) {
+            if (key.startsWith('_id')) {
+                const value = filters[key];
+                if (!mongoose.Types.ObjectId.isValid(value)) {
+                   return {
+                       data: [],
+                       page: 1,
+                       pageSize: 10,
+                       totalPages: 1,
+                       filters: {},
+                   }
+                }
+            }
+        }
+
         if (filters) {
             query.push({ $match: MongoQueryUtils.getQueryFromFilters(filters) });
         }
@@ -73,20 +88,20 @@ export class TransactionService {
 
         if (withPopulate) {
             query.push(
-              {
-                  $lookup: {
-                      from: 'people',
-                      localField: 'user',
-                      foreignField: '_id',
-                      as: 'user',
-                  },
-              },
-              {
-                  $unwind: {
-                      path: '$user',
-                      preserveNullAndEmptyArrays: true,
-                  },
-              }
+                {
+                    $lookup: {
+                        from: 'people',
+                        localField: 'user',
+                        foreignField: '_id',
+                        as: 'user',
+                    },
+                },
+                {
+                    $unwind: {
+                        path: '$user',
+                        preserveNullAndEmptyArrays: true,
+                    },
+                }
             );
 
             if (populated) {
@@ -100,9 +115,9 @@ export class TransactionService {
         const totalCount = totalCountResult.length > 0 ? totalCountResult[0].totalCount : 0;
 
         query.push(
-          { $sort: { createdAt: -1 } },
-          { $skip: (page - 1) * pageSize },
-          { $limit: pageSize }
+            { $sort: { createdAt: -1 } },
+            { $skip: (page - 1) * pageSize },
+            { $limit: pageSize }
         );
 
         const transactions = await this.model.aggregate(query).exec();
