@@ -217,6 +217,43 @@ export class UserGiftService {
         };
     }
 
+    /*******************************************************************
+     * redeem
+     ******************************************************************/
+    async redeem(id: string) {
+        const userGift = (await this.model
+          .findById(id)
+          .populate(['user', 'gift'])
+          .exec()) as any;
+        if (!userGift) throw new NotAcceptableException('Invalid id!');
+
+        if (userGift && userGift.isExpired) throw new NotAcceptableException('Gift is expired!');
+
+        if (userGift && userGift.status === UserGiftStatus.REDEEMED)
+            throw new NotAcceptableException('Gift is already redeemed!');
+
+        const history = this.model.findByIdAndUpdate(
+          userGift._id,
+          {
+              status: UserGiftStatus.REDEEMED,
+          },
+          { new: true }
+        );
+
+        // send notification When a user collects a gift.
+        try {
+            await this.notificationService.sendNotificationToSingleDevice(
+              'Congrats! You have Collect a gift.',
+              `You have collected your gift (${userGift.gift.name}).`,
+              userGift.user._id.toString(),
+              userGift.user.fcmTokens
+            );
+        } catch (e) {
+            Logger.error(`Error while sending notification When a user collects a gift: ${e}`);
+        }
+
+        return history;
+    }
 
     /*******************************************************************
      * postQrCode

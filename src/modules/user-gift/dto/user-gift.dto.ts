@@ -54,6 +54,10 @@ export class UserGiftPostQrCodeRequest {
     @ApiProperty() @IsNotEmpty() @IsString() qrCode: string;
 }
 
+export class UserGiftRedeemedRequest {
+    @ApiProperty() @IsNotEmpty() @IsString() @IsMongoId() userGiftId: string;
+}
+
 export class UserGiftFiltersDto {
     @ApiProperty({ description: 'Page No - Starting Page is 1', default: 1 })
     @IsNumber()
