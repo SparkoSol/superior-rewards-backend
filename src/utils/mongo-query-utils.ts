@@ -1,3 +1,5 @@
+import mongoose from 'mongoose';
+
 export class MongoQueryUtils {
     static getQueryFromFilters(filters: any) {
         const query = {};
@@ -12,12 +14,15 @@ export class MongoQueryUtils {
             const [key, operator] = field.match(/(\w+)\['?(\w+)'?\]/).slice(1);
             const value = filters[field];
 
+            console.log({ key, operator, value });
+
             switch (operator) {
                 case 'eq':
                     if(key === 'phone') return query[key] = { $eq: value};
                     query[key] = { $eq: isNaN(value) ? value : Number(value) };
                     break;
                 case 'like':
+                    if(key === '_id') return query[key] = { $eq: new mongoose.Types.ObjectId(value)};
                     query[key] = { $regex: value, $options: 'i' };
                     break;
                 case 'range': // value [min, max]
