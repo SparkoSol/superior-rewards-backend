@@ -14,8 +14,6 @@ export class MongoQueryUtils {
             const [key, operator] = field.match(/(\w+)\['?(\w+)'?\]/).slice(1);
             const value = filters[field];
 
-            console.log({ key, operator, value });
-
             switch (operator) {
                 case 'eq':
                     if(key === 'phone') return query[key] = { $eq: value};
@@ -28,7 +26,6 @@ export class MongoQueryUtils {
                 case 'range': // value [min, max]
                     if (Array.isArray(value) && value.length === 2) {
                         query[key] = { $gte: Number(value[0]), $lte: Number(value[1]) };
-                        console.log('query[key]', query);
                     } else {
                         throw new Error(
                             `Range filter requires an array with two [min,max] for field: ${key}`
@@ -74,12 +71,19 @@ export class MongoQueryUtils {
                 if (match) {
                     const [, table, field] = match;
 
-                    // Create a dynamic match stage
-                    matchStages.push({
-                        $match: {
-                            [`${table}.${field}`]: { $regex: value, $options: 'i' },
-                        },
-                    });
+                    if(field === 'odooCustomerId') {
+                        matchStages.push({
+                            $match: {
+                                [`${table}.${field}`]: { $eq: Number(value)},
+                            },
+                        });
+                    } else {
+                        matchStages.push({
+                            $match: {
+                                [`${table}.${field}`]: { $regex: value, $options: 'i' },
+                            },
+                        });
+                    }
                 }
             }
         }

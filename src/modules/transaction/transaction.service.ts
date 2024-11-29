@@ -59,7 +59,6 @@ export class TransactionService {
         const { page, pageSize, user, filters, populated, withPopulate } = data;
         const query = [];
 
-        console.log({ filters });
         for (const key in filters) {
             if (key.startsWith('_id')) {
                 const value = filters[key];
