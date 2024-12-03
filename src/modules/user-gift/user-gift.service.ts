@@ -201,8 +201,6 @@ export class UserGiftService {
           { $limit: pageSize }
         );
 
-        // console.log('query', JSON.stringify(query));
-
         // Execute the main query
         const histories = await this.model.aggregate(query).exec();
 
