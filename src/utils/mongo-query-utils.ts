@@ -1,3 +1,5 @@
+import mongoose from 'mongoose';
+
 export class MongoQueryUtils {
     static getQueryFromFilters(filters: any) {
         const query = {};
@@ -18,12 +20,12 @@ export class MongoQueryUtils {
                     query[key] = { $eq: isNaN(value) ? value : Number(value) };
                     break;
                 case 'like':
+                    if(key === '_id') return query[key] = { $eq: new mongoose.Types.ObjectId(value)};
                     query[key] = { $regex: value, $options: 'i' };
                     break;
                 case 'range': // value [min, max]
                     if (Array.isArray(value) && value.length === 2) {
                         query[key] = { $gte: Number(value[0]), $lte: Number(value[1]) };
-                        console.log('query[key]', query);
                     } else {
                         throw new Error(
                             `Range filter requires an array with two [min,max] for field: ${key}`
@@ -69,12 +71,19 @@ export class MongoQueryUtils {
                 if (match) {
                     const [, table, field] = match;
 
-                    // Create a dynamic match stage
-                    matchStages.push({
-                        $match: {
-                            [`${table}.${field}`]: { $regex: value, $options: 'i' },
-                        },
-                    });
+                    if(field === 'odooCustomerId') {
+                        matchStages.push({
+                            $match: {
+                                [`${table}.${field}`]: { $eq: Number(value)},
+                            },
+                        });
+                    } else {
+                        matchStages.push({
+                            $match: {
+                                [`${table}.${field}`]: { $regex: value, $options: 'i' },
+                            },
+                        });
+                    }
                 }
             }
         }
