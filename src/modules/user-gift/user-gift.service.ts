@@ -153,6 +153,22 @@ export class UserGiftService {
                       path: '$user',
                       preserveNullAndEmptyArrays: true,
                   },
+              },
+              {
+                  $lookup: {
+                      from: "gifts",
+                      localField: "gifts",
+                      foreignField: "_id",
+                      as: "giftsDetails"
+                  }
+              },
+              {
+                  $set: {
+                      gifts: "$giftsDetails"
+                  }
+              },
+              {
+                  $unset: "giftsDetails"
               }
             );
 
@@ -160,7 +176,6 @@ export class UserGiftService {
                 const populatedMatchStages = MongoQueryUtils.createDynamicMatchStages(populated);
                 query.push(...populatedMatchStages);
             }
-
         }
 
         // Get total count for pagination
@@ -197,7 +212,7 @@ export class UserGiftService {
     async redeem(id: string) {
         const userGift = (await this.model
           .findById(id)
-          .populate(['user', 'gift'])
+          .populate(['user', 'gifts'])
           .exec()) as any;
         if (!userGift) throw new NotAcceptableException('Invalid id!');
 

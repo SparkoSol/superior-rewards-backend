@@ -75,7 +75,9 @@ export class PersonService {
         }
 
         let query = {};
-        if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
+        if (filters) {
+            query = MongoQueryUtils.getQueryFromFilters(filters);
+        }
 
         if (usedFor === 'customers') query['role'] = { $eq: role._id };
         if (usedFor === 'users') query['role'] = { $ne: role._id };
