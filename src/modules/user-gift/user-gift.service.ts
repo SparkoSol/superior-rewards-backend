@@ -48,11 +48,6 @@ export class UserGiftService {
         const person = (await this.personService.findOne(data.user)) as any;
         if (!person) throw new NotAcceptableException('Invalid user id!');
 
-        const gift = await this.giftService.fetchById(data.gift);
-        if (!gift) throw new NotAcceptableException('Invalid gift id!');
-
-        if (person.points < gift.points) throw new NotAcceptableException('Insufficient points!');
-
         data['qrCode'] = await NoGeneratorUtils.generateCode();
 
         const userGift = await this.model.create(data);
@@ -72,8 +67,8 @@ export class UserGiftService {
             await this.transactionService.create({
                 user: data.user,
                 customerPhone: person.phone,
-                points: gift.points,
-                amount: settings.points ? gift.points / settings.points : null,
+                points: data.totalPoints,
+                amount: settings.points ? data.totalPoints / settings.points : null,
                 type: TransactionType.DEBIT,
             });
         } catch (error) {
@@ -83,7 +78,7 @@ export class UserGiftService {
         // Deduct git points from user current points
         try {
             await this.personService.update(data.user, {
-                points: Number(person.points) - Number(gift.points),
+                points: Number(person.points) - Number(data.totalPoints),
             });
         } catch (error) {
             Logger.error(`Error while updating user points after redeeming gift: ${error}`);
@@ -92,7 +87,7 @@ export class UserGiftService {
         // increase redeemedPoints
         try {
             await this.personService.update(data.user, {
-                redeemedPoints: Number(person.redeemedPoints) + Number(gift.points),
+                redeemedPoints: Number(person.redeemedPoints) + Number(data.totalPoints),
             });
         } catch (error) {
             Logger.error(
@@ -104,7 +99,7 @@ export class UserGiftService {
         try {
             await this.notificationService.sendNotificationToSingleDevice(
                 'Congrats! You have redeem a gift.',
-                `You have received ${gift.points} points gift.`,
+                `You have received ${data.totalPoints} points gift.`,
                 person._id,
                 person.fcmTokens
             );
@@ -119,7 +114,7 @@ export class UserGiftService {
      * filters
      ******************************************************************/
     async filters(data: UserGiftFiltersDto) {
-        const { page, pageSize, user, gift, status, filters, populated, withPopulate } = data;
+        const { page, pageSize, user, status, filters, populated, withPopulate } = data;
         const query = [];
 
         if (filters) {
@@ -131,13 +126,6 @@ export class UserGiftService {
             query.push({
                 $match: {
                     user: new mongoose.Types.ObjectId(user),
-                },
-            });
-        }
-        if (gift) {
-            query.push({
-                $match: {
-                    gift: new mongoose.Types.ObjectId(gift),
                 },
             });
         }
@@ -163,20 +151,6 @@ export class UserGiftService {
               {
                   $unwind: {
                       path: '$user',
-                      preserveNullAndEmptyArrays: true,
-                  },
-              },
-              {
-                  $lookup: {
-                      from: 'gifts', // Replace 'gifts' with your actual gifts collection name
-                      localField: 'gift',
-                      foreignField: '_id',
-                      as: 'gift',
-                  },
-              },
-              {
-                  $unwind: {
-                      path: '$gift',
                       preserveNullAndEmptyArrays: true,
                   },
               }
@@ -244,7 +218,7 @@ export class UserGiftService {
         try {
             await this.notificationService.sendNotificationToSingleDevice(
               'Congrats! You have Collect a gift.',
-              `You have collected your gift (${userGift.gift.name}).`,
+              `You have collected your gift.`,
               userGift.user._id.toString(),
               userGift.user.fcmTokens
             );
@@ -282,7 +256,7 @@ export class UserGiftService {
         try {
             await this.notificationService.sendNotificationToSingleDevice(
                 'Congrats! You have Collect a gift.',
-                `You have collected your gift (${userGift.gift.name}).`,
+                `You have collected your gift.`,
                 userGift.user._id.toString(),
                 userGift.user.fcmTokens
             );
@@ -296,14 +270,13 @@ export class UserGiftService {
     /*******************************************************************
      * fetch
      ******************************************************************/
-    async fetch(user?: string, gift?: string, status?: UserGiftStatus, withPopulate?: boolean) {
+    async fetch(user?: string, status?: UserGiftStatus, withPopulate?: boolean) {
         const query = {};
         if (user) query['user'] = new mongoose.Types.ObjectId(user);
-        if (gift) query['gift'] = new mongoose.Types.ObjectId(gift);
         if (status) query['status'] = status;
         const histories = (await this.model
             .find(query)
-            .populate(withPopulate ? ['user', 'gift'] : [])
+            .populate(withPopulate ? ['user', 'gifts'] : [])
             .sort({ createdAt: -1 })
             .exec()) as any;
 
@@ -332,19 +305,19 @@ export class UserGiftService {
     /*******************************************************************
      * fetchAllGiftByUser
      ******************************************************************/
-    async fetchAllGiftByUser(user: string, withPopulate?: boolean) {
-        const [allGifts, userHistory] = await Promise.all([
-            this.giftService.fetch(),
-            this.fetch(user, null, null, withPopulate),
-        ]);
-
-        return allGifts.map((gift: any) => ({
-            ...gift._doc,
-            userHistory: userHistory.find(
-                (history) => history.gift.toString() === gift._id.toString()
-            ),
-        }));
-    }
+    // async fetchAllGiftByUser(user: string, withPopulate?: boolean) {
+    //     const [allGifts, userHistory] = await Promise.all([
+    //         this.giftService.fetch(),
+    //         this.fetch(user, null, withPopulate),
+    //     ]);
+    //
+    //     return allGifts.map((gift: any) => ({
+    //         ...gift._doc,
+    //         userHistory: userHistory.find(
+    //             (history) => history.gift.toString() === gift._id.toString()
+    //         ),
+    //     }));
+    // }
 
     /*******************************************************************
      * fetchById
@@ -353,7 +326,7 @@ export class UserGiftService {
         try {
             return this.model
                 .findById(id)
-                .populate(withPopulate ? ['user', 'gift'] : [])
+                .populate(withPopulate ? ['user', 'gifts'] : [])
                 .exec();
         } catch (e) {
             throw new NotFoundException('No data found!');
@@ -379,13 +352,13 @@ export class UserGiftService {
     /*******************************************************************
      * delete
      ******************************************************************/
-    async delete(id: string) {
-        try {
-            return await this.model.findByIdAndDelete(id);
-        } catch (e) {
-            throw new InternalServerErrorException('Unexpected Error');
-        }
-    }
+    // async delete(id: string) {
+    //     try {
+    //         return await this.model.findByIdAndDelete(id);
+    //     } catch (e) {
+    //         throw new InternalServerErrorException('Unexpected Error');
+    //     }
+    // }
 
     async getExpiredUserGiftsIds(excludedIds: any[]) {
         const items = await this.model.find({

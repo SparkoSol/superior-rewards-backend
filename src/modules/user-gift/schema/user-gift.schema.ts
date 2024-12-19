@@ -9,7 +9,7 @@ export type UserGiftDocument = HydratedDocument<UserGift>;
 
 /*
   user: {},
-  gift: {},
+  gifts: [{}, {},  {}],
   status: '',
   isExpired: false,
   qrCode?: string;
@@ -17,15 +17,23 @@ export type UserGiftDocument = HydratedDocument<UserGift>;
 
 @Schema({ timestamps: true })
 export class UserGift {
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name }) user: string;
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name })
+    user: string;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Gift.name }) gift: string;
+    @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Gift', required: true })
+    gifts: mongoose.Schema.Types.ObjectId[];
 
-    @Prop({ default: UserGiftStatus.PENDING }) status: string;
+    @Prop({ default: UserGiftStatus.PENDING })
+    status: string;
 
-    @Prop({ default: false }) isExpired: boolean;
+    @Prop({ default: false })
+    isExpired: boolean;
 
-    @Prop() qrCode?: string;
+    @Prop({default: 0})
+    totalPoints: number;
+
+    @Prop()
+    qrCode?: string;
 }
 
 export const UserGiftSchema = SchemaFactory.createForClass(UserGift);

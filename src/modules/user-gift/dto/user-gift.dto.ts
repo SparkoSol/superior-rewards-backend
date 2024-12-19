@@ -1,13 +1,31 @@
-import { IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import {
+    ArrayNotEmpty,
+    IsArray,
+    IsBoolean,
+    IsEnum,
+    IsMongoId,
+    IsNotEmpty,
+    IsNumber,
+    IsObject,
+    IsOptional,
+    IsString,
+} from 'class-validator';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { UserGiftStatus } from '../enum/status.enum';
 import { Type } from 'class-transformer';
 import { filterPayload, PersonResponseDto, populatedPayload } from '../../person/dto/person.dto';
 
 export class UserGiftCreateRequest {
-    @ApiProperty() @IsNotEmpty() @IsString() @IsMongoId() user: string;
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    @IsMongoId() user: string;
 
-    @ApiProperty() @IsNotEmpty() @IsString() @IsMongoId() gift: string;
+    @ApiProperty()
+    @IsArray()
+    @ArrayNotEmpty()
+    @IsMongoId({ each: true })
+    gifts: string[];
 
     @ApiProperty({
         required: true,
@@ -24,6 +42,11 @@ export class UserGiftCreateRequest {
     @IsOptional()
     @IsBoolean()
     isExpired: boolean;
+
+    @ApiProperty({ default: 0 })
+    @IsNotEmpty()
+    @IsNumber()
+    totalPoints: number;
 }
 
 export class UserGiftUpdateRequest extends PartialType(UserGiftCreateRequest) {}
@@ -31,7 +54,8 @@ export class UserGiftUpdateRequest extends PartialType(UserGiftCreateRequest) {}
 export class UserGiftResponse {
     @ApiProperty() user: object;
 
-    @ApiProperty() gift: object;
+    @ApiProperty()
+    gifts: string[];
 
     @ApiProperty({
         required: true,
@@ -44,6 +68,9 @@ export class UserGiftResponse {
     isExpired: boolean;
 
     @ApiProperty() qrCode?: string;
+
+    @ApiProperty({ default: 0 })
+    totalPoints: number;
 
     @ApiProperty() createdAt: Date;
 
@@ -80,15 +107,6 @@ export class UserGiftFiltersDto {
     @IsBoolean()
     @Type(() => Boolean)
     withPopulate?: boolean;
-
-    @ApiProperty({
-        required: false,
-        name: 'gift',
-        description: 'for getting all gifts of specific gift',
-    })
-    @IsOptional()
-    @IsString()
-    gift?: string;
 
     @ApiProperty({
         required: false,

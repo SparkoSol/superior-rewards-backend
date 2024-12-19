@@ -70,7 +70,7 @@ export class UserGiftTtlService implements OnModuleInit {
         try {
           await this.notificationService.sendNotificationToSingleDevice(
             'Ops! Your gift has expired',
-            `Your gift (${userGift.gift.name}) have been expired, better luck next time.`,
+            `Your redemption have been expired, better luck next time.`,
             userGift.user._id.toString(),
             userGift.user.fcmTokens,
           );
