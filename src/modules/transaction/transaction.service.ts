@@ -63,13 +63,13 @@ export class TransactionService {
             if (key.startsWith('_id')) {
                 const value = filters[key];
                 if (!mongoose.Types.ObjectId.isValid(value)) {
-                   return {
-                       data: [],
-                       page: 1,
-                       pageSize: 10,
-                       totalPages: 1,
-                       filters: {},
-                   }
+                    return {
+                        data: [],
+                        page: 1,
+                        pageSize: 10,
+                        totalPages: 1,
+                        filters: {},
+                    };
                 }
             }
         }
@@ -99,6 +99,20 @@ export class TransactionService {
                 {
                     $unwind: {
                         path: '$user',
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                    $lookup: {
+                        from: 'people',
+                        localField: 'performedBy',
+                        foreignField: '_id',
+                        as: 'performedBy',
+                    },
+                },
+                {
+                    $unwind: {
+                        path: '$performedBy',
                         preserveNullAndEmptyArrays: true,
                     },
                 }

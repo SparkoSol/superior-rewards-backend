@@ -52,7 +52,7 @@ export class UserGiftCreateRequest {
     @IsOptional()
     @IsString()
     @IsMongoId()
-    redeemBy?: string;
+    redeemedBy?: string;
 
     @ApiProperty()
     @IsOptional()
@@ -85,7 +85,7 @@ export class UserGiftResponse {
     totalPoints: number;
 
     @ApiProperty()
-    redeemBy?: object;
+    redeemedBy?: object;
 
     @ApiProperty()
     performedBy?: object;
@@ -96,11 +96,30 @@ export class UserGiftResponse {
 }
 
 export class UserGiftPostQrCodeRequest {
-    @ApiProperty() @IsNotEmpty() @IsString() qrCode: string;
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    qrCode: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    @IsMongoId()
+    performedBy?: string;
 }
 
 export class UserGiftRedeemedRequest {
-    @ApiProperty() @IsNotEmpty() @IsString() @IsMongoId() userGiftId: string;
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    @IsMongoId()
+    userGiftId: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    @IsMongoId()
+    performedBy?: string;
 }
 
 export class UserGiftFiltersDto {

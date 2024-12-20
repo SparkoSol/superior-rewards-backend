@@ -109,7 +109,6 @@ export class PersonService {
 
         if (populated) {
             const populatedMatchStages = MongoQueryUtils.createDynamicMatchStages(populated);
-            console.log('populatedMatchStages', JSON.stringify(populatedMatchStages));
             pipeline.push(...populatedMatchStages);
         }
 

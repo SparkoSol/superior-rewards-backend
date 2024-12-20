@@ -58,7 +58,7 @@ export class UserGiftController {
     @ApiBody({ type: UserGiftRedeemedRequest })
     @Post('redeem')
     async redeem(@Body() data: UserGiftRedeemedRequest): Promise<any> {
-        return await this.service.redeem(data.userGiftId);
+        return await this.service.redeem(data);
     }
 
     /*******************************************************************
@@ -74,7 +74,7 @@ export class UserGiftController {
     @ApiBody({ type: UserGiftPostQrCodeRequest })
     @Post('qr-code')
     async postQrCode(@Body() data: UserGiftPostQrCodeRequest): Promise<any> {
-        return await this.service.postQrCode(data.qrCode);
+        return await this.service.postQrCode(data);
     }
 
     /*******************************************************************

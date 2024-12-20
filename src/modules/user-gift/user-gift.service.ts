@@ -12,7 +12,7 @@ import { UserGift, UserGiftDocument } from './schema/user-gift.schema';
 import mongoose, { Model } from 'mongoose';
 import {
     UserGiftCreateRequest,
-    UserGiftFiltersDto,
+    UserGiftFiltersDto, UserGiftPostQrCodeRequest, UserGiftRedeemedRequest,
     UserGiftUpdateRequest,
 } from './dto/user-gift.dto';
 import { TransactionService } from '../transaction/transaction.service';
@@ -156,6 +156,34 @@ export class UserGiftService {
               },
               {
                   $lookup: {
+                      from: 'people',
+                      localField: 'performedBy',
+                      foreignField: '_id',
+                      as: 'performedBy',
+                  },
+              },
+              {
+                  $unwind: {
+                      path: '$performedBy',
+                      preserveNullAndEmptyArrays: true,
+                  },
+              },
+              {
+                  $lookup: {
+                      from: 'people',
+                      localField: 'redeemedBy',
+                      foreignField: '_id',
+                      as: 'redeemedBy',
+                  },
+              },
+              {
+                  $unwind: {
+                      path: '$redeemedBy',
+                      preserveNullAndEmptyArrays: true,
+                  },
+              },
+              {
+                  $lookup: {
                       from: "gifts",
                       localField: "gifts",
                       foreignField: "_id",
@@ -209,9 +237,9 @@ export class UserGiftService {
     /*******************************************************************
      * redeem
      ******************************************************************/
-    async redeem(id: string) {
+    async redeem(data: UserGiftRedeemedRequest) {
         const userGift = (await this.model
-          .findById(id)
+          .findById(data.userGiftId)
           .populate(['user', 'gifts'])
           .exec()) as any;
         if (!userGift) throw new NotAcceptableException('Invalid id!');
@@ -225,6 +253,7 @@ export class UserGiftService {
           userGift._id,
           {
               status: UserGiftStatus.REDEEMED,
+              performedBy: data.performedBy
           },
           { new: true }
         );
@@ -247,10 +276,10 @@ export class UserGiftService {
     /*******************************************************************
      * postQrCode
      ******************************************************************/
-    async postQrCode(qrCode: string) {
+    async postQrCode(data: UserGiftPostQrCodeRequest) {
         const userGift = (await this.model
-            .findOne({ qrCode })
-            .populate(['user', 'gift'])
+            .findOne({ qrCode: data.qrCode })
+            .populate(['user'])
             .exec()) as any;
         if (!userGift) throw new NotAcceptableException('Invalid qrCode!');
 
@@ -263,6 +292,7 @@ export class UserGiftService {
             userGift._id,
             {
                 status: UserGiftStatus.REDEEMED,
+                performedBy: data.performedBy
             },
             { new: true }
         );

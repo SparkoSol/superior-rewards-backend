@@ -36,7 +36,7 @@ export class UserGift {
     qrCode?: string;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name})
-    redeemBy?: string;
+    redeemedBy?: string;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name})
     performedBy?: string;
