@@ -63,7 +63,7 @@ export class Person {
 
     @Prop() customerNumber?: number;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name})
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name })
     performedBy?: string;
 }
 

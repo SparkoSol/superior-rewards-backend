@@ -19,7 +19,8 @@ export class UserGiftCreateRequest {
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
-    @IsMongoId() user: string;
+    @IsMongoId()
+    user: string;
 
     @ApiProperty()
     @IsArray()

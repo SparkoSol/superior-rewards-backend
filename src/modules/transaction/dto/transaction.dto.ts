@@ -1,4 +1,13 @@
-import { IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import {
+    IsBoolean,
+    IsEnum,
+    IsMongoId,
+    IsNotEmpty,
+    IsNumber,
+    IsObject,
+    IsOptional,
+    IsString,
+} from 'class-validator';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { TransactionType } from '../enum/type.enum';
 import { Type } from 'class-transformer';
@@ -98,7 +107,7 @@ export class TransactionFiltersDto {
     @ApiProperty({ description: 'Filter object' })
     @IsOptional()
     @IsObject()
-      // filters?: Record<string, any>;
+    // filters?: Record<string, any>;
     filters?: filterPayload;
 
     @ApiProperty({ description: 'PopulatedFilter object' })

@@ -94,11 +94,11 @@ export class PersonService {
             // { $unwind: '$role' },
             {
                 $lookup: {
-                    from: "people",
-                    localField: "performedBy",
-                    foreignField: "_id",
-                    as: "performedBy"
-                }
+                    from: 'people',
+                    localField: 'performedBy',
+                    foreignField: '_id',
+                    as: 'performedBy',
+                },
             },
             {
                 $addFields: {
@@ -207,7 +207,11 @@ export class PersonService {
                 .findById(id)
                 .populate(
                     withPopulate
-                        ? ['role', 'performedBy', { path: 'role', populate: { path: 'permissions' } }]
+                        ? [
+                              'role',
+                              'performedBy',
+                              { path: 'role', populate: { path: 'permissions' } },
+                          ]
                         : []
                 )
                 .exec();

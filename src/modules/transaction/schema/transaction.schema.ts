@@ -32,7 +32,7 @@ export class Transaction extends mongoose.Document {
 
     @Prop({ default: TransactionType.CREDIT }) type: string;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name})
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name })
     performedBy?: string;
 }
 

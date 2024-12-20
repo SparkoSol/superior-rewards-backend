@@ -7,7 +7,8 @@ import {
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
-    ApiOperation, ApiParam,
+    ApiOperation,
+    ApiParam,
     ApiQuery,
     ApiTags,
     ApiUnauthorizedResponse,
@@ -15,8 +16,10 @@ import {
 import { UserGiftService } from './user-gift.service';
 import {
     PaginatedUserGiftResponseDto,
-    UserGiftCreateRequest, UserGiftFiltersDto,
-    UserGiftPostQrCodeRequest, UserGiftRedeemedRequest,
+    UserGiftCreateRequest,
+    UserGiftFiltersDto,
+    UserGiftPostQrCodeRequest,
+    UserGiftRedeemedRequest,
     UserGiftResponse,
 } from './dto/user-gift.dto';
 import { UserGiftStatus } from './enum/status.enum';
@@ -50,7 +53,9 @@ export class UserGiftController {
      ******************************************************************/
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
-    @ApiNotAcceptableResponse({ description: '1: Invalid QR Code!, 2: Gift is expired!, 3: Gift is already redeemed!' })
+    @ApiNotAcceptableResponse({
+        description: '1: Invalid QR Code!, 2: Gift is expired!, 3: Gift is already redeemed!',
+    })
     @ApiOperation({
         summary: 'To redeem a userGift w.r.t userGiftId',
         description: 'it will update the existing user-gift history status to redeemed',
@@ -66,7 +71,9 @@ export class UserGiftController {
      ******************************************************************/
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
-    @ApiNotAcceptableResponse({ description: '1: Invalid QR Code!, 2: Gift is expired!, 3: Gift is already redeemed!' })
+    @ApiNotAcceptableResponse({
+        description: '1: Invalid QR Code!, 2: Gift is expired!, 3: Gift is already redeemed!',
+    })
     @ApiOperation({
         summary: 'To post QR Code',
         description: 'qrCode: it will update the existing user-gift status to redeemed',
@@ -86,7 +93,7 @@ export class UserGiftController {
     @ApiOperation({
         summary: 'To get filtered user-gifts redemption history',
         description:
-          "optional => withPopulated, used(mongoId), status(string) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31'], exists=> deletedAt[exists]: true",
+            "optional => withPopulated, used(mongoId), status(string) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31'], exists=> deletedAt[exists]: true",
     })
     @Post('filters')
     async filteredStories(@Body() data: UserGiftFiltersDto) {

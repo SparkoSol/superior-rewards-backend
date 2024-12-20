@@ -1,5 +1,13 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsString, IsOptional, IsArray, IsMongoId, IsBoolean, IsNumber, IsObject } from 'class-validator';
+import {
+    IsString,
+    IsOptional,
+    IsArray,
+    IsMongoId,
+    IsBoolean,
+    IsNumber,
+    IsObject,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { filterPayload, PersonResponseDto } from '../../person/dto/person.dto';
 
@@ -114,7 +122,7 @@ export class NotificationFiltersDto {
     @ApiProperty({ description: 'Filter object' })
     @IsOptional()
     @IsObject()
-      // filters?: Record<string, any>;
+    // filters?: Record<string, any>;
     filters?: filterPayload;
 }
 

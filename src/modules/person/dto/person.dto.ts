@@ -291,12 +291,12 @@ export class PersonQueryDto {
 
 export class filterPayload {
     @ApiProperty()
-    "field[op]": string;
+    'field[op]': string;
 }
 
 export class populatedPayload {
     @ApiProperty()
-    "table[filed]": string;
+    'table[filed]': string;
 }
 
 export class PersonFiltersDto {

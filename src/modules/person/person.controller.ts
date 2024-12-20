@@ -27,9 +27,13 @@ import {
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import {
-    BulkUploadDto, BulkUploadResponseDto, PaginatedPersonResponseDto,
+    BulkUploadDto,
+    BulkUploadResponseDto,
+    PaginatedPersonResponseDto,
     PasswordUpdateRequestDto,
-    PersonCreateDto, PersonFiltersDto, PersonQueryDto,
+    PersonCreateDto,
+    PersonFiltersDto,
+    PersonQueryDto,
     PersonResponseDto,
     PersonUpdateDto,
     UpdateFcmTokenRequestDto,

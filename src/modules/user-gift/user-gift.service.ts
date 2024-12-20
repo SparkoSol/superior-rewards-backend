@@ -12,7 +12,9 @@ import { UserGift, UserGiftDocument } from './schema/user-gift.schema';
 import mongoose, { Model } from 'mongoose';
 import {
     UserGiftCreateRequest,
-    UserGiftFiltersDto, UserGiftPostQrCodeRequest, UserGiftRedeemedRequest,
+    UserGiftFiltersDto,
+    UserGiftPostQrCodeRequest,
+    UserGiftRedeemedRequest,
     UserGiftUpdateRequest,
 } from './dto/user-gift.dto';
 import { TransactionService } from '../transaction/transaction.service';
@@ -140,64 +142,64 @@ export class UserGiftService {
         // Add lookups for populating user and gift collections if needed
         if (withPopulate) {
             query.push(
-              {
-                  $lookup: {
-                      from: 'people',
-                      localField: 'user',
-                      foreignField: '_id',
-                      as: 'user',
-                  },
-              },
-              {
-                  $unwind: {
-                      path: '$user',
-                      preserveNullAndEmptyArrays: true,
-                  },
-              },
-              {
-                  $lookup: {
-                      from: 'people',
-                      localField: 'performedBy',
-                      foreignField: '_id',
-                      as: 'performedBy',
-                  },
-              },
-              {
-                  $unwind: {
-                      path: '$performedBy',
-                      preserveNullAndEmptyArrays: true,
-                  },
-              },
-              {
-                  $lookup: {
-                      from: 'people',
-                      localField: 'redeemedBy',
-                      foreignField: '_id',
-                      as: 'redeemedBy',
-                  },
-              },
-              {
-                  $unwind: {
-                      path: '$redeemedBy',
-                      preserveNullAndEmptyArrays: true,
-                  },
-              },
-              {
-                  $lookup: {
-                      from: "gifts",
-                      localField: "gifts",
-                      foreignField: "_id",
-                      as: "giftsDetails"
-                  }
-              },
-              {
-                  $set: {
-                      gifts: "$giftsDetails"
-                  }
-              },
-              {
-                  $unset: "giftsDetails"
-              }
+                {
+                    $lookup: {
+                        from: 'people',
+                        localField: 'user',
+                        foreignField: '_id',
+                        as: 'user',
+                    },
+                },
+                {
+                    $unwind: {
+                        path: '$user',
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                    $lookup: {
+                        from: 'people',
+                        localField: 'performedBy',
+                        foreignField: '_id',
+                        as: 'performedBy',
+                    },
+                },
+                {
+                    $unwind: {
+                        path: '$performedBy',
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                    $lookup: {
+                        from: 'people',
+                        localField: 'redeemedBy',
+                        foreignField: '_id',
+                        as: 'redeemedBy',
+                    },
+                },
+                {
+                    $unwind: {
+                        path: '$redeemedBy',
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                    $lookup: {
+                        from: 'gifts',
+                        localField: 'gifts',
+                        foreignField: '_id',
+                        as: 'giftsDetails',
+                    },
+                },
+                {
+                    $set: {
+                        gifts: '$giftsDetails',
+                    },
+                },
+                {
+                    $unset: 'giftsDetails',
+                }
             );
 
             if (populated) {
@@ -213,9 +215,9 @@ export class UserGiftService {
 
         // Apply pagination
         query.push(
-          { $sort: { createdAt: -1 } },
-          { $skip: (page - 1) * pageSize },
-          { $limit: pageSize }
+            { $sort: { createdAt: -1 } },
+            { $skip: (page - 1) * pageSize },
+            { $limit: pageSize }
         );
 
         // console.log('query', JSON.stringify(query));
@@ -239,9 +241,9 @@ export class UserGiftService {
      ******************************************************************/
     async redeem(data: UserGiftRedeemedRequest) {
         const userGift = (await this.model
-          .findById(data.userGiftId)
-          .populate(['user', 'gifts'])
-          .exec()) as any;
+            .findById(data.userGiftId)
+            .populate(['user', 'gifts'])
+            .exec()) as any;
         if (!userGift) throw new NotAcceptableException('Invalid id!');
 
         if (userGift && userGift.isExpired) throw new NotAcceptableException('Gift is expired!');
@@ -250,21 +252,21 @@ export class UserGiftService {
             throw new NotAcceptableException('Gift is already redeemed!');
 
         const history = this.model.findByIdAndUpdate(
-          userGift._id,
-          {
-              status: UserGiftStatus.REDEEMED,
-              performedBy: data.performedBy
-          },
-          { new: true }
+            userGift._id,
+            {
+                status: UserGiftStatus.REDEEMED,
+                performedBy: data.performedBy,
+            },
+            { new: true }
         );
 
         // send notification When a user collects a gift.
         try {
             await this.notificationService.sendNotificationToSingleDevice(
-              'Congrats! You have Collect a gift.',
-              `You have collected your gift.`,
-              userGift.user._id.toString(),
-              userGift.user.fcmTokens
+                'Congrats! You have Collect a gift.',
+                `You have collected your gift.`,
+                userGift.user._id.toString(),
+                userGift.user.fcmTokens
             );
         } catch (e) {
             Logger.error(`Error while sending notification When a user collects a gift: ${e}`);
@@ -292,7 +294,7 @@ export class UserGiftService {
             userGift._id,
             {
                 status: UserGiftStatus.REDEEMED,
-                performedBy: data.performedBy
+                performedBy: data.performedBy,
             },
             { new: true }
         );

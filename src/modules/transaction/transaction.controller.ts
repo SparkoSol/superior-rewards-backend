@@ -1,7 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, Request } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
-    ApiBearerAuth, ApiBody,
+    ApiBearerAuth,
+    ApiBody,
     ApiInternalServerErrorResponse,
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
@@ -51,7 +52,7 @@ export class TransactionController {
     @ApiOperation({
         summary: 'To get filtered transactions',
         description:
-          "optional => withPopulated, markAsRead(true|false) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31'], exists=> deletedAt[exists]: true",
+            "optional => withPopulated, markAsRead(true|false) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31'], exists=> deletedAt[exists]: true",
     })
     @Post('filters')
     async filteredStories(@Body() data: TransactionFiltersDto) {

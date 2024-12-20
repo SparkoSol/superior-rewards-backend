@@ -29,16 +29,16 @@ export class UserGift {
     @Prop({ default: false })
     isExpired: boolean;
 
-    @Prop({default: 0})
+    @Prop({ default: 0 })
     totalPoints: number;
 
     @Prop()
     qrCode?: string;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name})
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name })
     redeemedBy?: string;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name})
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name })
     performedBy?: string;
 }
 

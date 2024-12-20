@@ -61,7 +61,7 @@ export class AuthService {
             };
         }
 
-        if(person && person.deletedAt) {
+        if (person && person.deletedAt) {
             return {
                 status: HttpStatus.NOT_FOUND,
                 message: 'Account Deleted by Super Admin!',
