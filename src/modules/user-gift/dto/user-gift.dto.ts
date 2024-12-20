@@ -47,6 +47,18 @@ export class UserGiftCreateRequest {
     @IsNotEmpty()
     @IsNumber()
     totalPoints: number;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    @IsMongoId()
+    redeemBy?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    @IsMongoId()
+    performedBy?: string;
 }
 
 export class UserGiftUpdateRequest extends PartialType(UserGiftCreateRequest) {}
@@ -71,6 +83,12 @@ export class UserGiftResponse {
 
     @ApiProperty({ default: 0 })
     totalPoints: number;
+
+    @ApiProperty()
+    redeemBy?: object;
+
+    @ApiProperty()
+    performedBy?: object;
 
     @ApiProperty() createdAt: Date;
 

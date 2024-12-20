@@ -55,7 +55,7 @@ export class PersonController {
     @ApiOperation({
         summary: 'To create customer user',
         description:
-            'optional: odooCustomerId(for management users), dob, address, profilePicture, fcmTokens, deletedAt, email, country, customerNumber',
+            'optional: odooCustomerId(for management users), dob, address, profilePicture, fcmTokens, deletedAt, email, country, customerNumber, performedBy',
     })
     @Post()
     async create(@Body() data: PersonCreateDto): Promise<any> {

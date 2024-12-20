@@ -166,6 +166,7 @@ export class PersonService {
                 withPopulate
                     ? [
                           'role',
+                          'performedBy',
                           {
                               path: 'role',
                               populate: { path: 'permissions' },
@@ -193,7 +194,7 @@ export class PersonService {
                 .findById(id)
                 .populate(
                     withPopulate
-                        ? ['role', { path: 'role', populate: { path: 'permissions' } }]
+                        ? ['role', 'performedBy', { path: 'role', populate: { path: 'permissions' } }]
                         : []
                 )
                 .exec();

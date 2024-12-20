@@ -27,6 +27,12 @@ export class TransactionCreateRequest {
         message: 'type must be ' + Object.values(TransactionType).join(', '),
     })
     type: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    @IsMongoId()
+    performedBy?: string;
 }
 
 export class TransactionResponse {
@@ -46,6 +52,9 @@ export class TransactionResponse {
         default: TransactionType.CREDIT,
     })
     type: string;
+
+    @ApiProperty()
+    performedBy?: object;
 
     @ApiProperty() details?: string;
 

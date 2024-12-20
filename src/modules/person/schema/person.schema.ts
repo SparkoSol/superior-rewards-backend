@@ -25,6 +25,8 @@ export type PersonDocument = HydratedDocument<Person>;
   country?: '',
   customerNumber?: number,
 
+  performedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Person' },
+
 */
 
 @Schema({ timestamps: true })
@@ -60,6 +62,9 @@ export class Person {
     @Prop() country?: string;
 
     @Prop() customerNumber?: number;
+
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name})
+    performedBy?: string;
 }
 
 export const PersonSchema = SchemaFactory.createForClass(Person);

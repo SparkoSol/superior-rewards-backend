@@ -79,6 +79,12 @@ export class PersonCreateDto {
     customerNumber?: number;
 
     odooCustomerId?: number;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    @IsMongoId()
+    performedBy?: string;
 }
 
 export class PersonUpdateDto {
@@ -193,6 +199,9 @@ export class PersonResponseDto {
 
     @ApiProperty()
     customerNumber?: number;
+
+    @ApiProperty()
+    performedBy?: object;
 
     @ApiProperty() deletedAt?: Date;
 

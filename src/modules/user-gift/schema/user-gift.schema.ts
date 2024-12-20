@@ -34,6 +34,12 @@ export class UserGift {
 
     @Prop()
     qrCode?: string;
+
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name})
+    redeemBy?: string;
+
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name})
+    performedBy?: string;
 }
 
 export const UserGiftSchema = SchemaFactory.createForClass(UserGift);

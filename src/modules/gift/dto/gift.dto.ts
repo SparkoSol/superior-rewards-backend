@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 
 export class GiftCreateRequest {
@@ -16,6 +16,12 @@ export class GiftCreateRequest {
     @IsOptional()
     @IsNumber()
     points: number;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    @IsMongoId()
+    performedBy?: string;
 }
 
 export class GiftUpdateRequest extends PartialType(GiftCreateRequest) {}
@@ -29,6 +35,9 @@ export class GiftResponse {
 
     @ApiProperty({ default: 0 })
     points: number;
+
+    @ApiProperty()
+    performedBy?: object;
 
     @ApiProperty() deletedAt?: Date;
 
