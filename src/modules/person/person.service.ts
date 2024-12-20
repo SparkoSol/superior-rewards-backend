@@ -83,19 +83,33 @@ export class PersonService {
         if (usedFor === 'users') query['role'] = { $ne: role._id };
         const pipeline: any[] = [
             { $match: query },
+            // {
+            //     $lookup: {
+            //         from: 'roles',
+            //         localField: 'role',
+            //         foreignField: '_id',
+            //         as: 'role',
+            //     },
+            // },
+            // { $unwind: '$role' },
             {
                 $lookup: {
-                    from: 'roles',
-                    localField: 'role',
-                    foreignField: '_id',
-                    as: 'role',
+                    from: "people",
+                    localField: "performedBy",
+                    foreignField: "_id",
+                    as: "performedBy"
+                }
+            },
+            {
+                $addFields: {
+                    performedBy: { $arrayElemAt: ['$performedBy', 0] },
                 },
             },
-            { $unwind: '$role' },
         ];
 
         if (populated) {
             const populatedMatchStages = MongoQueryUtils.createDynamicMatchStages(populated);
+            console.log('populatedMatchStages', JSON.stringify(populatedMatchStages));
             pipeline.push(...populatedMatchStages);
         }
 
