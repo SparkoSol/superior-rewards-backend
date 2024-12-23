@@ -1,10 +1,12 @@
-import { Post, Body, Controller, Get, Param, Query, Delete } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import {
-    NotificationResponseDto,
-    NotificationPayloadForMultipleDeviceDto,
+    NotificationCreateDto,
+    NotificationFiltersDto,
     NotificationPayload,
-    NotificationCreateDto, NotificationFiltersDto, PaginatedNotificationResponseDto,
+    NotificationPayloadForMultipleDeviceDto,
+    NotificationResponseDto,
+    PaginatedNotificationResponseDto,
 } from './dto/notification.dto';
 import {
     ApiBearerAuth,
@@ -45,7 +47,7 @@ export class NotificationController {
     @ApiOperation({
         summary: 'To get filtered notifications',
         description:
-          "optional => withPopulated, usedId(mongoId), markAsRead(true|false) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31'], exists=> deletedAt[exists]: true",
+            "optional => withPopulated, usedId(mongoId), markAsRead(true|false) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31'], exists=> deletedAt[exists]: true",
     })
     @Post('filters')
     async filteredStories(@Body() data: NotificationFiltersDto) {

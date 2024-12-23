@@ -4,6 +4,7 @@ import {
     Inject,
     Injectable,
     InternalServerErrorException,
+    Logger,
     NotAcceptableException,
     NotFoundException,
 } from '@nestjs/common';
@@ -75,21 +76,36 @@ export class PersonService {
         }
 
         let query = {};
-        if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
+        if (filters) {
+            query = MongoQueryUtils.getQueryFromFilters(filters);
+        }
 
         if (usedFor === 'customers') query['role'] = { $eq: role._id };
         if (usedFor === 'users') query['role'] = { $ne: role._id };
         const pipeline: any[] = [
             { $match: query },
+            // {
+            //     $lookup: {
+            //         from: 'roles',
+            //         localField: 'role',
+            //         foreignField: '_id',
+            //         as: 'role',
+            //     },
+            // },
+            // { $unwind: '$role' },
             {
                 $lookup: {
-                    from: 'roles',
-                    localField: 'role',
+                    from: 'people',
+                    localField: 'performedBy',
                     foreignField: '_id',
-                    as: 'role',
+                    as: 'performedBy',
                 },
             },
-            { $unwind: '$role' },
+            {
+                $addFields: {
+                    performedBy: { $arrayElemAt: ['$performedBy', 0] },
+                },
+            },
         ];
 
         if (populated) {
@@ -164,6 +180,7 @@ export class PersonService {
                 withPopulate
                     ? [
                           'role',
+                          'performedBy',
                           {
                               path: 'role',
                               populate: { path: 'permissions' },
@@ -191,7 +208,11 @@ export class PersonService {
                 .findById(id)
                 .populate(
                     withPopulate
-                        ? ['role', { path: 'role', populate: { path: 'permissions' } }]
+                        ? [
+                              'role',
+                              'performedBy',
+                              { path: 'role', populate: { path: 'permissions' } },
+                          ]
                         : []
                 )
                 .exec();
@@ -327,7 +348,7 @@ export class PersonService {
                 failedDocs: failedDocsCount,
             });
         } catch (e) {
-            console.log('Error while bulk upload: ', e);
+            Logger.error(`Error while bulk upload :: ${e}`);
         }
 
         fs.unlinkSync(tempFilePath);
@@ -362,7 +383,7 @@ export class PersonService {
                 { $set: { role: null } }
             );
         } catch (error) {
-            console.error('Error setting role to null:', error);
+            Logger.error(`Error setting role to null :: ${error}`);
         }
     }
 }

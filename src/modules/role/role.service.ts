@@ -1,4 +1,11 @@
-import { forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+    forwardRef,
+    Inject,
+    Injectable,
+    InternalServerErrorException,
+    Logger,
+    NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Role, RoleDocument } from './schema/role.schema';
 import { Model } from 'mongoose';
@@ -7,9 +14,11 @@ import { PersonService } from '../person/person.service';
 
 @Injectable()
 export class RoleService {
-    constructor(@InjectModel(Role.name) private readonly model: Model<RoleDocument>,
-                @Inject(forwardRef(() => PersonService))
-                private readonly personService: PersonService) {}
+    constructor(
+        @InjectModel(Role.name) private readonly model: Model<RoleDocument>,
+        @Inject(forwardRef(() => PersonService))
+        private readonly personService: PersonService
+    ) {}
 
     /*******************************************************************
      * create
@@ -66,7 +75,7 @@ export class RoleService {
         try {
             return await this.model.findByIdAndUpdate(id, data, { new: true });
         } catch (e) {
-            console.log('Error in role update:', e);
+            Logger.error(`Error in role update :: ${e}`);
             throw new InternalServerErrorException('Unexpected Error');
         }
     }
@@ -75,10 +84,10 @@ export class RoleService {
      * delete
      ******************************************************************/
     async delete(id: string) {
-        const persons = await this.personService.findByQuery({ role: id }) as any;
+        const persons = (await this.personService.findByQuery({ role: id })) as any;
         const personIds = persons && persons.length ? persons.map((person) => person._id) : [];
 
-        if(personIds.length) {
+        if (personIds.length) {
             await this.personService.revokeRoleFromPersonsIdsArray(personIds);
         }
 

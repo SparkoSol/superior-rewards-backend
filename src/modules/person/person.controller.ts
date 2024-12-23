@@ -27,9 +27,13 @@ import {
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import {
-    BulkUploadDto, BulkUploadResponseDto, PaginatedPersonResponseDto,
+    BulkUploadDto,
+    BulkUploadResponseDto,
+    PaginatedPersonResponseDto,
     PasswordUpdateRequestDto,
-    PersonCreateDto, PersonFiltersDto, PersonQueryDto,
+    PersonCreateDto,
+    PersonFiltersDto,
+    PersonQueryDto,
     PersonResponseDto,
     PersonUpdateDto,
     UpdateFcmTokenRequestDto,
@@ -55,7 +59,7 @@ export class PersonController {
     @ApiOperation({
         summary: 'To create customer user',
         description:
-            'optional: odooCustomerId(for management users), dob, address, profilePicture, fcmTokens, deletedAt, email, country, customerNumber',
+            'optional: odooCustomerId(for management users), dob, address, profilePicture, fcmTokens, deletedAt, email, country, customerNumber, performedBy',
     })
     @Post()
     async create(@Body() data: PersonCreateDto): Promise<any> {
@@ -70,7 +74,7 @@ export class PersonController {
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
     @ApiBody({ type: PersonFiltersDto })
     @ApiOperation({
-        summary: 'To get filtered persons',
+        summary: 'To get filtered persons  | ADMIN only',
         description:
             "optional => withPopulated, usedFor(users, customers) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31'], exists=> deletedAt[exists]: true",
     })

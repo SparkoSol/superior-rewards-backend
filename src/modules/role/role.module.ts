@@ -7,7 +7,8 @@ import { PersonModule } from '../person/person.module';
 
 @Global()
 @Module({
-    imports: [MongooseModule.forFeature([{ name: Role.name, schema: RoleSchema }]),
+    imports: [
+        MongooseModule.forFeature([{ name: Role.name, schema: RoleSchema }]),
         forwardRef(() => PersonModule),
     ],
     controllers: [RoleController],

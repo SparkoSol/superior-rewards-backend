@@ -13,7 +13,7 @@ import {
     NotificationPayload,
 } from './dto/notification.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Notification, NotificationDocument } from '../notification/schema/notification.schema';
+import { Notification, NotificationDocument } from './schema/notification.schema';
 import * as mongoose from 'mongoose';
 import { Model } from 'mongoose';
 import { PersonService } from '../person/person.service';

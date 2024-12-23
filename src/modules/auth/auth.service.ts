@@ -4,6 +4,7 @@ import {
     Inject,
     Injectable,
     InternalServerErrorException,
+    Logger,
     NotAcceptableException,
 } from '@nestjs/common';
 import { PersonService } from '../person/person.service';
@@ -61,7 +62,7 @@ export class AuthService {
             };
         }
 
-        if(person && person.deletedAt) {
+        if (person && person.deletedAt) {
             return {
                 status: HttpStatus.NOT_FOUND,
                 message: 'Account Deleted by Super Admin!',
@@ -120,7 +121,7 @@ export class AuthService {
                 }),
             };
         } catch (e) {
-            console.log('Error while adminSignUp: ', e);
+            Logger.error(`Error while adminSignUp: ${e}`);
             throw new InternalServerErrorException('Error while adminSignUp: ', e);
         }
     }
@@ -155,7 +156,7 @@ export class AuthService {
                 }),
             };
         } catch (e) {
-            console.log('Error while signup: ', e);
+            Logger.error(`Error while signup :: ${e}`);
             throw new InternalServerErrorException('Error while signup: ', e);
         }
     }
