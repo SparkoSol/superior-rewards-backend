@@ -3,7 +3,8 @@ import {
     HttpStatus,
     Inject,
     Injectable,
-    InternalServerErrorException, Logger,
+    InternalServerErrorException,
+    Logger,
     NotAcceptableException,
 } from '@nestjs/common';
 import { PersonService } from '../person/person.service';
