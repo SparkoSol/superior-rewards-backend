@@ -1,12 +1,10 @@
 export class helper {
-    static convertToSeconds(dateTimeString) {
+    static convertToSeconds(dateTimeString: string) {
         // Create a Date object from the date-time string
         const date = new Date(dateTimeString);
 
         // Convert to seconds by dividing milliseconds by 1000
-        const seconds = Math.floor(date.getTime() / 1000);
-
-        return seconds;
+        return Math.floor(date.getTime() / 1000);
     }
 
     static convertSecondIntoUTCDataTime(timeInSeconds: string) {

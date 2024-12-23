@@ -1,8 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { TermsHub, TermsHubDocument } from './schema/terms-hub.schema';
-import { TermsHubCreateDto, TermsHubUpdateDto } from './dto/terms-hub.dto';
+import { TermsHubCreateDto } from './dto/terms-hub.dto';
 
 @Injectable()
 export class TermsHubService {
@@ -28,7 +28,7 @@ export class TermsHubService {
                 return await this.model.create(TermsHubCreateDto);
             }
         } catch (e) {
-            console.log('Error while creating terms-hub: ', e);
+            Logger.error(`Error while creating terms-hub :: , ${e}`);
             throw new InternalServerErrorException('Error while creating terms-hub');
         }
     }
@@ -42,7 +42,7 @@ export class TermsHubService {
             if (type) query['type'] = type;
             return await this.model.find(query).sort({ createdAt: -1 }).exec();
         } catch (e) {
-            console.log('Error while getting terms-hubs: ', e);
+            Logger.error(`Error while getting terms-hubs :: ${e}`);
             throw new InternalServerErrorException('Error while getting terms-hubs');
         }
     }
@@ -65,7 +65,7 @@ export class TermsHubService {
         try {
             return await this.model.findByIdAndDelete(id).exec();
         } catch (e) {
-            console.log('Error while deleting terms-hub: ', e);
+            Logger.error(`Error while deleting terms-hub :: ${e}`);
             throw new InternalServerErrorException('Error while deleting terms-hub');
         }
     }

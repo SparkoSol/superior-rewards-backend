@@ -1,15 +1,15 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import {
-    IsString,
-    IsOptional,
     IsArray,
-    IsMongoId,
     IsBoolean,
+    IsMongoId,
     IsNumber,
     IsObject,
+    IsOptional,
+    IsString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { filterPayload, PersonResponseDto } from '../../person/dto/person.dto';
+import { filterPayload } from '../../person/dto/person.dto';
 
 export class NotificationCreateDto {
     @ApiProperty()

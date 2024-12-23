@@ -2,7 +2,7 @@ import {
     forwardRef,
     Inject,
     Injectable,
-    InternalServerErrorException,
+    InternalServerErrorException, Logger,
     NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -74,7 +74,7 @@ export class RoleService {
         try {
             return await this.model.findByIdAndUpdate(id, data, { new: true });
         } catch (e) {
-            console.log('Error in role update:', e);
+            Logger.error(`Error in role update :: ${e}`);
             throw new InternalServerErrorException('Unexpected Error');
         }
     }

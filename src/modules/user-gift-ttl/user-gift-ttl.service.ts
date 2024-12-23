@@ -23,7 +23,7 @@ export class UserGiftTtlService implements OnModuleInit {
             this.startChangeStream();
             this.changeStreamInitialized = true; // Ensure change stream is only initialized once
         } else {
-            console.log('Change stream already Initialized');
+            Logger.debug('Change stream already Initialized');
         }
     }
 
@@ -60,9 +60,7 @@ export class UserGiftTtlService implements OnModuleInit {
             const userGift = (await this.UserGiftService.fetchById(userGiftId, true)) as any;
 
             if (userGift && userGift.status === UserGiftStatus.PENDING && !userGift.isExpired) {
-                console.log(
-                    `Updated isExpired for UserGift: ${userGiftId} on ${new Date().toLocaleString()}`
-                );
+                Logger.debug(`UserGift: ${userGiftId} is expired`);
 
                 // Reinsert the document with isExpired = true to prevent re-deletion;
                 await this.UserGiftService.update(userGiftId, { isExpired: true });
@@ -84,7 +82,7 @@ export class UserGiftTtlService implements OnModuleInit {
         });
 
         changeStream.on('error', (err) => {
-            console.error('Change stream error:', err);
+            Logger.error(`Change stream error :: ${err}`);
         });
     }
 }

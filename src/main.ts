@@ -4,7 +4,6 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import * as process from 'process';
 import { DocumentBuilder, SwaggerDocumentOptions, SwaggerModule } from '@nestjs/swagger';
 import { Logger, ValidationPipe } from '@nestjs/common';
-import { join } from 'path';
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -53,4 +52,4 @@ async function bootstrap() {
     Logger.log('<====================================================================>');
 }
 
-bootstrap().then((r) => console.log(r));
+bootstrap().then(() => null);

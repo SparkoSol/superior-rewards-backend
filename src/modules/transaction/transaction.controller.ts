@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, Request } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Request } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
@@ -50,7 +50,7 @@ export class TransactionController {
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
     @ApiBody({ type: TransactionFiltersDto })
     @ApiOperation({
-        summary: 'To get filtered transactions',
+        summary: 'To get filtered transactions | ADMIN only',
         description:
             "optional => withPopulated, markAsRead(true|false) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31'], exists=> deletedAt[exists]: true",
     })

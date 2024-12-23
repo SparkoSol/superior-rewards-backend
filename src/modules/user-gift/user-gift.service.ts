@@ -72,6 +72,7 @@ export class UserGiftService {
                 points: data.totalPoints,
                 amount: settings.points ? data.totalPoints / settings.points : null,
                 type: TransactionType.DEBIT,
+                performedBy: data.redeemedBy,
             });
         } catch (error) {
             Logger.error(`Error while creating transaction for redeeming gift: ${error}`);
@@ -219,8 +220,6 @@ export class UserGiftService {
             { $skip: (page - 1) * pageSize },
             { $limit: pageSize }
         );
-
-        // console.log('query', JSON.stringify(query));
 
         // Execute the main query
         const histories = await this.model.aggregate(query).exec();

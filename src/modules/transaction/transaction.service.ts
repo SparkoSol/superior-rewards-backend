@@ -1,4 +1,4 @@
-import { Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotAcceptableException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Transaction, TransactionDocument } from './schema/transaction.schema';
 import mongoose, { Model } from 'mongoose';
@@ -45,7 +45,7 @@ export class TransactionService {
                     person.fcmTokens
                 );
             } catch (e) {
-                console.log('Error while sending notification on CREDIT type transactions: ', e);
+                Logger.error('Error while sending notification on CREDIT type transactions: ', e);
             }
         }
 

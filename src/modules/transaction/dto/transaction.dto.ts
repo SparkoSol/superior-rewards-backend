@@ -8,10 +8,10 @@ import {
     IsOptional,
     IsString,
 } from 'class-validator';
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { TransactionType } from '../enum/type.enum';
 import { Type } from 'class-transformer';
-import { filterPayload, PersonResponseDto, populatedPayload } from '../../person/dto/person.dto';
+import { filterPayload, populatedPayload } from '../../person/dto/person.dto';
 
 export class TransactionCreateRequest {
     @ApiProperty() @IsNotEmpty() @IsString() @IsMongoId() user: string;

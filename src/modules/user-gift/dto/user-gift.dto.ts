@@ -13,7 +13,7 @@ import {
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { UserGiftStatus } from '../enum/status.enum';
 import { Type } from 'class-transformer';
-import { filterPayload, PersonResponseDto, populatedPayload } from '../../person/dto/person.dto';
+import { filterPayload, populatedPayload } from '../../person/dto/person.dto';
 
 export class UserGiftCreateRequest {
     @ApiProperty()

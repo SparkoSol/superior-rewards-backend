@@ -3,7 +3,7 @@ import {
     HttpStatus,
     Inject,
     Injectable,
-    InternalServerErrorException,
+    InternalServerErrorException, Logger,
     NotAcceptableException,
 } from '@nestjs/common';
 import { PersonService } from '../person/person.service';
@@ -120,7 +120,7 @@ export class AuthService {
                 }),
             };
         } catch (e) {
-            console.log('Error while adminSignUp: ', e);
+            Logger.error(`Error while adminSignUp: ${e}`);
             throw new InternalServerErrorException('Error while adminSignUp: ', e);
         }
     }
@@ -155,7 +155,7 @@ export class AuthService {
                 }),
             };
         } catch (e) {
-            console.log('Error while signup: ', e);
+            Logger.error(`Error while signup :: ${e}`);
             throw new InternalServerErrorException('Error while signup: ', e);
         }
     }

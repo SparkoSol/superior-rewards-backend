@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
-import { Schema as MongooseSchema } from 'mongoose';
 import { TermsHubsType } from '../enum/type.enum';
 
 export type TermsHubDocument = TermsHub & mongoose.Document;

@@ -1,4 +1,4 @@
-import { IsEmpty, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 
 export class PermissionCreateRequest {

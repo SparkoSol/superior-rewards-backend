@@ -3,7 +3,7 @@ import {
     HttpStatus,
     Inject,
     Injectable,
-    InternalServerErrorException,
+    InternalServerErrorException, Logger,
     NotAcceptableException,
     NotFoundException,
 } from '@nestjs/common';
@@ -347,7 +347,7 @@ export class PersonService {
                 failedDocs: failedDocsCount,
             });
         } catch (e) {
-            console.log('Error while bulk upload: ', e);
+            Logger.error(`Error while bulk upload :: ${e}`);
         }
 
         fs.unlinkSync(tempFilePath);
@@ -382,7 +382,7 @@ export class PersonService {
                 { $set: { role: null } }
             );
         } catch (error) {
-            console.error('Error setting role to null:', error);
+            Logger.error(`Error setting role to null :: ${error}`);
         }
     }
 }

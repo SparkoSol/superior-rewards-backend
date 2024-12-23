@@ -74,7 +74,7 @@ export class PersonController {
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
     @ApiBody({ type: PersonFiltersDto })
     @ApiOperation({
-        summary: 'To get filtered persons',
+        summary: 'To get filtered persons  | ADMIN only',
         description:
             "optional => withPopulated, usedFor(users, customers) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31'], exists=> deletedAt[exists]: true",
     })

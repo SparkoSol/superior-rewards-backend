@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, Request } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
@@ -8,7 +8,6 @@ import {
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
-    ApiParam,
     ApiQuery,
     ApiTags,
     ApiUnauthorizedResponse,
@@ -57,8 +56,8 @@ export class UserGiftController {
         description: '1: Invalid QR Code!, 2: Gift is expired!, 3: Gift is already redeemed!',
     })
     @ApiOperation({
-        summary: 'To redeem a userGift w.r.t userGiftId',
-        description: 'it will update the existing user-gift history status to redeemed',
+        summary: 'To redeem a userGift w.r.t userGiftId  | ADMIN only',
+        description: 'it will update the existing user-gift history status to redeemed.',
     })
     @ApiBody({ type: UserGiftRedeemedRequest })
     @Post('redeem')
@@ -75,7 +74,7 @@ export class UserGiftController {
         description: '1: Invalid QR Code!, 2: Gift is expired!, 3: Gift is already redeemed!',
     })
     @ApiOperation({
-        summary: 'To post QR Code',
+        summary: 'To post QR Code | ADMIN only',
         description: 'qrCode: it will update the existing user-gift status to redeemed',
     })
     @ApiBody({ type: UserGiftPostQrCodeRequest })
@@ -91,7 +90,7 @@ export class UserGiftController {
     @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
     @ApiBody({ type: UserGiftFiltersDto })
     @ApiOperation({
-        summary: 'To get filtered user-gifts redemption history',
+        summary: 'To get filtered user-gifts redemption history | ADMIN only',
         description:
             "optional => withPopulated, used(mongoId), status(string) | filters: eq=>name[eq]: 'test', like=> tags[like]: 'test', range=> amount[range]: [min, max], date=> createdAt[date]: ['2021-01-01', '2021-01-31'], exists=> deletedAt[exists]: true",
     })

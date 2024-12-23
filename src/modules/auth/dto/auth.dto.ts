@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Prop } from '@nestjs/mongoose';
 
 export class ForgotPasswordRequest {
