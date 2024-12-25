@@ -21,7 +21,7 @@ export class UserGiftTtlJob {
             await this.userGiftService.getExpiredUserGiftsIds(allReferenceIds);
 
         if (expiredUserGiftsIds.length > 0) {
-            this.logger.debug(`Expired userGifts status on ${new Date().toLocaleString()}`);
+            this.logger.debug('Expired userGifts status');
             this.userGiftService.updateStatusOfExpiredUserGifts(expiredUserGiftsIds);
         }
     }
