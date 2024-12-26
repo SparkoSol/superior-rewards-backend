@@ -370,6 +370,17 @@ export class PersonService {
     }
 
     /*******************************************************************
+     * updateMany w.r.t query
+     ******************************************************************/
+    async updateMany(query: any, data: any) {
+        try {
+            return await this.model.updateMany(query, data);
+        } catch (e) {
+            throw new InternalServerErrorException('Unexpected Error');
+        }
+    }
+
+    /*******************************************************************
      * delete
      ******************************************************************/
     async delete(id: string) {

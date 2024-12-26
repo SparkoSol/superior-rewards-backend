@@ -165,6 +165,7 @@ export class AuthService {
      * signIn
      ******************************************************************/
     async signIn(person: any) {
+        await this.personService.update(person._id.toString(), {session: new Date()});
         return {
             accessToken: this.jwtService.sign({
                 _id: person._id,

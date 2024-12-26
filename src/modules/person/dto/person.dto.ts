@@ -158,6 +158,11 @@ export class PersonUpdateDto {
     @IsOptional()
     @IsNumber()
     customerNumber?: number;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    session?: Date;
 }
 
 export class PersonResponseDto {
@@ -202,6 +207,8 @@ export class PersonResponseDto {
 
     @ApiProperty()
     performedBy?: object;
+
+    @ApiProperty() session?: Date;
 
     @ApiProperty() deletedAt?: Date;
 
