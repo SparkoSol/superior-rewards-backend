@@ -359,7 +359,6 @@ export class UserGiftService {
      * fetchById
      ******************************************************************/
     async fetchById(id: string, withPopulate?: boolean): Promise<UserGiftDocument> {
-        console.log('id', id);
         try {
             return this.model
                 .findById(id)
