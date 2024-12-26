@@ -401,4 +401,10 @@ export class PersonService {
             Logger.error(`Error setting role to null :: ${error}`);
         }
     }
+
+    async isAuthorize(userId: string) {
+        const user = await this.model.findById(userId).exec();
+
+        return !(user.session && true);
+    }
 }
