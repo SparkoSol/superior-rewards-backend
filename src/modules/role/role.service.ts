@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Role, RoleDocument } from './schema/role.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { RoleDto } from './dto/role.dto';
 import { PersonService } from '../person/person.service';
 
@@ -72,21 +72,15 @@ export class RoleService {
      * update
      ******************************************************************/
     async update(id: string, data: RoleDto) {
-        const adminRole = await this.fetchByRoleName('Admin');
-        const userRole = await this.fetchByRoleName('User');
-
-        // role is not user
-        if (id !== userRole._id.toString()) {
-            await this.personService.updateMany(
-                {
-                    role: { $nin: [adminRole._id, userRole.id] },
-                    session: { $exists: true },
-                },
-                {
-                    $unset: { session: '' },
-                }
-            );
-        }
+        await this.personService.updateMany(
+            {
+                role: new mongoose.Types.ObjectId(id),
+                session: { $exists: true },
+            },
+            {
+                $unset: { session: '' },
+            }
+        );
 
         try {
             return await this.model.findByIdAndUpdate(id, data, { new: true });
