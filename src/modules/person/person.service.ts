@@ -370,6 +370,17 @@ export class PersonService {
     }
 
     /*******************************************************************
+     * updateMany w.r.t query
+     ******************************************************************/
+    async updateMany(query: any, data: any) {
+        try {
+            return await this.model.updateMany(query, data);
+        } catch (e) {
+            throw new InternalServerErrorException('Unexpected Error');
+        }
+    }
+
+    /*******************************************************************
      * delete
      ******************************************************************/
     async delete(id: string) {
@@ -389,5 +400,11 @@ export class PersonService {
         } catch (error) {
             Logger.error(`Error setting role to null :: ${error}`);
         }
+    }
+
+    async isAuthorize(userId: string) {
+        const user = await this.model.findById(userId).exec();
+
+        return !(user.session && true);
     }
 }

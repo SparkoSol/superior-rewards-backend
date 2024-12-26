@@ -20,7 +20,6 @@ import {
 import { TransactionService } from '../transaction/transaction.service';
 import { TransactionType } from '../transaction/enum/type.enum';
 import { PersonService } from '../person/person.service';
-import { GiftService } from '../gift/gift.service';
 import { UserGiftStatus } from './enum/status.enum';
 import { NoGeneratorUtils } from '../../utils/no-generator-utils';
 import { UserGiftTtlService } from '../user-gift-ttl/user-gift-ttl.service';
@@ -35,7 +34,6 @@ export class UserGiftService {
     constructor(
         @InjectModel(UserGift.name) private readonly model: Model<UserGiftDocument>,
         private readonly personService: PersonService,
-        private readonly giftService: GiftService,
         private readonly transactionService: TransactionService,
         @Inject(forwardRef(() => UserGiftTtlService))
         private readonly UserGiftTtlService: UserGiftTtlService,
@@ -78,27 +76,19 @@ export class UserGiftService {
             Logger.error(`Error while creating transaction for redeeming gift: ${error}`);
         }
 
-        // Deduct git points from user current points
+        // update user, decrease points and increase redeemed points
         try {
             await this.personService.update(data.user, {
                 points: Number(person.points) - Number(data.totalPoints),
-            });
-        } catch (error) {
-            Logger.error(`Error while updating user points after redeeming gift: ${error}`);
-        }
-
-        // increase redeemedPoints
-        try {
-            await this.personService.update(data.user, {
                 redeemedPoints: Number(person.redeemedPoints) + Number(data.totalPoints),
             });
         } catch (error) {
             Logger.error(
-                `Error while updating user redeemed points after redeeming gift: ${error}`
+                `Error while updating user points and redeemed points after redeeming gift in user-gifts create: ${error}`
             );
         }
 
-        // send notification to user You have redeem a gift.
+        // send notification to user You have redeemed a gift.
         try {
             await this.notificationService.sendNotificationToSingleDevice(
                 'Congrats! You have redeem a gift.',
@@ -369,6 +359,7 @@ export class UserGiftService {
      * fetchById
      ******************************************************************/
     async fetchById(id: string, withPopulate?: boolean): Promise<UserGiftDocument> {
+        console.log('id', id);
         try {
             return this.model
                 .findById(id)
@@ -417,6 +408,28 @@ export class UserGiftService {
     }
 
     async updateStatusOfExpiredUserGifts(ids: any[]) {
+        const redemptionsHistories = await this.model.find({ _id: { $in: ids } }).exec();
+
+        if(redemptionsHistories.length > 0) {
+            for (const history of redemptionsHistories) {
+                const userGift = history as any;
+                const giftUser = await this.personService.fetchById(userGift.user);
+
+                // update user, increase points and decrease redeemed points
+                try {
+                    await this.personService.update(giftUser._id.toString(), {
+                        points: Number(giftUser.points) + Number(userGift.totalPoints),
+                        redeemedPoints:
+                          Number(giftUser.redeemedPoints) - Number(userGift.totalPoints),
+                    });
+                } catch (error) {
+                    Logger.error(
+                      `Error while updating user points and redeemed points in updateStatusOfExpiredUserGifts: ${error}`
+                    );
+                }
+            }
+        }
+
         return this.model.updateMany({ _id: { $in: ids } }, { $set: { isExpired: true } });
     }
 }

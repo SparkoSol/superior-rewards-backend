@@ -72,6 +72,22 @@ export class RoleService {
      * update
      ******************************************************************/
     async update(id: string, data: RoleDto) {
+        const adminRole = await this.fetchByRoleName('Admin');
+        const userRole = await this.fetchByRoleName('User');
+
+        // role is not user
+        if (id !== userRole._id.toString()) {
+            await this.personService.updateMany(
+                {
+                    role: { $nin: [adminRole._id, userRole.id] },
+                    session: { $exists: true },
+                },
+                {
+                    $unset: { session: '' },
+                }
+            );
+        }
+
         try {
             return await this.model.findByIdAndUpdate(id, data, { new: true });
         } catch (e) {

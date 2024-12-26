@@ -59,7 +59,7 @@ export class PersonController {
     @ApiOperation({
         summary: 'To create customer user',
         description:
-            'optional: odooCustomerId(for management users), dob, address, profilePicture, fcmTokens, deletedAt, email, country, customerNumber, performedBy',
+            'optional: odooCustomerId(for management users), dob, address, profilePicture, fcmTokens, deletedAt, email, country, customerNumber, performedBy, session',
     })
     @Post()
     async create(@Body() data: PersonCreateDto): Promise<any> {
@@ -156,24 +156,24 @@ export class PersonController {
         return this.service.updateFcmToken(id, updateFcmTokenRequestDto);
     }
 
-    /*******************************************************************
-     * bulkUpload
-     ******************************************************************/
-    @UseInterceptors(FileInterceptor('file'))
-    @ApiOperation({
-        summary: 'bulk import customers form excel',
-        description: 'Customers bulk uploading route for Admin',
-    })
-    @ApiConsumes('multipart/form-data')
-    @ApiBody({ type: BulkUploadDto })
-    @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
-    @ApiInternalServerErrorResponse({ description: 'Invalid Role' })
-    @ApiOkResponse({ type: BulkUploadResponseDto })
-    @UseGuards(AuthGuard('jwt'))
-    @Post('bulk-upload')
-    async bulkUpload(@UploadedFile() file: any, @Res() res: Response) {
-        return await this.service.bulkUpload(file, res);
-    }
+    // /*******************************************************************
+    //  * bulkUpload
+    //  ******************************************************************/
+    // @UseInterceptors(FileInterceptor('file'))
+    // @ApiOperation({
+    //     summary: 'bulk import customers form excel',
+    //     description: 'Customers bulk uploading route for Admin',
+    // })
+    // @ApiConsumes('multipart/form-data')
+    // @ApiBody({ type: BulkUploadDto })
+    // @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
+    // @ApiInternalServerErrorResponse({ description: 'Invalid Role' })
+    // @ApiOkResponse({ type: BulkUploadResponseDto })
+    // @UseGuards(AuthGuard('jwt'))
+    // @Post('bulk-upload')
+    // async bulkUpload(@UploadedFile() file: any, @Res() res: Response) {
+    //     return await this.service.bulkUpload(file, res);
+    // }
 
     /*******************************************************************
      * update
@@ -182,7 +182,7 @@ export class PersonController {
     @ApiOperation({
         summary: 'To update person data',
         description:
-            'optional: odooCustomerId(for management users), dob, address, profilePicture, fcmTokens, deletedAt, email, country, customerNumber',
+            'optional: odooCustomerId(for management users), dob, address, profilePicture, fcmTokens, deletedAt, email, country, customerNumber, session',
     })
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Internal server errors!' })
