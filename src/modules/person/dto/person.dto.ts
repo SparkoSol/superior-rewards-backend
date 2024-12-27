@@ -85,6 +85,11 @@ export class PersonCreateDto {
     @IsString()
     @IsMongoId()
     performedBy?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    session?: Date;
 }
 
 export class PersonUpdateDto {
