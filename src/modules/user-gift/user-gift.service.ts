@@ -185,7 +185,24 @@ export class UserGiftService {
                 },
                 {
                     $set: {
-                        gifts: '$giftsDetails',
+                        gifts: {
+                            $map: {
+                                input: '$gifts',
+                                as: 'giftId',
+                                in: {
+                                    $arrayElemAt: [
+                                        {
+                                            $filter: {
+                                                input: '$giftsDetails',
+                                                as: 'gift',
+                                                cond: { $eq: ['$$gift._id', '$$giftId'] },
+                                            },
+                                        },
+                                        0,
+                                    ],
+                                },
+                            },
+                        },
                     },
                 },
                 {
@@ -409,7 +426,7 @@ export class UserGiftService {
     async updateStatusOfExpiredUserGifts(ids: any[]) {
         const redemptionsHistories = await this.model.find({ _id: { $in: ids } }).exec();
 
-        if(redemptionsHistories.length > 0) {
+        if (redemptionsHistories.length > 0) {
             for (const history of redemptionsHistories) {
                 const userGift = history as any;
                 const giftUser = await this.personService.fetchById(userGift.user);
@@ -419,11 +436,11 @@ export class UserGiftService {
                     await this.personService.update(giftUser._id.toString(), {
                         points: Number(giftUser.points) + Number(userGift.totalPoints),
                         redeemedPoints:
-                          Number(giftUser.redeemedPoints) - Number(userGift.totalPoints),
+                            Number(giftUser.redeemedPoints) - Number(userGift.totalPoints),
                     });
                 } catch (error) {
                     Logger.error(
-                      `Error while updating user points and redeemed points in updateStatusOfExpiredUserGifts: ${error}`
+                        `Error while updating user points and redeemed points in updateStatusOfExpiredUserGifts: ${error}`
                     );
                 }
             }
