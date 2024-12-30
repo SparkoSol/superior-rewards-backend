@@ -99,7 +99,7 @@ export class UserGiftTtlService implements OnModuleInit {
                             );
                         }
 
-                        // create CREDIT type transaction
+                        // create CREDIT type transaction, REFUNDED by system
                         try {
                             await this.transactionService.create({
                                 user: giftUser._id,
@@ -107,6 +107,7 @@ export class UserGiftTtlService implements OnModuleInit {
                                 points: userGift.totalPoints,
                                 amount: settings.points ? userGift.totalPoints / settings.points : null,
                                 type: TransactionType.CREDIT,
+                                details: 'REFUNDED ON EXPIRATION'
                             });
                         } catch (error) {
                             Logger.error(`Error while creating revert transaction in userGiftTtl: ${error}`);

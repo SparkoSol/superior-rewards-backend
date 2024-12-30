@@ -448,7 +448,7 @@ export class UserGiftService {
                         `Error while updating user points and redeemed points in updateStatusOfExpiredUserGifts: ${error}`
                     );
                 }
-                // create CREDIT type transaction
+                // create CREDIT type transaction, details: 'REFUNDED by system'
                 try {
                     await this.transactionService.create({
                         user: giftUser._id.toString(),
@@ -456,6 +456,7 @@ export class UserGiftService {
                         points: userGift.totalPoints,
                         amount: settings.points ? userGift.totalPoints / settings.points : null,
                         type: TransactionType.CREDIT,
+                        details: 'REFUNDED ON EXPIRATION'
                     });
                 } catch (error) {
                     Logger.error(`Error while creating revert transaction in userGift: ${error}`);
