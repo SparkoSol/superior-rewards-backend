@@ -182,20 +182,12 @@ export class UserGiftTtlService implements OnModuleInit {
                     // Update user, increase points, and decrease redeemed points
                     try {
                         let user = await this.personService.fetchById(giftUser._id);
-                        console.log(
-                          `before users points update ${change.documentKey._id}: `,
-                          user.points
-                        );
                         await this.personService.update(giftUser._id, {
                             points: Number(giftUser.points) + Number(userGift.totalPoints),
                             redeemedPoints:
                               Number(giftUser.redeemedPoints) - Number(userGift.totalPoints),
                         });
                         user = await this.personService.fetchById(giftUser._id);
-                        console.log(
-                          `after users points update ${change.documentKey._id}: `,
-                          user.points
-                        );
 
                     } catch (error) {
                         Logger.error(
@@ -211,7 +203,7 @@ export class UserGiftTtlService implements OnModuleInit {
                             points: userGift.totalPoints,
                             amount: settings.points ? userGift.totalPoints / settings.points : null,
                             type: TransactionType.CREDIT,
-                            details: 'REFUNDED ON EXPIRATION'
+                            details: 'Refund on gift expiry'
                         });
                     } catch (error) {
                         Logger.error(`Error while creating revert transaction in userGiftTtl: ${error}`);

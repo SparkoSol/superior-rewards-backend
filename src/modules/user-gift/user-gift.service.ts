@@ -456,7 +456,7 @@ export class UserGiftService {
                         points: userGift.totalPoints,
                         amount: settings.points ? userGift.totalPoints / settings.points : null,
                         type: TransactionType.CREDIT,
-                        details: 'REFUNDED ON EXPIRATION'
+                        details: 'Refund on gift expiry'
                     });
                 } catch (error) {
                     Logger.error(`Error while creating revert transaction in userGift: ${error}`);
