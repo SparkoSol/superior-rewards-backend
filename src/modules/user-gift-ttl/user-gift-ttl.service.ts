@@ -7,6 +7,9 @@ import { UserGiftService } from '../user-gift/user-gift.service';
 import { NotificationService } from '../notification/notification.service';
 import { UserGiftStatus } from '../user-gift/enum/status.enum';
 import { PersonService } from '../person/person.service';
+import { TransactionService } from '../transaction/transaction.service';
+import { SettingService } from '../settings/setting.service';
+import { TransactionType } from '../transaction/enum/type.enum';
 
 @Injectable()
 export class UserGiftTtlService implements OnModuleInit {
@@ -17,7 +20,9 @@ export class UserGiftTtlService implements OnModuleInit {
         @Inject(forwardRef(() => UserGiftService))
         private readonly UserGiftService: UserGiftService,
         private readonly personService: PersonService,
-        private readonly notificationService: NotificationService
+        private readonly notificationService: NotificationService,
+        private readonly transactionService: TransactionService,
+        private readonly settingService: SettingService,
     ) {}
 
     async onModuleInit() {
@@ -70,6 +75,7 @@ export class UserGiftTtlService implements OnModuleInit {
                         true
                     )) as any;
                     const giftUser = userGift.user;
+                    const settings = await this.settingService.fetch();
 
                     if (
                         userGift &&
@@ -91,6 +97,19 @@ export class UserGiftTtlService implements OnModuleInit {
                             Logger.error(
                                 `Error while updating user in user-gifts-ttl change stream: ${error}`
                             );
+                        }
+
+                        // create CREDIT type transaction
+                        try {
+                            await this.transactionService.create({
+                                user: giftUser._id,
+                                customerPhone: giftUser.phone,
+                                points: userGift.totalPoints,
+                                amount: settings.points ? userGift.totalPoints / settings.points : null,
+                                type: TransactionType.CREDIT,
+                            });
+                        } catch (error) {
+                            Logger.error(`Error while creating revert transaction in userGiftTtl: ${error}`);
                         }
 
                         // Send notification when a gift has expired

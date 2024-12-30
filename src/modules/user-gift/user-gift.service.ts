@@ -434,6 +434,7 @@ export class UserGiftService {
             for (const history of redemptionsHistories) {
                 const userGift = history as any;
                 const giftUser = await this.personService.fetchById(userGift.user);
+                const settings = await this.SettingService.fetch();
 
                 // update user, increase points and decrease redeemed points
                 try {
@@ -447,6 +448,19 @@ export class UserGiftService {
                         `Error while updating user points and redeemed points in updateStatusOfExpiredUserGifts: ${error}`
                     );
                 }
+                // create CREDIT type transaction
+                try {
+                    await this.transactionService.create({
+                        user: giftUser._id.toString(),
+                        customerPhone: giftUser.phone,
+                        points: userGift.totalPoints,
+                        amount: settings.points ? userGift.totalPoints / settings.points : null,
+                        type: TransactionType.CREDIT,
+                    });
+                } catch (error) {
+                    Logger.error(`Error while creating revert transaction in userGift: ${error}`);
+                }
+
             }
         }
 
