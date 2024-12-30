@@ -50,6 +50,10 @@ export class UserGiftService {
 
         data['qrCode'] = await NoGeneratorUtils.generateCode();
 
+        if (data.totalPoints > person.points) {
+            throw new NotAcceptableException('Insufficient points!');
+        }
+
         const userGift = await this.model.create(data);
         const settings = await this.SettingService.fetch();
 
