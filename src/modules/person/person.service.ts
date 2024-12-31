@@ -269,6 +269,15 @@ export class PersonService {
         return person;
     }
 
+    async removeFcmToken(id: string, fcmToken: string) {
+        const person = await this.findOne(id);
+        if (!person || !person.fcmTokens || person.fcmTokens.length === 0) return;
+
+        return await this.update(id, {
+            fcmTokens: person.fcmTokens.filter((token) => token !== fcmToken),
+        });
+    }
+
     /*******************************************************************
      * bulkUpload
      ******************************************************************/

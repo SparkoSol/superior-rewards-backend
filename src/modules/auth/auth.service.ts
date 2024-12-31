@@ -14,6 +14,7 @@ import * as mongoose from 'mongoose';
 import * as admin from 'firebase-admin';
 import * as process from 'process';
 import { RoleService } from '../role/role.service';
+import { SignOutRequest } from './dto/sign-in-request.dto';
 
 @Injectable()
 export class AuthService {
@@ -176,6 +177,13 @@ export class AuthService {
                 role: person.role,
             }),
         };
+    }
+
+    /*******************************************************************
+     * signOut
+     ******************************************************************/
+    async signOut(person: any, data: SignOutRequest) {
+        return await this.personService.removeFcmToken(person._id.toString(), data.fcmToken);
     }
 
     /*******************************************************************
