@@ -271,7 +271,9 @@ export class PersonService {
 
     async removeFcmToken(id: string, fcmToken: string) {
         const person = await this.findOne(id);
-        if (!person || !person.fcmTokens || person.fcmTokens.length === 0) return;
+        if (!person) throw new NotFoundException('Person not found!');
+
+        if (!person.fcmTokens || person.fcmTokens.length === 0) return person;
 
         return await this.update(id, {
             fcmTokens: person.fcmTokens.filter((token) => token !== fcmToken),
