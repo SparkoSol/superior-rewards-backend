@@ -5,6 +5,7 @@ import { forwardRef, Module } from '@nestjs/common';
 import { UserGiftTtlJob } from './user-gift-ttl-job';
 import { UserGiftModule } from '../user-gift/user-gift.module';
 import { NotificationModule } from '../notification/notification.module';
+import { PersonModule } from '../person/person.module';
 
 @Module({
     imports: [
@@ -16,6 +17,7 @@ import { NotificationModule } from '../notification/notification.module';
         ]),
         forwardRef(() => UserGiftModule),
         NotificationModule,
+        PersonModule
     ],
     controllers: [],
     providers: [UserGiftTtlService, UserGiftTtlJob],

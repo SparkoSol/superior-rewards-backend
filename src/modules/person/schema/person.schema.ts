@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
 import * as mongoose from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 import { Role } from '../../role/schema/role.schema';
 
 export type PersonDocument = HydratedDocument<Person>;
@@ -18,12 +18,15 @@ export type PersonDocument = HydratedDocument<Person>;
   points: 0,
   redeemedPoints: 0,
   addedInOdoo: false,
-  deletedAt?: Date;
+  deletedAt?: Date,
 
   //NEW FIELDS FROM EXCEL
   email?: '',
   country?: '',
   customerNumber?: number,
+
+  performedBy?: { type: mongoose.Schema.Types.ObjectId, ref: 'Person' },
+  session?: Date,
 
 */
 
@@ -60,6 +63,11 @@ export class Person {
     @Prop() country?: string;
 
     @Prop() customerNumber?: number;
+
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name })
+    performedBy?: string;
+
+    @Prop() session?: Date;
 }
 
 export const PersonSchema = SchemaFactory.createForClass(Person);

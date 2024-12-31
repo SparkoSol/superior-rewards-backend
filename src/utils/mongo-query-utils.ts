@@ -16,11 +16,12 @@ export class MongoQueryUtils {
 
             switch (operator) {
                 case 'eq':
-                    if(key === 'phone') return query[key] = { $eq: value};
+                    if (key === 'phone') return (query[key] = { $eq: value });
                     query[key] = { $eq: isNaN(value) ? value : Number(value) };
                     break;
                 case 'like':
-                    if(key === '_id') return query[key] = { $eq: new mongoose.Types.ObjectId(value)};
+                    if (key === '_id')
+                        return (query[key] = { $eq: new mongoose.Types.ObjectId(value) });
                     query[key] = { $regex: value, $options: 'i' };
                     break;
                 case 'range': // value [min, max]
@@ -71,10 +72,10 @@ export class MongoQueryUtils {
                 if (match) {
                     const [, table, field] = match;
 
-                    if(field === 'odooCustomerId') {
+                    if (field === 'odooCustomerId') {
                         matchStages.push({
                             $match: {
-                                [`${table}.${field}`]: { $eq: Number(value)},
+                                [`${table}.${field}`]: { $eq: Number(value) },
                             },
                         });
                     } else {
@@ -91,7 +92,12 @@ export class MongoQueryUtils {
         return matchStages;
     }
 
-    static async getPaginatedResponse(items: any, filters: any = {},  page: number = 1, pageSize: number = 10) {
+    static async getPaginatedResponse(
+        items: any,
+        filters: any = {},
+        page: number = 1,
+        pageSize: number = 10
+    ) {
         // Apply pagination
         const totalCount = items.length;
         const totalPages = Math.ceil(totalCount / pageSize);

@@ -1,8 +1,17 @@
-import { IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import {
+    IsBoolean,
+    IsEnum,
+    IsMongoId,
+    IsNotEmpty,
+    IsNumber,
+    IsObject,
+    IsOptional,
+    IsString,
+} from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 import { TransactionType } from '../enum/type.enum';
 import { Type } from 'class-transformer';
-import { filterPayload, PersonResponseDto, populatedPayload } from '../../person/dto/person.dto';
+import { filterPayload, populatedPayload } from '../../person/dto/person.dto';
 
 export class TransactionCreateRequest {
     @ApiProperty() @IsNotEmpty() @IsString() @IsMongoId() user: string;
@@ -27,6 +36,12 @@ export class TransactionCreateRequest {
         message: 'type must be ' + Object.values(TransactionType).join(', '),
     })
     type: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    @IsMongoId()
+    performedBy?: string;
 }
 
 export class TransactionResponse {
@@ -46,6 +61,9 @@ export class TransactionResponse {
         default: TransactionType.CREDIT,
     })
     type: string;
+
+    @ApiProperty()
+    performedBy?: object;
 
     @ApiProperty() details?: string;
 
@@ -89,7 +107,7 @@ export class TransactionFiltersDto {
     @ApiProperty({ description: 'Filter object' })
     @IsOptional()
     @IsObject()
-      // filters?: Record<string, any>;
+    // filters?: Record<string, any>;
     filters?: filterPayload;
 
     @ApiProperty({ description: 'PopulatedFilter object' })

@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { FileDTO } from '../../../uploadFileStructue/dto/file.dto';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 
 export class PersonCreateDto {
     @ApiProperty()
@@ -79,6 +79,17 @@ export class PersonCreateDto {
     customerNumber?: number;
 
     odooCustomerId?: number;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    @IsMongoId()
+    performedBy?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    session?: Date;
 }
 
 export class PersonUpdateDto {
@@ -152,6 +163,11 @@ export class PersonUpdateDto {
     @IsOptional()
     @IsNumber()
     customerNumber?: number;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    session?: Date;
 }
 
 export class PersonResponseDto {
@@ -193,6 +209,11 @@ export class PersonResponseDto {
 
     @ApiProperty()
     customerNumber?: number;
+
+    @ApiProperty()
+    performedBy?: object;
+
+    @ApiProperty() session?: Date;
 
     @ApiProperty() deletedAt?: Date;
 
@@ -282,12 +303,12 @@ export class PersonQueryDto {
 
 export class filterPayload {
     @ApiProperty()
-    "field[op]": string;
+    'field[op]': string;
 }
 
 export class populatedPayload {
     @ApiProperty()
-    "table[filed]": string;
+    'table[filed]': string;
 }
 
 export class PersonFiltersDto {

@@ -13,6 +13,7 @@ export type TransactionDocument = HydratedDocument<Transaction>;
   points: 0,
   details?: '',
   type: '',
+  performedBy: {},
 */
 
 @Schema({ timestamps: true })
@@ -30,6 +31,9 @@ export class Transaction extends mongoose.Document {
     @Prop() details?: string;
 
     @Prop({ default: TransactionType.CREDIT }) type: string;
+
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Person.name })
+    performedBy?: string;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);

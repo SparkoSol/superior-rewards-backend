@@ -7,6 +7,10 @@ export class SignInRequest {
     @ApiProperty() @IsNotEmpty() @IsString() password: string;
 }
 
+export class SignOutRequest {
+    @ApiProperty() @IsNotEmpty() @IsString() fcmToken: string;
+}
+
 export class SignInResponse {
     @ApiProperty() @IsString() accessToken: string;
 }

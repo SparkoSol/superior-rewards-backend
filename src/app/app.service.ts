@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+    Injectable,
+    InternalServerErrorException,
+    Logger,
+    NotFoundException,
+} from '@nestjs/common';
 import { extname } from 'path';
 import { Bucket } from '@google-cloud/storage';
 import { AuthService } from '../modules/auth/auth.service';
@@ -44,7 +49,7 @@ export class AppService {
 
             return fileRef;
         } catch (error) {
-            console.log('Error', (error as FirebaseError).message);
+            Logger.error(`Error uploading file :: ${error}`);
             throw new InternalServerErrorException('Error uploading file');
         }
     }
@@ -58,7 +63,7 @@ export class AppService {
             if ((error as FirebaseError).code == '404') {
                 throw new NotFoundException('File not found');
             } else {
-                console.log('Error', (error as FirebaseError).message);
+                Logger.log(`Error deleteFile ${(error as FirebaseError).message}`);
                 throw new InternalServerErrorException('Error deleting file');
             }
         }

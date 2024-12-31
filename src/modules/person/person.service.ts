@@ -4,6 +4,7 @@ import {
     Inject,
     Injectable,
     InternalServerErrorException,
+    Logger,
     NotAcceptableException,
     NotFoundException,
 } from '@nestjs/common';
@@ -75,7 +76,9 @@ export class PersonService {
         }
 
         let query = {};
-        if (filters) query = MongoQueryUtils.getQueryFromFilters(filters);
+        if (filters) {
+            query = MongoQueryUtils.getQueryFromFilters(filters);
+        }
 
         if (usedFor === 'customers') query['role'] = { $eq: role._id };
         if (usedFor === 'users') query['role'] = { $ne: role._id };
@@ -83,14 +86,31 @@ export class PersonService {
             { $match: query },
             {
                 $lookup: {
-                    from: 'roles',
-                    localField: 'role',
+                    from: 'people',
+                    localField: 'performedBy',
                     foreignField: '_id',
-                    as: 'role',
+                    as: 'performedBy',
                 },
             },
-            { $unwind: '$role' },
+            {
+                $addFields: {
+                    performedBy: { $arrayElemAt: ['$performedBy', 0] },
+                },
+            },
         ];
+        if (usedFor === 'users') {
+            pipeline.push(
+                {
+                    $lookup: {
+                        from: 'roles',
+                        localField: 'role',
+                        foreignField: '_id',
+                        as: 'role',
+                    },
+                },
+                { $unwind: '$role' }
+            );
+        }
 
         if (populated) {
             const populatedMatchStages = MongoQueryUtils.createDynamicMatchStages(populated);
@@ -164,6 +184,7 @@ export class PersonService {
                 withPopulate
                     ? [
                           'role',
+                          'performedBy',
                           {
                               path: 'role',
                               populate: { path: 'permissions' },
@@ -191,7 +212,11 @@ export class PersonService {
                 .findById(id)
                 .populate(
                     withPopulate
-                        ? ['role', { path: 'role', populate: { path: 'permissions' } }]
+                        ? [
+                              'role',
+                              'performedBy',
+                              { path: 'role', populate: { path: 'permissions' } },
+                          ]
                         : []
                 )
                 .exec();
@@ -242,6 +267,17 @@ export class PersonService {
         await person.save();
 
         return person;
+    }
+
+    async removeFcmToken(id: string, fcmToken: string) {
+        const person = await this.findOne(id);
+        if (!person) throw new NotFoundException('Person not found!');
+
+        if (!person.fcmTokens || person.fcmTokens.length === 0) return person;
+
+        return await this.update(id, {
+            fcmTokens: person.fcmTokens.filter((token) => token !== fcmToken),
+        });
     }
 
     /*******************************************************************
@@ -327,7 +363,7 @@ export class PersonService {
                 failedDocs: failedDocsCount,
             });
         } catch (e) {
-            console.log('Error while bulk upload: ', e);
+            Logger.error(`Error while bulk upload :: ${e}`);
         }
 
         fs.unlinkSync(tempFilePath);
@@ -339,6 +375,17 @@ export class PersonService {
     async update(id: string, data: PersonUpdateDto) {
         try {
             return await this.model.findByIdAndUpdate(id, data, { new: true });
+        } catch (e) {
+            throw new InternalServerErrorException('Unexpected Error');
+        }
+    }
+
+    /*******************************************************************
+     * updateMany w.r.t query
+     ******************************************************************/
+    async updateMany(query: any, data: any) {
+        try {
+            return await this.model.updateMany(query, data);
         } catch (e) {
             throw new InternalServerErrorException('Unexpected Error');
         }
@@ -362,7 +409,13 @@ export class PersonService {
                 { $set: { role: null } }
             );
         } catch (error) {
-            console.error('Error setting role to null:', error);
+            Logger.error(`Error setting role to null :: ${error}`);
         }
+    }
+
+    async isAuthorize(userId: string) {
+        const user = await this.model.findById(userId).exec();
+
+        return !(user.session && true);
     }
 }

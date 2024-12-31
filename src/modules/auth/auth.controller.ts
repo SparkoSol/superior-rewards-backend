@@ -30,7 +30,7 @@ import {
     MobileSignUpRequest,
     SignUpResponse,
 } from './dto/sign-up-request.dto';
-import { SignInRequest, SignInResponse } from './dto/sign-in-request.dto';
+import { SignInRequest, SignInResponse, SignOutRequest } from './dto/sign-in-request.dto';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
 @ApiTags('Auth')
@@ -96,6 +96,25 @@ export class AuthController {
     @Post('/sign-in')
     async signIn(@Request() req: any) {
         return this.authService.signIn(req.user);
+    }
+
+    /*******************************************************************
+     * signOut
+     ******************************************************************/
+    @ApiBearerAuth('access-token')
+    @ApiBody({
+        type: SignInRequest,
+        description: 'Logout successfully!',
+    })
+    @ApiOkResponse({  description: 'Logout successfully!' })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
+    @ApiInternalServerErrorResponse({ description: 'Internal server errors!' })
+    @ApiBody({ type: SignOutRequest })
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(LocalAuthGuard)
+    @Post('/sign-out')
+    async signOut(@Request() req: any, @Body() data: SignOutRequest) {
+        return this.authService.signOut(req.user, data);
     }
 
     /*******************************************************************

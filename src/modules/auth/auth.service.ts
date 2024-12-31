@@ -4,6 +4,7 @@ import {
     Inject,
     Injectable,
     InternalServerErrorException,
+    Logger,
     NotAcceptableException,
 } from '@nestjs/common';
 import { PersonService } from '../person/person.service';
@@ -13,6 +14,7 @@ import * as mongoose from 'mongoose';
 import * as admin from 'firebase-admin';
 import * as process from 'process';
 import { RoleService } from '../role/role.service';
+import { SignOutRequest } from './dto/sign-in-request.dto';
 
 @Injectable()
 export class AuthService {
@@ -61,7 +63,7 @@ export class AuthService {
             };
         }
 
-        if(person && person.deletedAt) {
+        if (person && person.deletedAt) {
             return {
                 status: HttpStatus.NOT_FOUND,
                 message: 'Account Deleted by Super Admin!',
@@ -110,6 +112,7 @@ export class AuthService {
         }
 
         try {
+            data.session = new Date();
             const person = await this.personService.create(data);
 
             return {
@@ -120,7 +123,7 @@ export class AuthService {
                 }),
             };
         } catch (e) {
-            console.log('Error while adminSignUp: ', e);
+            Logger.error(`Error while adminSignUp: ${e}`);
             throw new InternalServerErrorException('Error while adminSignUp: ', e);
         }
     }
@@ -145,6 +148,8 @@ export class AuthService {
 
         data.odooCustomerId = await this.personService.getLastOdooCustomerId();
 
+        data.session = new Date();
+
         try {
             const person = await this.personService.create(data);
             return {
@@ -155,7 +160,7 @@ export class AuthService {
                 }),
             };
         } catch (e) {
-            console.log('Error while signup: ', e);
+            Logger.error(`Error while signup :: ${e}`);
             throw new InternalServerErrorException('Error while signup: ', e);
         }
     }
@@ -164,6 +169,7 @@ export class AuthService {
      * signIn
      ******************************************************************/
     async signIn(person: any) {
+        await this.personService.update(person._id.toString(), {session: new Date()});
         return {
             accessToken: this.jwtService.sign({
                 _id: person._id,
@@ -171,6 +177,13 @@ export class AuthService {
                 role: person.role,
             }),
         };
+    }
+
+    /*******************************************************************
+     * signOut
+     ******************************************************************/
+    async signOut(person: any, data: SignOutRequest) {
+        return await this.personService.removeFcmToken(person._id.toString(), data.fcmToken);
     }
 
     /*******************************************************************

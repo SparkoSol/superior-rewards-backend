@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Setting, SettingDocument } from './schema/setting.schema';
-import mongoose, { Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { SettingRequest } from './dto/setting.dto';
 
 @Injectable()

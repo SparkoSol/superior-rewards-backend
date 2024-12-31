@@ -32,6 +32,11 @@ export class AdminCreateUserRequest {
     @IsString()
     @IsMongoId()
     role: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    session?: Date;
 }
 
 export class MobileSignUpRequest {
@@ -63,6 +68,11 @@ export class MobileSignUpRequest {
     role?: string;
 
     odooCustomerId?: number;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    session?: Date;
 }
 
 export class SignUpResponse {
