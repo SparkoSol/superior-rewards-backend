@@ -52,6 +52,28 @@ export class TransactionService {
         return transaction;
     }
 
+    async createWithoutCoinCalculation(data: TransactionCreateRequest) {
+        const transaction = await this.model.create(data);
+
+        // if new transaction credit, it points should add in user's points.
+        if (transaction.type === TransactionType.CREDIT) {
+            const person = await this.personService.findOne(transaction.user);
+
+            try {
+                await this.notificationService.sendNotificationToSingleDevice(
+                  'Congrats! You have received points.',
+                  `You have received ${transaction.points} points.`,
+                  transaction.user,
+                  person.fcmTokens
+                );
+            } catch (e) {
+                Logger.error('Error while sending notification on CREDIT type transactions: ', e);
+            }
+        }
+
+        return transaction;
+    }
+
     /*******************************************************************
      * filters
      ******************************************************************/

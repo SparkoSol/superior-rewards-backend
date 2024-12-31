@@ -450,7 +450,7 @@ export class UserGiftService {
                 }
                 // create CREDIT type transaction, details: 'REFUNDED by system'
                 try {
-                    await this.transactionService.create({
+                    await this.transactionService.createWithoutCoinCalculation({
                         user: giftUser._id.toString(),
                         customerPhone: giftUser.phone,
                         points: userGift.totalPoints,
