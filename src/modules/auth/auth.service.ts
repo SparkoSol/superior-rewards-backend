@@ -1,4 +1,5 @@
 import {
+    ConflictException,
     forwardRef,
     HttpStatus,
     Inject,
@@ -146,7 +147,17 @@ export class AuthService {
 
         data.role = role._id.toString();
 
-        data.odooCustomerId = await this.personService.getLastOdooCustomerId();
+        if (data.odooCustomerId) {
+            const customer = await this.personService.findOneByQuery({
+                odooCustomerId: data.odooCustomerId,
+            });
+            if (customer)
+                throw new ConflictException(
+                  'Customer with the same customer number already exist in system!'
+                );
+        } else {
+            data.odooCustomerId = await this.personService.getLastOdooCustomerId();
+        }
 
         data.session = new Date();
 
