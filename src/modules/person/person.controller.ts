@@ -1,5 +1,6 @@
 import {
     Body,
+    ConflictException,
     Controller,
     Delete,
     Get,
@@ -7,16 +8,11 @@ import {
     Patch,
     Post,
     Query,
-    Res,
-    UploadedFile,
-    UseGuards,
-    UseInterceptors,
 } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
     ApiBody,
-    ApiConsumes,
     ApiInternalServerErrorResponse,
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
@@ -27,8 +23,6 @@ import {
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import {
-    BulkUploadDto,
-    BulkUploadResponseDto,
     PaginatedPersonResponseDto,
     PasswordUpdateRequestDto,
     PersonCreateDto,
@@ -39,9 +33,6 @@ import {
     UpdateFcmTokenRequestDto,
 } from './dto/person.dto';
 import { PersonService } from './person.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { AuthGuard } from '@nestjs/passport';
-import { Response } from 'express';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Person')
@@ -63,7 +54,18 @@ export class PersonController {
     })
     @Post()
     async create(@Body() data: PersonCreateDto): Promise<any> {
-        data.odooCustomerId = await this.service.getLastOdooCustomerId();
+        if (data.odooCustomerId) {
+            const customer = await this.service.findOneByQuery({
+                odooCustomerId: data.odooCustomerId,
+            });
+            if (customer)
+                throw new ConflictException(
+                    'Customer with the same customer number already exist in system!'
+                );
+        } else {
+            data.odooCustomerId = await this.service.getLastOdooCustomerId();
+        }
+
         return await this.service.create(data);
     }
 
