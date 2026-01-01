@@ -15,30 +15,31 @@ import {
     UserGiftFiltersDto,
     UserGiftPostQrCodeRequest,
     UserGiftRedeemedRequest,
+    UserGiftReportDto,
     UserGiftUpdateRequest,
 } from './dto/user-gift.dto';
+import { UserGiftTtlService } from '../user-gift-ttl/user-gift-ttl.service';
+import { NotificationService } from '../notification/notification.service';
 import { TransactionService } from '../transaction/transaction.service';
+import { NoGeneratorUtils } from '../../utils/no-generator-utils';
 import { TransactionType } from '../transaction/enum/type.enum';
+import { MongoQueryUtils } from '../../utils/mongo-query-utils';
+import { SettingService } from '../settings/setting.service';
 import { PersonService } from '../person/person.service';
 import { UserGiftStatus } from './enum/status.enum';
-import { NoGeneratorUtils } from '../../utils/no-generator-utils';
-import { UserGiftTtlService } from '../user-gift-ttl/user-gift-ttl.service';
-import { SettingService } from '../settings/setting.service';
-import { NotificationService } from '../notification/notification.service';
 import { helper } from '../../utils/helper';
 import * as process from 'process';
-import { MongoQueryUtils } from '../../utils/mongo-query-utils';
+import * as XLSX from 'xlsx';
 
 @Injectable()
 export class UserGiftService {
     constructor(
+        @Inject(forwardRef(() => UserGiftTtlService)) private readonly UserGiftTtlService: UserGiftTtlService,
         @InjectModel(UserGift.name) private readonly model: Model<UserGiftDocument>,
-        private readonly personService: PersonService,
+        private readonly notificationService: NotificationService,
         private readonly transactionService: TransactionService,
-        @Inject(forwardRef(() => UserGiftTtlService))
-        private readonly UserGiftTtlService: UserGiftTtlService,
         private readonly SettingService: SettingService,
-        private readonly notificationService: NotificationService
+        private readonly personService: PersonService
     ) {}
 
     /*******************************************************************
@@ -466,5 +467,65 @@ export class UserGiftService {
         }
 
         return this.model.updateMany({ _id: { $in: ids } }, { $set: { isExpired: true } });
+    }
+
+    /*******************************************************************
+     * generateReport
+     ******************************************************************/
+    async generateReport(data: UserGiftReportDto): Promise<Buffer> {
+        const { startDate, endDate, status } = data;
+
+        const query: any = {
+            createdAt: {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate),
+            },
+        };
+
+        if (status) {
+            query.status = status;
+        }
+
+        const userGifts = await this.model
+            .find(query)
+            .populate('user', 'name phone email')
+            .populate('gifts', 'name points')
+            .populate('redeemedBy', 'name phone')
+            .populate('performedBy', 'name phone')
+            .sort({ createdAt: -1 })
+            .exec();
+
+        const settings = await this.SettingService.fetch();
+        const pointsToAmountRatio = settings?.points || 1;
+
+        const reportData = userGifts.map((userGift: any) => {
+            const giftNames = userGift.gifts?.map((g: any) => g?.name || 'N/A').join(', ') || 'N/A';
+            const monetaryValue = userGift.totalPoints / pointsToAmountRatio;
+
+            return {
+                'Redemption ID': userGift._id.toString(),
+                'Customer Name': userGift.user?.name || 'N/A',
+                'Customer Phone': userGift.user?.phone || 'N/A',
+                'Customer Email': userGift.user?.email || 'N/A',
+                'Gifts': giftNames,
+                'Total Points': userGift.totalPoints,
+                'Monetary Value': monetaryValue,
+                'Status': userGift.status,
+                'Is Expired': userGift.isExpired ? 'Yes' : 'No',
+                'QR Code': userGift.qrCode || 'N/A',
+                'Redeemed By': userGift.redeemedBy?.name || 'N/A',
+                'Performed By': userGift.performedBy?.name || 'N/A',
+                'Created At': userGift.createdAt?.toISOString() || 'N/A',
+                'Updated At': userGift.updatedAt?.toISOString() || 'N/A',
+            };
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(reportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'User Gifts');
+
+        const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+        return buffer;
     }
 }

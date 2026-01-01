@@ -191,3 +191,26 @@ export class PaginatedUserGiftResponseDto {
     @ApiProperty()
     totalPages: number;
 }
+
+export class UserGiftReportDto {
+    @ApiProperty({ description: 'Start date for the report (ISO format)', example: '2024-01-01' })
+    @IsNotEmpty()
+    @IsString()
+    startDate: string;
+
+    @ApiProperty({ description: 'End date for the report (ISO format)', example: '2024-12-31' })
+    @IsNotEmpty()
+    @IsString()
+    endDate: string;
+
+    @ApiProperty({
+        description: 'User gift status filter',
+        enum: UserGiftStatus,
+        required: false,
+    })
+    @IsOptional()
+    @IsEnum(UserGiftStatus, {
+        message: 'status must be ' + Object.values(UserGiftStatus).join(', '),
+    })
+    status?: UserGiftStatus;
+}

@@ -1,20 +1,24 @@
+import {
+    TransactionCreateRequest,
+    TransactionFiltersDto,
+    TransactionReportDto,
+} from './dto/transaction.dto';
 import { Injectable, Logger, NotAcceptableException, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { Transaction, TransactionDocument } from './schema/transaction.schema';
-import mongoose, { Model } from 'mongoose';
-import { TransactionCreateRequest, TransactionFiltersDto, TransactionReportDto } from './dto/transaction.dto';
-import { TransactionType } from './enum/type.enum';
-import { PersonService } from '../person/person.service';
 import { NotificationService } from '../notification/notification.service';
 import { MongoQueryUtils } from '../../utils/mongo-query-utils';
+import { PersonService } from '../person/person.service';
+import { TransactionType } from './enum/type.enum';
+import { InjectModel } from '@nestjs/mongoose';
+import mongoose, { Model } from 'mongoose';
 import * as XLSX from 'xlsx';
 
 @Injectable()
 export class TransactionService {
     constructor(
         @InjectModel(Transaction.name) private readonly model: Model<TransactionDocument>,
-        private readonly personService: PersonService,
-        private readonly notificationService: NotificationService
+        private readonly notificationService: NotificationService,
+        private readonly personService: PersonService
     ) {}
 
     /*******************************************************************
@@ -62,7 +66,7 @@ export class TransactionService {
 
             try {
                 await this.notificationService.sendNotificationToSingleDevice(
-                  'Congrats! You have received points.',
+                    'Congrats! You have received points.',
                   `You have received ${transaction.points} points.`,
                   transaction.user,
                   person.fcmTokens
@@ -194,6 +198,7 @@ export class TransactionService {
                 .populate(withPopulate ? ['user'] : [])
                 .exec();
         } catch (e) {
+            console.log('No data found!', e);
             throw new NotFoundException('No data found!');
         }
     }
@@ -228,10 +233,10 @@ export class TransactionService {
             'Customer Phone': transaction.customerPhone || transaction.user?.phone || 'N/A',
             'Customer Email': transaction.user?.email || 'N/A',
             'Invoice No': transaction.invoiceNo || 'N/A',
-            'Amount': transaction.amount || 0,
-            'Points': transaction.points,
-            'Type': transaction.type,
-            'Details': transaction.details || 'N/A',
+            Amount: transaction.amount || 0,
+            Points: transaction.points,
+            Type: transaction.type,
+            Details: transaction.details || 'N/A',
             'Performed By': transaction.performedBy?.name || 'N/A',
             'Created At': transaction.createdAt?.toISOString() || 'N/A',
         }));

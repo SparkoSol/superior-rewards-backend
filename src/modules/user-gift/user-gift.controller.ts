@@ -1,4 +1,3 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
@@ -19,9 +18,13 @@ import {
     UserGiftFiltersDto,
     UserGiftPostQrCodeRequest,
     UserGiftRedeemedRequest,
+    UserGiftReportDto,
     UserGiftResponse,
 } from './dto/user-gift.dto';
+import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
 import { UserGiftStatus } from './enum/status.enum';
+import { Response } from 'express';
+import { Public } from '../auth/decorators/setmetadata.decorator';
 
 @ApiBearerAuth('access-token')
 @ApiTags('UserGifts')
@@ -200,4 +203,27 @@ export class UserGiftController {
     // async delete(@Param('id') id: string) {
     //     return await this.service.delete(id);
     // }
+
+    /*******************************************************************
+     * report - Download Excel report
+     ******************************************************************/
+    @Public()
+    @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
+    @ApiOkResponse({ description: 'Excel file downloaded successfully' })
+    @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+    @ApiOperation({
+        summary: 'Download user gifts report as Excel file',
+        description: `Generates an Excel report of user gift redemptions filtered by date range and optional status (${Object.values(UserGiftStatus).join(', ')}). Includes monetary value column.`,
+    })
+    @ApiBody({ type: UserGiftReportDto })
+    @Post('report')
+    async downloadReport(@Body() data: UserGiftReportDto, @Res() res: Response) {
+        const buffer = await this.service.generateReport(data);
+
+        const filename = `user_gifts_${data.startDate}_to_${data.endDate}.xlsx`;
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.send(buffer);
+    }
 }
