@@ -17,7 +17,7 @@ import { PersonModule } from '../person/person.module';
         ]),
         forwardRef(() => UserGiftModule),
         NotificationModule,
-        PersonModule
+        PersonModule,
     ],
     controllers: [],
     providers: [UserGiftTtlService, UserGiftTtlJob],

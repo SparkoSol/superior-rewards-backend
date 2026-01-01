@@ -80,7 +80,8 @@ export class AuthService {
         }
 
         if (person.password === password) {
-            const { password, ...restData } = person;
+            const { password: _password, ...restData } = person;
+            console.log('_password', _password);
             return {
                 status: HttpStatus.OK,
                 message: 'User Authenticated!',
@@ -169,7 +170,7 @@ export class AuthService {
      * signIn
      ******************************************************************/
     async signIn(person: any) {
-        await this.personService.update(person._id.toString(), {session: new Date()});
+        await this.personService.update(person._id.toString(), { session: new Date() });
         return {
             accessToken: this.jwtService.sign({
                 _id: person._id,

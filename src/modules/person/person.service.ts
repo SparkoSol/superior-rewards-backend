@@ -64,7 +64,7 @@ export class PersonService {
      * filters
      ******************************************************************/
     async filters(data: PersonFiltersDto) {
-        const { page, pageSize, usedFor, filters, populated, withPopulate } = data;
+        const { page, pageSize, usedFor, filters, populated } = data;
         const skip = (page - 1) * pageSize;
 
         const role = await this.roleService.fetchByRoleName('User');
@@ -220,7 +220,8 @@ export class PersonService {
                         : []
                 )
                 .exec();
-        } catch (e) {
+        } catch (_e) {
+            console.log('No data found!', _e);
             throw new NotFoundException('No data found!');
         }
     }
@@ -375,7 +376,8 @@ export class PersonService {
     async update(id: string, data: PersonUpdateDto) {
         try {
             return await this.model.findByIdAndUpdate(id, data, { new: true });
-        } catch (e) {
+        } catch (_e) {
+            console.log('Error while updating person: ', _e);
             throw new InternalServerErrorException('Unexpected Error');
         }
     }
@@ -386,7 +388,8 @@ export class PersonService {
     async updateMany(query: any, data: any) {
         try {
             return await this.model.updateMany(query, data);
-        } catch (e) {
+        } catch (_e) {
+            console.log('Error while updating persons: ', _e);
             throw new InternalServerErrorException('Unexpected Error');
         }
     }
@@ -397,7 +400,8 @@ export class PersonService {
     async delete(id: string) {
         try {
             return await this.model.findByIdAndUpdate(id, { deletedAt: new Date() }, { new: true });
-        } catch (e) {
+        } catch (_e) {
+            console.log('Error while deleting person: ', _e);
             throw new InternalServerErrorException('Unexpected Error');
         }
     }

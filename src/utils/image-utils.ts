@@ -22,8 +22,9 @@ export class ImageUtils {
                     }
                 } else fs.unlinkSync((deletedImages as FileSchema).path.toString());
             }
-        } catch (e) {
+        } catch (_e) {
             //ignore
+            console.log('Error deleting image(s), but ignoring it.', _e);
         }
     }
 }

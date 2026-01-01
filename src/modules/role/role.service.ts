@@ -26,7 +26,8 @@ export class RoleService {
     async create(data: RoleDto) {
         try {
             return this.model.create(data);
-        } catch (e) {
+        } catch (_e) {
+            console.log('Error while creating Role: ', _e);
             throw new InternalServerErrorException('Error while creating Role');
         }
     }
@@ -50,7 +51,8 @@ export class RoleService {
     async fetchById(id: string): Promise<RoleDocument> {
         try {
             return this.model.findById(id).populate('permissions').exec();
-        } catch (e) {
+        } catch (_e) {
+            console.log('No data found!', _e);
             throw new NotFoundException('No data found!');
         }
     }
@@ -63,7 +65,8 @@ export class RoleService {
                 })
                 .populate('permissions')
                 .exec();
-        } catch (e) {
+        } catch (_e) {
+            console.log('No data found!', _e);
             throw new NotFoundException('No data found!');
         }
     }
@@ -103,7 +106,8 @@ export class RoleService {
 
         try {
             return await this.model.findByIdAndDelete(id);
-        } catch (e) {
+        } catch (_e) {
+            console.log('Error while deleting role: ', _e);
             throw new InternalServerErrorException('Unexpected Error');
         }
     }

@@ -22,7 +22,7 @@ export class UserGiftTtlService implements OnModuleInit {
         private readonly personService: PersonService,
         private readonly notificationService: NotificationService,
         private readonly transactionService: TransactionService,
-        private readonly settingService: SettingService,
+        private readonly settingService: SettingService
     ) {}
 
     async onModuleInit() {
@@ -105,12 +105,16 @@ export class UserGiftTtlService implements OnModuleInit {
                                 user: giftUser._id,
                                 customerPhone: giftUser.phone,
                                 points: userGift.totalPoints,
-                                amount: settings.points ? userGift.totalPoints / settings.points : null,
+                                amount: settings.points
+                                    ? userGift.totalPoints / settings.points
+                                    : null,
                                 type: TransactionType.CREDIT,
-                                details: 'Refund on gift expiry'
+                                details: 'Refund on gift expiry',
                             });
                         } catch (error) {
-                            Logger.error(`Error while creating revert transaction in userGiftTtl: ${error}`);
+                            Logger.error(
+                                `Error while creating revert transaction in userGiftTtl: ${error}`
+                            );
                         }
 
                         // Send notification when a gift has expired

@@ -11,7 +11,7 @@ import * as admin from 'firebase-admin';
 import { FirebaseError } from 'firebase-admin';
 import { getStorage } from 'firebase-admin/storage';
 import { NoGeneratorUtils } from '../utils/no-generator-utils';
-// @ts-ignore
+// @ts-expect-error - File type import from internal path
 import { File } from '@google-cloud/storage/build/cjs/src/file';
 import * as process from 'node:process';
 

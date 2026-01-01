@@ -14,7 +14,8 @@ export class PermissionService {
     async create(data: PermissionCreateRequest) {
         try {
             return this.model.create(data);
-        } catch (e) {
+        } catch (_e) {
+            console.log('Error while creating Permission: ', _e);
             throw new InternalServerErrorException('Error while creating Permission');
         }
     }
@@ -33,7 +34,8 @@ export class PermissionService {
     async fetchById(id: string): Promise<PermissionDocument> {
         try {
             return this.model.findById(id).exec();
-        } catch (e) {
+        } catch (_e) {
+            console.log('No data found!', _e);
             throw new NotFoundException('No data found!');
         }
     }
@@ -44,7 +46,8 @@ export class PermissionService {
     async update(id: string, data: PermissionUpdateRequest) {
         try {
             return await this.model.findByIdAndUpdate(id, data, { new: true });
-        } catch (e) {
+        } catch (_e) {
+            console.log('Error while updating Permission: ', _e);
             throw new InternalServerErrorException('Unexpected Error');
         }
     }
@@ -55,7 +58,8 @@ export class PermissionService {
     async delete(id: string) {
         try {
             return await this.model.findByIdAndDelete(id);
-        } catch (e) {
+        } catch (_e) {
+            console.log('Error while deleting Permission: ', _e);
             throw new InternalServerErrorException('Unexpected Error');
         }
     }

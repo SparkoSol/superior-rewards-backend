@@ -106,7 +106,7 @@ export class AuthController {
         type: SignInRequest,
         description: 'Logout successfully!',
     })
-    @ApiOkResponse({  description: 'Logout successfully!' })
+    @ApiOkResponse({ description: 'Logout successfully!' })
     @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
     @ApiInternalServerErrorResponse({ description: 'Internal server errors!' })
     @ApiBody({ type: SignOutRequest })

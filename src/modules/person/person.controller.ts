@@ -1,22 +1,8 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Patch,
-    Post,
-    Query,
-    Res,
-    UploadedFile,
-    UseGuards,
-    UseInterceptors,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
     ApiBody,
-    ApiConsumes,
     ApiInternalServerErrorResponse,
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
@@ -27,8 +13,6 @@ import {
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import {
-    BulkUploadDto,
-    BulkUploadResponseDto,
     PaginatedPersonResponseDto,
     PasswordUpdateRequestDto,
     PersonCreateDto,
@@ -39,9 +23,6 @@ import {
     UpdateFcmTokenRequestDto,
 } from './dto/person.dto';
 import { PersonService } from './person.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { AuthGuard } from '@nestjs/passport';
-import { Response } from 'express';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Person')

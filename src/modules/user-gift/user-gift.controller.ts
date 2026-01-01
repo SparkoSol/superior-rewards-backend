@@ -222,7 +222,10 @@ export class UserGiftController {
 
         const filename = `user_gifts_${data.startDate}_to_${data.endDate}.xlsx`;
 
-        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         res.send(buffer);
     }

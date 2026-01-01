@@ -14,7 +14,8 @@ export class GiftService {
     async create(data: GiftCreateRequest) {
         try {
             return this.model.create(data);
-        } catch (e) {
+        } catch (_e) {
+            console.log('Error while creating gift: ', _e);
             throw new InternalServerErrorException('Error while creating gift');
         }
     }
@@ -34,7 +35,8 @@ export class GiftService {
     async fetchById(id: string): Promise<GiftDocument> {
         try {
             return this.model.findById(id).exec();
-        } catch (e) {
+        } catch (_e) {
+            console.log('No data found!', _e);
             throw new NotFoundException('No data found!');
         }
     }
@@ -45,7 +47,8 @@ export class GiftService {
     async update(id: string, data: GiftUpdateRequest) {
         try {
             return await this.model.findByIdAndUpdate(id, data, { new: true });
-        } catch (e) {
+        } catch (_e) {
+            console.log('Error while updating gift: ', _e);
             throw new InternalServerErrorException('Unexpected Error');
         }
     }
@@ -56,7 +59,8 @@ export class GiftService {
     async delete(id: string) {
         try {
             return await this.model.findByIdAndUpdate(id, { deletedAt: new Date() });
-        } catch (e) {
+        } catch (_e) {
+            console.log('Error while deleting gift: ', _e);
             throw new InternalServerErrorException('Unexpected Error');
         }
     }

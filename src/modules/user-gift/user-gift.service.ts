@@ -34,7 +34,8 @@ import * as XLSX from 'xlsx';
 @Injectable()
 export class UserGiftService {
     constructor(
-        @Inject(forwardRef(() => UserGiftTtlService)) private readonly UserGiftTtlService: UserGiftTtlService,
+        @Inject(forwardRef(() => UserGiftTtlService))
+        private readonly UserGiftTtlService: UserGiftTtlService,
         @InjectModel(UserGift.name) private readonly model: Model<UserGiftDocument>,
         private readonly notificationService: NotificationService,
         private readonly transactionService: TransactionService,
@@ -386,7 +387,8 @@ export class UserGiftService {
                 .findById(id)
                 .populate(withPopulate ? ['user', 'gifts'] : [])
                 .exec();
-        } catch (e) {
+        } catch (_e) {
+            console.log('No data found!', _e);
             throw new NotFoundException('No data found!');
         }
     }
@@ -402,7 +404,8 @@ export class UserGiftService {
 
         try {
             return await this.model.findByIdAndUpdate(id, data, { new: true });
-        } catch (e) {
+        } catch (_e) {
+            console.log('Error while updating user gift: ', _e);
             throw new InternalServerErrorException('Unexpected Error');
         }
     }
@@ -457,12 +460,11 @@ export class UserGiftService {
                         points: userGift.totalPoints,
                         amount: settings.points ? userGift.totalPoints / settings.points : null,
                         type: TransactionType.CREDIT,
-                        details: 'Refund on gift expiry'
+                        details: 'Refund on gift expiry',
                     });
                 } catch (error) {
                     Logger.error(`Error while creating revert transaction in userGift: ${error}`);
                 }
-
             }
         }
 
@@ -507,10 +509,10 @@ export class UserGiftService {
                 'Customer Name': userGift.user?.name || 'N/A',
                 'Customer Phone': userGift.user?.phone || 'N/A',
                 'Customer Email': userGift.user?.email || 'N/A',
-                'Gifts': giftNames,
+                Gifts: giftNames,
                 'Total Points': userGift.totalPoints,
                 'Monetary Value': monetaryValue,
-                'Status': userGift.status,
+                Status: userGift.status,
                 'Is Expired': userGift.isExpired ? 'Yes' : 'No',
                 'QR Code': userGift.qrCode || 'N/A',
                 'Redeemed By': userGift.redeemedBy?.name || 'N/A',

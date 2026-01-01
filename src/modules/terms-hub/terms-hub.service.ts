@@ -58,7 +58,8 @@ export class TermsHubService {
     async findOne(id: string) {
         try {
             return await this.model.findById(id).populate('createdBy').exec();
-        } catch (e) {
+        } catch (_e) {
+            console.log('What You Are Looking For Not Found', _e);
             throw new NotFoundException('What You Are Looking For Not Found');
         }
     }

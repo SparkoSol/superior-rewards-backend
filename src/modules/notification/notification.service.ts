@@ -127,7 +127,8 @@ export class NotificationService {
     async findOne(id: string) {
         try {
             return await this.model.findById(id).populate('user').exec();
-        } catch (e) {
+        } catch (_e) {
+            console.log('No data found!', _e);
             throw new NotFoundException('What You Are Looking For Not Found');
         }
     }
@@ -196,7 +197,7 @@ export class NotificationService {
         user: string,
         tokens: string[],
         save = true,
-        data: any = null
+        _data: any = null
     ) {
         try {
             for (const token of tokens) {
@@ -271,7 +272,8 @@ export class NotificationService {
     async delete(id: string) {
         try {
             return await this.model.findByIdAndDelete(id);
-        } catch (e) {
+        } catch (_e) {
+            console.log('Error while deleting Notification: ', _e);
             throw new InternalServerErrorException('Unexpected Error');
         }
     }

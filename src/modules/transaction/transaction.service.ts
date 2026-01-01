@@ -67,9 +67,9 @@ export class TransactionService {
             try {
                 await this.notificationService.sendNotificationToSingleDevice(
                     'Congrats! You have received points.',
-                  `You have received ${transaction.points} points.`,
-                  transaction.user,
-                  person.fcmTokens
+                    `You have received ${transaction.points} points.`,
+                    transaction.user,
+                    person.fcmTokens
                 );
             } catch (e) {
                 Logger.error('Error while sending notification on CREDIT type transactions: ', e);
