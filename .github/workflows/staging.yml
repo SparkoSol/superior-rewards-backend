@@ -31,7 +31,7 @@ name: 'Build and Deploy to Cloud Run'
 
 on:
   push:
-    branches: ["staging"]
+    branches: ["staging001"]
 
 env:
   PROJECT_ID: 'all-staging-servers' # TODO: update to your Google Cloud project ID
