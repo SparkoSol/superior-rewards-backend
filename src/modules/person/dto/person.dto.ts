@@ -78,6 +78,9 @@ export class PersonCreateDto {
     @IsNumber()
     customerNumber?: number;
 
+    @ApiProperty()
+    @IsOptional()
+    @IsNumber()
     odooCustomerId?: number;
 
     @ApiProperty()
@@ -346,7 +349,6 @@ export class PersonFiltersDto {
     @ApiProperty({ description: 'Filter object' })
     @IsOptional()
     @IsObject()
-    // filters?: Record<string, any>;
     filters?: filterPayload;
 
     @ApiProperty({ description: 'PopulatedFilter object' })

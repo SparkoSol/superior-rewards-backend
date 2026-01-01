@@ -44,7 +44,18 @@ export class PersonController {
     })
     @Post()
     async create(@Body() data: PersonCreateDto): Promise<any> {
-        data.odooCustomerId = await this.service.getLastOdooCustomerId();
+        if (data.odooCustomerId) {
+            const customer = await this.service.findOneByQuery({
+                odooCustomerId: data.odooCustomerId,
+            });
+            if (customer)
+                throw new ConflictException(
+                    'Customer with the same customer number already exist in system!'
+                );
+        } else {
+            data.odooCustomerId = await this.service.getLastOdooCustomerId();
+        }
+
         return await this.service.create(data);
     }
 

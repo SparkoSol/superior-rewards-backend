@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsISO8601, IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsISO8601, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class AdminCreateUserRequest {
     @ApiProperty()
@@ -67,6 +67,9 @@ export class MobileSignUpRequest {
 
     role?: string;
 
+    @ApiProperty()
+    @IsOptional()
+    @IsNumber()
     odooCustomerId?: number;
 
     @ApiProperty()
