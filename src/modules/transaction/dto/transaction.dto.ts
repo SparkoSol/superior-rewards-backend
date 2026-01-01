@@ -132,3 +132,26 @@ export class PaginatedTransactionResponseDto {
     @ApiProperty()
     totalPages: number;
 }
+
+export class TransactionReportDto {
+    @ApiProperty({ description: 'Start date for the report (ISO format)', example: '2024-01-01' })
+    @IsNotEmpty()
+    @IsString()
+    startDate: string;
+
+    @ApiProperty({ description: 'End date for the report (ISO format)', example: '2024-12-31' })
+    @IsNotEmpty()
+    @IsString()
+    endDate: string;
+
+    @ApiProperty({
+        description: 'Transaction type filter',
+        enum: TransactionType,
+        required: false,
+    })
+    @IsOptional()
+    @IsEnum(TransactionType, {
+        message: 'type must be ' + Object.values(TransactionType).join(', '),
+    })
+    type?: TransactionType;
+}

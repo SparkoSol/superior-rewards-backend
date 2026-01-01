@@ -2,11 +2,12 @@ import { Injectable, Logger, NotAcceptableException, NotFoundException } from '@
 import { InjectModel } from '@nestjs/mongoose';
 import { Transaction, TransactionDocument } from './schema/transaction.schema';
 import mongoose, { Model } from 'mongoose';
-import { TransactionCreateRequest, TransactionFiltersDto } from './dto/transaction.dto';
+import { TransactionCreateRequest, TransactionFiltersDto, TransactionReportDto } from './dto/transaction.dto';
 import { TransactionType } from './enum/type.enum';
 import { PersonService } from '../person/person.service';
 import { NotificationService } from '../notification/notification.service';
 import { MongoQueryUtils } from '../../utils/mongo-query-utils';
+import * as XLSX from 'xlsx';
 
 @Injectable()
 export class TransactionService {
@@ -195,5 +196,52 @@ export class TransactionService {
         } catch (e) {
             throw new NotFoundException('No data found!');
         }
+    }
+
+    /*******************************************************************
+     * generateReport
+     ******************************************************************/
+    async generateReport(data: TransactionReportDto): Promise<Buffer> {
+        const { startDate, endDate, type } = data;
+
+        const query: any = {
+            createdAt: {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate),
+            },
+        };
+
+        if (type) {
+            query.type = type;
+        }
+
+        const transactions = await this.model
+            .find(query)
+            .populate('user', 'name phone email')
+            .populate('performedBy', 'name phone')
+            .sort({ createdAt: -1 })
+            .exec();
+
+        const reportData = transactions.map((transaction: any) => ({
+            'Transaction ID': transaction._id.toString(),
+            'Customer Name': transaction.user?.name || 'N/A',
+            'Customer Phone': transaction.customerPhone || transaction.user?.phone || 'N/A',
+            'Customer Email': transaction.user?.email || 'N/A',
+            'Invoice No': transaction.invoiceNo || 'N/A',
+            'Amount': transaction.amount || 0,
+            'Points': transaction.points,
+            'Type': transaction.type,
+            'Details': transaction.details || 'N/A',
+            'Performed By': transaction.performedBy?.name || 'N/A',
+            'Created At': transaction.createdAt?.toISOString() || 'N/A',
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(reportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Transactions');
+
+        const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+        return buffer;
     }
 }

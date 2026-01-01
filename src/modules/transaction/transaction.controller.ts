@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Post, Query, Request } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Request, Res } from '@nestjs/common';
+import { Response } from 'express';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
@@ -17,9 +18,11 @@ import {
     PaginatedTransactionResponseDto,
     TransactionCreateRequest,
     TransactionFiltersDto,
+    TransactionReportDto,
     TransactionResponse,
 } from './dto/transaction.dto';
 import { TransactionType } from './enum/type.enum';
+import { Public } from '../auth/decorators/setmetadata.decorator';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Transactions')
@@ -112,5 +115,28 @@ export class TransactionController {
     @Get(':id')
     findOne(@Param('id') id: string, @Query('withPopulate') withPopulate: boolean) {
         return this.service.fetchById(id, withPopulate);
+    }
+
+    /*******************************************************************
+     * report - Download Excel report
+     ******************************************************************/
+    @Public()
+    @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
+    @ApiOkResponse({ description: 'Excel file downloaded successfully' })
+    @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+    @ApiOperation({
+        summary: 'Download transaction report as Excel file',
+        description: `Generates an Excel report of transactions filtered by date range and optional type (${Object.values(TransactionType).join(', ')})`,
+    })
+    @ApiBody({ type: TransactionReportDto })
+    @Post('report')
+    async downloadReport(@Body() data: TransactionReportDto, @Res() res: Response) {
+        const buffer = await this.service.generateReport(data);
+
+        const filename = `transactions_${data.startDate}_to_${data.endDate}.xlsx`;
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.send(buffer);
     }
 }
