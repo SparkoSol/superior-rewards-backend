@@ -229,4 +229,28 @@ export class UserGiftController {
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         res.send(buffer);
     }
+
+    /*******************************************************************
+     * report-pdf - Download PDF report
+     ******************************************************************/
+    @Public()
+    @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
+    @ApiOkResponse({ description: 'PDF file downloaded successfully' })
+    @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+    @ApiOperation({
+        summary: 'Download user gifts report as PDF file',
+        description: `Generates a printable PDF report of user gift redemptions filtered by date range and optional status (${Object.values(UserGiftStatus).join(', ')}). Includes monetary value and total points summary.`,
+    })
+    @ApiBody({ type: UserGiftReportDto })
+    @Post('report-pdf')
+    async downloadPDFReport(@Body() data: UserGiftReportDto, @Res() res: Response) {
+        const buffer = await this.service.generatePDFReport(data);
+
+        const filename = `user_gifts_${data.startDate}_to_${data.endDate}.pdf`;
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Content-Length', buffer.length);
+        res.end(buffer);
+    }
 }

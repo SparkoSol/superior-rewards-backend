@@ -30,6 +30,7 @@ import { UserGiftStatus } from './enum/status.enum';
 import { helper } from '../../utils/helper';
 import * as process from 'process';
 import * as XLSX from 'xlsx';
+import { PDFGeneratorService } from '../../shared/services/pdf-generator.service';
 
 @Injectable()
 export class UserGiftService {
@@ -40,7 +41,8 @@ export class UserGiftService {
         private readonly notificationService: NotificationService,
         private readonly transactionService: TransactionService,
         private readonly SettingService: SettingService,
-        private readonly personService: PersonService
+        private readonly personService: PersonService,
+        private readonly pdfGeneratorService: PDFGeneratorService
     ) {}
 
     /*******************************************************************
@@ -472,7 +474,7 @@ export class UserGiftService {
     }
 
     /*******************************************************************
-     * generateReport
+     * generateReport (Excel)
      ******************************************************************/
     async generateReport(data: UserGiftReportDto): Promise<Buffer> {
         const { startDate, endDate, status } = data;
@@ -529,5 +531,85 @@ export class UserGiftService {
         const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
         return buffer;
+    }
+
+    /*******************************************************************
+     * generatePDFReport
+     ******************************************************************/
+    async generatePDFReport(data: UserGiftReportDto): Promise<Buffer> {
+        const { startDate, endDate, status } = data;
+
+        const query: any = {
+            createdAt: {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate),
+            },
+        };
+
+        if (status) {
+            query.status = status;
+        }
+
+        const userGifts = await this.model
+            .find(query)
+            .populate('user', 'name phone email')
+            .populate('gifts', 'name points')
+            .populate('redeemedBy', 'name phone')
+            .populate('performedBy', 'name phone')
+            .sort({ createdAt: -1 })
+            .exec();
+
+        const settings = await this.SettingService.fetch();
+        const pointsToAmountRatio = settings?.points || 1;
+
+        // Calculate total points
+        const totalPoints = userGifts.reduce((sum, g: any) => sum + (g.totalPoints || 0), 0);
+
+        // Transform data for PDF
+        const reportData = userGifts.map((userGift: any) => {
+            const giftNames = userGift.gifts?.map((g: any) => g?.name || 'N/A').join(', ') || 'N/A';
+            const monetaryValue = userGift.totalPoints / pointsToAmountRatio;
+
+            return {
+                redemptionId: userGift._id.toString(),
+                customerName: userGift.user?.name || 'N/A',
+                customerPhone: userGift.user?.phone || 'N/A',
+                customerEmail: userGift.user?.email || 'N/A',
+                gifts: giftNames,
+                totalPoints: userGift.totalPoints || 0,
+                monetaryValue: monetaryValue || 0,
+                status: userGift.status,
+                isExpired: userGift.isExpired ? 'Yes' : 'No',
+                qrCode: userGift.qrCode || 'N/A',
+                redeemedBy: userGift.redeemedBy?.name || 'N/A',
+                performedBy: userGift.performedBy?.name || 'N/A',
+                createdAt: userGift.createdAt,
+                updatedAt: userGift.updatedAt,
+            };
+        });
+
+        // Generate PDF
+        return this.pdfGeneratorService.generateReport({
+            title: 'Gift Redemption Report',
+            companyName: 'Superior Rewards',
+            generatedDate: new Date(),
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            columns: [
+                { key: 'redemptionId', label: 'Redemption ID', width: '11%' },
+                { key: 'customerName', label: 'Customer Name', width: '12%' },
+                { key: 'customerPhone', label: 'Phone', width: '10%' },
+                { key: 'gifts', label: 'Gifts', width: '15%' },
+                { key: 'totalPoints', label: 'Points', width: '8%' },
+                { key: 'monetaryValue', label: 'Monetary Value', width: '10%' },
+                { key: 'status', label: 'Status', width: '9%' },
+                { key: 'isExpired', label: 'Expired', width: '7%' },
+                { key: 'redeemedBy', label: 'Redeemed By', width: '11%' },
+                { key: 'createdAt', label: 'Date', width: '7%' },
+            ],
+            data: reportData,
+            totalPoints: totalPoints,
+            footerText: `Report for gift redemptions from ${new Date(startDate).toLocaleDateString()} to ${new Date(endDate).toLocaleDateString()}`,
+        });
     }
 }
