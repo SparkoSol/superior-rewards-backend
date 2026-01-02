@@ -9,6 +9,7 @@ import { GiftModule } from '../gift/gift.module';
 import { UserGiftTtlModule } from '../user-gift-ttl/user-gift-ttl.module';
 import { SettingModule } from '../settings/setting.module';
 import { NotificationModule } from '../notification/notification.module';
+import { SharedModule } from '../../shared/shared.module';
 
 @Global()
 @Module({
@@ -25,6 +26,7 @@ import { NotificationModule } from '../notification/notification.module';
         forwardRef(() => UserGiftTtlModule),
         SettingModule,
         NotificationModule,
+        SharedModule,
     ],
     controllers: [UserGiftController],
     providers: [UserGiftService],

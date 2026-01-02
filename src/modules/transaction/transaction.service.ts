@@ -12,13 +12,15 @@ import { TransactionType } from './enum/type.enum';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import * as XLSX from 'xlsx';
+import { PDFGeneratorService } from '../../shared/services/pdf-generator.service';
 
 @Injectable()
 export class TransactionService {
     constructor(
         @InjectModel(Transaction.name) private readonly model: Model<TransactionDocument>,
         private readonly notificationService: NotificationService,
-        private readonly personService: PersonService
+        private readonly personService: PersonService,
+        private readonly pdfGeneratorService: PDFGeneratorService
     ) {}
 
     /*******************************************************************
@@ -204,7 +206,7 @@ export class TransactionService {
     }
 
     /*******************************************************************
-     * generateReport
+     * generateReport (Excel)
      ******************************************************************/
     async generateReport(data: TransactionReportDto): Promise<Buffer> {
         const { startDate, endDate, type } = data;
@@ -248,5 +250,71 @@ export class TransactionService {
         const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
         return buffer;
+    }
+
+    /*******************************************************************
+     * generatePDFReport
+     ******************************************************************/
+    async generatePDFReport(data: TransactionReportDto): Promise<Buffer> {
+        const { startDate, endDate, type } = data;
+
+        const query: any = {
+            createdAt: {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate),
+            },
+        };
+
+        if (type) {
+            query.type = type;
+        }
+
+        const transactions = await this.model
+            .find(query)
+            .populate('user', 'name phone email')
+            .populate('performedBy', 'name phone')
+            .sort({ createdAt: -1 })
+            .exec();
+
+        // Calculate total points
+        const totalPoints = transactions.reduce((sum, t: any) => sum + (t.points || 0), 0);
+
+        // Transform data for PDF
+        const reportData = transactions.map((transaction: any) => ({
+            transactionId: transaction._id.toString(),
+            customerName: transaction.user?.name || 'N/A',
+            customerPhone: transaction.customerPhone || transaction.user?.phone || 'N/A',
+            invoiceNo: transaction.invoiceNo || 'N/A',
+            amount: transaction.amount || 0,
+            points: transaction.points || 0,
+            type: transaction.type,
+            details: transaction.details || 'N/A',
+            performedBy: transaction.performedBy?.name || 'N/A',
+            createdAt: transaction.createdAt,
+        }));
+
+        // Generate PDF
+        return this.pdfGeneratorService.generateReport({
+            title: 'Transaction Report',
+            companyName: 'Superior Rewards',
+            generatedDate: new Date(),
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            columns: [
+                { key: 'transactionId', label: 'Transaction ID', width: '12%' },
+                { key: 'customerName', label: 'Customer Name', width: '12%' },
+                { key: 'customerPhone', label: 'Phone', width: '10%' },
+                { key: 'invoiceNo', label: 'Invoice No', width: '10%' },
+                { key: 'amount', label: 'Amount', width: '8%' },
+                { key: 'points', label: 'Points', width: '8%' },
+                { key: 'type', label: 'Type', width: '8%' },
+                { key: 'details', label: 'Details', width: '12%' },
+                { key: 'performedBy', label: 'Performed By', width: '10%' },
+                { key: 'createdAt', label: 'Date', width: '10%' },
+            ],
+            data: reportData,
+            totalPoints: totalPoints,
+            footerText: `Report for transactions from ${new Date(startDate).toLocaleDateString()} to ${new Date(endDate).toLocaleDateString()}`,
+        });
     }
 }
