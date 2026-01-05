@@ -82,7 +82,6 @@ export class AuthService {
 
         if (person.password === password) {
             const { password: _password, ...restData } = person;
-            console.log('_password', _password);
             return {
                 status: HttpStatus.OK,
                 message: 'User Authenticated!',

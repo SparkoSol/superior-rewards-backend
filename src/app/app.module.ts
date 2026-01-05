@@ -17,6 +17,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { RoleModule } from '../modules/role/role.module';
 import { PermissionModule } from '../modules/permission/permission.module';
 import { SettingModule } from '../modules/settings/setting.module';
+import { CertificateModule } from '../modules/certificate/certificate.module';
 
 @Module({
     imports: [
@@ -59,6 +60,7 @@ import { SettingModule } from '../modules/settings/setting.module';
         RoleModule,
         PermissionModule,
         SettingModule,
+        CertificateModule,
     ],
     controllers: [AppController],
     providers: [
