@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, ConflictException, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
