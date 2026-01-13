@@ -10,6 +10,7 @@ import { UserGiftTtlModule } from '../user-gift-ttl/user-gift-ttl.module';
 import { SettingModule } from '../settings/setting.module';
 import { NotificationModule } from '../notification/notification.module';
 import { SharedModule } from '../../shared/shared.module';
+import { CertificateModule } from '../certificate/certificate.module';
 
 @Global()
 @Module({
@@ -27,6 +28,7 @@ import { SharedModule } from '../../shared/shared.module';
         SettingModule,
         NotificationModule,
         SharedModule,
+        forwardRef(() => CertificateModule)
     ],
     controllers: [UserGiftController],
     providers: [UserGiftService],

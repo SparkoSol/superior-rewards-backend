@@ -31,6 +31,7 @@ import { helper } from '../../utils/helper';
 import * as process from 'process';
 import * as XLSX from 'xlsx';
 import { PDFGeneratorService } from '../../shared/services/pdf-generator.service';
+import { CertificateService } from '../certificate/certificate.service';
 
 @Injectable()
 export class UserGiftService {
@@ -42,7 +43,9 @@ export class UserGiftService {
         private readonly transactionService: TransactionService,
         private readonly SettingService: SettingService,
         private readonly personService: PersonService,
-        private readonly pdfGeneratorService: PDFGeneratorService
+        private readonly pdfGeneratorService: PDFGeneratorService,
+        @Inject(forwardRef(() => CertificateService))
+        private readonly certificateService: CertificateService
     ) {}
 
     /*******************************************************************
@@ -265,7 +268,7 @@ export class UserGiftService {
         if (userGift && userGift.status === UserGiftStatus.REDEEMED)
             throw new NotAcceptableException('Gift is already redeemed!');
 
-        const history = this.model.findByIdAndUpdate(
+        const history = await this.model.findByIdAndUpdate(
             userGift._id,
             {
                 status: UserGiftStatus.REDEEMED,
@@ -273,6 +276,20 @@ export class UserGiftService {
             },
             { new: true }
         );
+
+        // Generate Certificate of Redemption
+        let certificate = null;
+        try {
+            certificate = await this.certificateService.generateCertificate(
+                data.userGiftId,
+                data.performedBy
+            );
+            Logger.log(
+                `Certificate ${certificate.certificateNumber} generated for redemption ${data.userGiftId}`
+            );
+        } catch (e) {
+            Logger.error(`Error generating certificate for redemption ${data.userGiftId}: ${e}`);
+        }
 
         // send notification When a user collects a gift.
         try {
@@ -286,7 +303,11 @@ export class UserGiftService {
             Logger.error(`Error while sending notification When a user collects a gift: ${e}`);
         }
 
-        return history;
+        return {
+            ...history.toObject(),
+            certificateId: certificate?._id?.toString() || null,
+            certificateNumber: certificate?.certificateNumber || null,
+        };
     }
 
     /*******************************************************************
