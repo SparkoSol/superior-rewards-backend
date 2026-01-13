@@ -154,7 +154,7 @@ export class AuthService {
             });
             if (customer)
                 throw new ConflictException(
-                  'Customer with the same customer number already exist in system!'
+                    'Customer with the same customer number already exist in system!'
                 );
         } else {
             data.odooCustomerId = await this.personService.getLastOdooCustomerId();

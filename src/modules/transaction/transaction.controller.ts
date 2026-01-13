@@ -142,4 +142,28 @@ export class TransactionController {
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         res.send(buffer);
     }
+
+    /*******************************************************************
+     * report-pdf - Download PDF report
+     ******************************************************************/
+    @Public()
+    @ApiUnauthorizedResponse({ description: 'Unauthorized!' })
+    @ApiOkResponse({ description: 'PDF file downloaded successfully' })
+    @ApiInternalServerErrorResponse({ description: 'Unexpected Error' })
+    @ApiOperation({
+        summary: 'Download transaction report as PDF file',
+        description: `Generates a printable PDF report of transactions filtered by date range and optional type (${Object.values(TransactionType).join(', ')})`,
+    })
+    @ApiBody({ type: TransactionReportDto })
+    @Post('report-pdf')
+    async downloadPDFReport(@Body() data: TransactionReportDto, @Res() res: Response) {
+        const buffer = await this.service.generatePDFReport(data);
+
+        const filename = `transactions_${data.startDate}_to_${data.endDate}.pdf`;
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Content-Length', buffer.length);
+        res.end(buffer);
+    }
 }

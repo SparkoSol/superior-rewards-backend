@@ -5,6 +5,7 @@ import { Transaction, TransactionSchema } from './schema/transaction.schema';
 import { Global, Module } from '@nestjs/common';
 import { PersonModule } from '../person/person.module';
 import { NotificationModule } from '../notification/notification.module';
+import { SharedModule } from '../../shared/shared.module';
 
 @Global()
 @Module({
@@ -12,6 +13,7 @@ import { NotificationModule } from '../notification/notification.module';
         MongooseModule.forFeature([{ name: Transaction.name, schema: TransactionSchema }]),
         PersonModule,
         NotificationModule,
+        SharedModule,
     ],
     controllers: [TransactionController],
     providers: [TransactionService],
