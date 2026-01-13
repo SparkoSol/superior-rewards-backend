@@ -28,7 +28,7 @@ import { CertificateModule } from '../certificate/certificate.module';
         SettingModule,
         NotificationModule,
         SharedModule,
-        forwardRef(() => CertificateModule),
+        forwardRef(() => CertificateModule)
     ],
     controllers: [UserGiftController],
     providers: [UserGiftService],
