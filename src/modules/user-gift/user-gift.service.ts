@@ -500,10 +500,18 @@ export class UserGiftService {
     async generateReport(data: UserGiftReportDto): Promise<Buffer> {
         const { startDate, endDate, status } = data;
 
+        // Set start date to beginning of day (00:00:00.000)
+        const startOfDay = new Date(startDate);
+        startOfDay.setUTCHours(0, 0, 0, 0);
+
+        // Set end date to end of day (23:59:59.999)
+        const endOfDay = new Date(endDate);
+        endOfDay.setUTCHours(23, 59, 59, 999);
+
         const query: any = {
             createdAt: {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate),
+                $gte: startOfDay,
+                $lte: endOfDay,
             },
         };
 
@@ -549,9 +557,7 @@ export class UserGiftService {
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'User Gifts');
 
-        const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-
-        return buffer;
+        return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
     }
 
     /*******************************************************************
@@ -560,10 +566,18 @@ export class UserGiftService {
     async generatePDFReport(data: UserGiftReportDto): Promise<Buffer> {
         const { startDate, endDate, status } = data;
 
+        // Set start date to beginning of day (00:00:00.000)
+        const startOfDay = new Date(startDate);
+        startOfDay.setUTCHours(0, 0, 0, 0);
+
+        // Set end date to end of day (23:59:59.999)
+        const endOfDay = new Date(endDate);
+        endOfDay.setUTCHours(23, 59, 59, 999);
+
         const query: any = {
             createdAt: {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate),
+                $gte: startOfDay,
+                $lte: endOfDay,
             },
         };
 
