@@ -541,9 +541,16 @@ export class CertificatePdfService {
             browser = await puppeteer.launch({
                 headless: true,
                 executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-                args: ['--no-sandbox', '--disable-setuid-sandbox'],
+                // Add these two specific args to help with Docker environments
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu'
+                ],
                 ignoreDefaultArgs: ['--disable-extensions'],
-                timeout: 15000,
+                timeout: 30000,
+                protocolTimeout: 60000
             });
 
             const page = await browser.newPage();
