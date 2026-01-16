@@ -273,14 +273,12 @@ export class CertificateService {
         const pdfBuffer = await this.pdfService.generatePdf(certificateData);
 
         // Track download if first time
-        if (!certificate.downloadedAt) {
-            await this.certificateModel.findByIdAndUpdate(id, {
-                downloadedAt: new Date(),
-            });
-            this.logger.log(
-                `Certificate ${certificate.certificateNumber} downloaded for first time`
-            );
-        }
+        // if (!certificate.downloadedAt) {
+        await this.certificateModel.findByIdAndUpdate(id, {
+            downloadedAt: new Date(),
+        });
+        this.logger.log(`Certificate ${certificate.certificateNumber} downloaded for first time`);
+        // }
 
         return pdfBuffer;
     }

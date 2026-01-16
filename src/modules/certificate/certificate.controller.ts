@@ -155,7 +155,7 @@ export class CertificateController {
     @ApiParam({ name: 'id', description: 'Certificate ID' })
     @ApiOkResponse({ description: 'Certificate marked as printed', type: CertificateResponseDto })
     @ApiNotFoundResponse({ description: 'Certificate not found' })
-    async markAsPrinted(@Param('id') id: string, @Body() dto: MarkPrintedDto) {
+    async markAsPrinted(@Param('id') id: string) {
         this.logger.log(`Marking certificate as printed: ${id}`);
         const certificate = await this.certificateService.markAsPrinted(id);
         return {
