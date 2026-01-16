@@ -2,6 +2,19 @@ FROM node:18-alpine
 
 ENV NODE_ENVIRONMENT=production
 
+# Install Chromium and dependencies for Puppeteer
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont
+
+# Tell Puppeteer to skip installing Chrome and use the installed Chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
 WORKDIR /usr/src/app
 
 COPY package*.json ./
