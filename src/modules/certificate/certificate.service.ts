@@ -5,7 +5,8 @@ import { Certificate, CertificateDocument } from './schema/certificate.schema';
 import { CertificatePdfService, CertificateData } from './certificate-pdf.service';
 import { UserGift, UserGiftDocument } from '../user-gift/schema/user-gift.schema';
 import { Person, PersonDocument } from '../person/schema/person.schema';
-import { VerifyCertificateResponseDto } from './dto/certificate.dto';
+import { CertificateFiltersDto, VerifyCertificateResponseDto } from './dto/certificate.dto';
+import { MongoQueryUtils } from '../../utils/mongo-query-utils';
 import { randomUUID } from 'crypto';
 
 @Injectable()
@@ -147,6 +148,104 @@ export class CertificateService {
     }
 
     /**
+     * Filter certificates with pagination and dynamic filters
+     */
+    async filters(data: CertificateFiltersDto) {
+        const { page = 1, pageSize = 10, filters, populated, withPopulate } = data;
+        const skip = (page - 1) * pageSize;
+
+        let query = {};
+        if (filters) {
+            query = MongoQueryUtils.getQueryFromFilters(filters);
+        }
+
+        const pipeline: any[] = [{ $match: query }];
+
+        // Add lookups for populating related collections if needed
+        if (withPopulate) {
+            pipeline.push(
+                // Lookup generatedBy (Person)
+                {
+                    $lookup: {
+                        from: 'people',
+                        localField: 'generatedBy',
+                        foreignField: '_id',
+                        as: 'generatedBy',
+                    },
+                },
+                {
+                    $unwind: {
+                        path: '$generatedBy',
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                // Lookup userGiftId (UserGift)
+                {
+                    $lookup: {
+                        from: 'usergifts',
+                        localField: 'userGiftId',
+                        foreignField: '_id',
+                        as: 'userGift',
+                    },
+                },
+                {
+                    $unwind: {
+                        path: '$userGift',
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                // Lookup user from userGift
+                {
+                    $lookup: {
+                        from: 'people',
+                        localField: 'userGift.user',
+                        foreignField: '_id',
+                        as: 'customer',
+                    },
+                },
+                {
+                    $unwind: {
+                        path: '$customer',
+                        preserveNullAndEmptyArrays: true,
+                    },
+                }
+            );
+
+            // Add dynamic match stages for populated fields
+            if (populated) {
+                const populatedMatchStages = MongoQueryUtils.createDynamicMatchStages(populated);
+                pipeline.push(...populatedMatchStages);
+            }
+        }
+
+        // Use $facet for pagination and count in single query
+        pipeline.push({
+            $facet: {
+                paginatedResults: [
+                    { $sort: { generatedAt: -1 } },
+                    { $skip: skip },
+                    { $limit: pageSize },
+                ],
+                totalCount: [{ $count: 'count' }],
+            },
+        });
+
+        const result = await this.certificateModel.aggregate(pipeline).exec();
+
+        const certificates = result[0].paginatedResults;
+        const totalCount = result[0].totalCount[0] ? result[0].totalCount[0].count : 0;
+        const totalPages = Math.ceil(totalCount / pageSize);
+
+        return {
+            data: certificates,
+            page,
+            pageSize: certificates.length,
+            totalPages,
+            filters,
+        };
+    }
+
+    /**
      * Download certificate as PDF
      */
     async downloadCertificate(id: string): Promise<Buffer> {
@@ -174,14 +273,12 @@ export class CertificateService {
         const pdfBuffer = await this.pdfService.generatePdf(certificateData);
 
         // Track download if first time
-        if (!certificate.downloadedAt) {
-            await this.certificateModel.findByIdAndUpdate(id, {
-                downloadedAt: new Date(),
-            });
-            this.logger.log(
-                `Certificate ${certificate.certificateNumber} downloaded for first time`
-            );
-        }
+        // if (!certificate.downloadedAt) {
+        await this.certificateModel.findByIdAndUpdate(id, {
+            downloadedAt: new Date(),
+        });
+        this.logger.log(`Certificate ${certificate.certificateNumber} downloaded for first time`);
+        // }
 
         return pdfBuffer;
     }

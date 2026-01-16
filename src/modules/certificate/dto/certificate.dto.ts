@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsMongoId, IsNotEmpty, IsNumber, IsObject, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+import { filterPayload, populatedPayload } from '../../person/dto/person.dto';
 
 export class GenerateCertificateDto {
     @ApiProperty({ description: 'User Gift ID for which to generate certificate' })
@@ -103,4 +105,57 @@ export class MarkPrintedDto {
     @IsMongoId()
     @IsNotEmpty()
     printedBy: string;
+}
+
+export class CertificateFiltersDto {
+    @ApiProperty({ description: 'Page No - Starting Page is 1', default: 1 })
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    page: number;
+
+    @ApiProperty({ description: 'Page Size - Default is 10', default: 10 })
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    pageSize: number;
+
+    @ApiPropertyOptional({
+        name: 'withPopulate',
+        description: 'If true, will return populated data (generatedBy, userGiftId).',
+    })
+    @IsOptional()
+    @IsBoolean()
+    @Type(() => Boolean)
+    withPopulate?: boolean;
+
+    @ApiPropertyOptional({
+        description:
+            "Filter object - eq: name[eq]: 'test', like: certificateNumber[like]: 'CERT', range: pointsRedeemed[range]: [min, max], date: generatedAt[date]: ['2024-01-01', '2024-12-31'], exists: printedAt[exists]: true",
+    })
+    @IsOptional()
+    @IsObject()
+    filters?: filterPayload;
+
+    @ApiPropertyOptional({ description: 'PopulatedFilter object for filtering on populated fields' })
+    @IsOptional()
+    @IsObject()
+    populated?: populatedPayload;
+}
+
+export class PaginatedCertificateResponseDto {
+    @ApiPropertyOptional()
+    filters?: filterPayload;
+
+    @ApiProperty({ type: [CertificateResponseDto] })
+    data: CertificateResponseDto[];
+
+    @ApiProperty()
+    page: number;
+
+    @ApiProperty()
+    pageSize: number;
+
+    @ApiProperty()
+    totalPages: number;
 }

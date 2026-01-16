@@ -25,6 +25,8 @@ import {
     CertificateResponseDto,
     VerifyCertificateResponseDto,
     MarkPrintedDto,
+    CertificateFiltersDto,
+    PaginatedCertificateResponseDto,
 } from './dto/certificate.dto';
 import { Public } from '../auth/decorators/setmetadata.decorator';
 
@@ -59,6 +61,23 @@ export class CertificateController {
             message: 'Certificate generated successfully',
             data: certificate,
         };
+    }
+
+    /*******************************************************************
+     * Filter Certificates
+     ******************************************************************/
+    @Post('filters')
+    @ApiOperation({
+        summary: 'Get filtered certificates with pagination',
+        description:
+            "Filter certificates using dynamic filters. Supports: eq (exact match), like (partial match), range (min/max), date (date range), exists (field exists). Example filters: certificateNumber[like]: 'CERT', generatedAt[date]: ['2024-01-01', '2024-12-31'], printedAt[exists]: true",
+    })
+    @ApiOkResponse({
+        description: 'Paginated list of certificates',
+        type: PaginatedCertificateResponseDto,
+    })
+    async filterCertificates(@Body() data: CertificateFiltersDto) {
+        return this.certificateService.filters(data);
     }
 
     /*******************************************************************
@@ -136,7 +155,7 @@ export class CertificateController {
     @ApiParam({ name: 'id', description: 'Certificate ID' })
     @ApiOkResponse({ description: 'Certificate marked as printed', type: CertificateResponseDto })
     @ApiNotFoundResponse({ description: 'Certificate not found' })
-    async markAsPrinted(@Param('id') id: string, @Body() dto: MarkPrintedDto) {
+    async markAsPrinted(@Param('id') id: string) {
         this.logger.log(`Marking certificate as printed: ${id}`);
         const certificate = await this.certificateService.markAsPrinted(id);
         return {
