@@ -4,18 +4,7 @@ FROM node:18-alpine
 # Set the Enviournment to production
 ENV NODE_ENVIRONMENT=staging
 
-# Install Chromium and dependencies for Puppeteer
-RUN apk add --no-cache \
-    chromium \
-    nss \
-    freetype \
-    harfbuzz \
-    ca-certificates \
-    ttf-freefont
-
-# Tell Puppeteer to skip installing Chrome and use the installed Chromium
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+RUN apk add chromium
 
 # Create app directory.
 WORKDIR /usr/src/app
@@ -42,7 +31,7 @@ RUN npm run build
 
 # Nest.js:
 CMD [ "node", "dist/main.js" ]
- 
+
  # ___OR___
 
 # Node.js:
