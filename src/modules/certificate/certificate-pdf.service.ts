@@ -542,6 +542,8 @@ export class CertificatePdfService {
                 headless: true,
                 executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
                 args: ['--no-sandbox', '--disable-setuid-sandbox'],
+                ignoreDefaultArgs: ['--disable-extensions'],
+                timeout: 15000,
             });
 
             const page = await browser.newPage();
