@@ -82,7 +82,6 @@ export class AuthService {
 
         if (person.password === password) {
             const { password: _password, ...restData } = person;
-            console.log('_password', _password);
             return {
                 status: HttpStatus.OK,
                 message: 'User Authenticated!',
@@ -154,7 +153,7 @@ export class AuthService {
             });
             if (customer)
                 throw new ConflictException(
-                  'Customer with the same customer number already exist in system!'
+                    'Customer with the same customer number already exist in system!'
                 );
         } else {
             data.odooCustomerId = await this.personService.getLastOdooCustomerId();
