@@ -172,7 +172,7 @@ export class PersonService {
     }
 
     async findOneByPhone(phone: string): Promise<User | undefined> {
-        return this.model.findOne({ phone }).select('-password').exec();
+        return this.model.findOne({ phone }).exec();
     }
 
     /*******************************************************************
