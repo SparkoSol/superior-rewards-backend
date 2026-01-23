@@ -112,6 +112,8 @@ export class PersonService {
             );
         }
 
+        pipeline.push({ $project: { password: 0 } });
+
         if (populated) {
             const populatedMatchStages = MongoQueryUtils.createDynamicMatchStages(populated);
             pipeline.push(...populatedMatchStages);
@@ -125,7 +127,6 @@ export class PersonService {
         });
 
         pipeline.push({ $sort: { createdAt: -1 } });
-        pipeline.push({ $project: { password: 0 } });
         const result = await this.model.aggregate(pipeline).exec();
 
         const users = result[0].paginatedResults;
