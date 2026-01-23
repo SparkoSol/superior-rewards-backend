@@ -125,6 +125,7 @@ export class PersonService {
         });
 
         pipeline.push({ $sort: { createdAt: -1 } });
+        pipeline.push({ $project: { password: 0 } });
         const result = await this.model.aggregate(pipeline).exec();
 
         const users = result[0].paginatedResults;
@@ -167,11 +168,11 @@ export class PersonService {
     }
 
     async findOneByFcmToken(fcmToken: string) {
-        return this.model.findOne({ fcmTokens: { $in: [fcmToken] } });
+        return this.model.findOne({ fcmTokens: { $in: [fcmToken] } }).select('-password');
     }
 
     async findOneByPhone(phone: string): Promise<User | undefined> {
-        return this.model.findOne({ phone }).exec();
+        return this.model.findOne({ phone }).select('-password').exec();
     }
 
     /*******************************************************************
@@ -192,6 +193,7 @@ export class PersonService {
                       ]
                     : []
             )
+            .select('-password')
             .sort({ createdAt: -1 })
             .exec()) as any;
 
@@ -219,6 +221,7 @@ export class PersonService {
                           ]
                         : []
                 )
+                .select('-password')
                 .exec();
         } catch (_e) {
             console.log('No data found!', _e);
@@ -250,7 +253,7 @@ export class PersonService {
      * updateFcmToken
      ******************************************************************/
     async updateFcmToken(id: string, data: UpdateFcmTokenRequestDto) {
-        const person = await this.model.findById(id).exec();
+        const person = await this.model.findById(id).select('-password').exec();
         if (!person) return;
 
         let channel: string;
