@@ -36,6 +36,12 @@ export class AdminCreateUserRequest {
     @ApiProperty()
     @IsOptional()
     @IsString()
+    @IsMongoId()
+    performedBy?: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
     session?: Date;
 }
 
