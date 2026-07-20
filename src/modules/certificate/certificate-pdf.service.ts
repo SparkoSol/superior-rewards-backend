@@ -546,11 +546,11 @@ export class CertificatePdfService {
                     '--no-sandbox',
                     '--disable-setuid-sandbox',
                     '--disable-dev-shm-usage',
-                    '--disable-gpu'
+                    '--disable-gpu',
                 ],
                 ignoreDefaultArgs: ['--disable-extensions'],
                 timeout: 30000,
-                protocolTimeout: 60000
+                protocolTimeout: 60000,
             });
 
             const page = await browser.newPage();

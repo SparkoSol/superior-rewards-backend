@@ -137,7 +137,9 @@ export class CertificateFiltersDto {
     @IsObject()
     filters?: filterPayload;
 
-    @ApiPropertyOptional({ description: 'PopulatedFilter object for filtering on populated fields' })
+    @ApiPropertyOptional({
+        description: 'PopulatedFilter object for filtering on populated fields',
+    })
     @IsOptional()
     @IsObject()
     populated?: populatedPayload;

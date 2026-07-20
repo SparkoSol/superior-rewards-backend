@@ -13,6 +13,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import * as XLSX from 'xlsx';
 import { PDFGeneratorService } from '../../shared/services/pdf-generator.service';
+import { WhatsAppService } from '../../shared/services/whatsapp.service';
 
 @Injectable()
 export class TransactionService {
@@ -20,7 +21,8 @@ export class TransactionService {
         @InjectModel(Transaction.name) private readonly model: Model<TransactionDocument>,
         private readonly notificationService: NotificationService,
         private readonly personService: PersonService,
-        private readonly pdfGeneratorService: PDFGeneratorService
+        private readonly pdfGeneratorService: PDFGeneratorService,
+        private readonly whatsAppService: WhatsAppService
     ) {}
 
     /*******************************************************************
@@ -39,9 +41,11 @@ export class TransactionService {
         // if new transaction credit, it points should add in user's points.
         if (transaction.type === TransactionType.CREDIT) {
             const person = await this.personService.findOne(transaction.user);
+            const previousBalance = Number(person.points);
+            const newBalance = previousBalance + Number(transaction.points);
 
             await this.personService.update(transaction.user, {
-                points: Number(person.points) + Number(transaction.points),
+                points: newBalance,
             });
 
             try {
@@ -53,6 +57,22 @@ export class TransactionService {
                 );
             } catch (e) {
                 Logger.error('Error while sending notification on CREDIT type transactions: ', e);
+            }
+
+            // Send WhatsApp notification via Picky Assist
+            try {
+                await this.whatsAppService.sendPointsNotification({
+                    phone: person.phone,
+                    customerName: person.name,
+                    pointsEarned: Number(transaction.points),
+                    previousBalance,
+                    newBalance,
+                });
+            } catch (e) {
+                Logger.error(
+                    'Error while sending WhatsApp notification on CREDIT type transactions: ',
+                    e
+                );
             }
         }
 
