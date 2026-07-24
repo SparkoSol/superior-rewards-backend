@@ -12,11 +12,12 @@ import { ApiProperty } from '@nestjs/swagger';
 import { TransactionType } from '../enum/type.enum';
 import { Type } from 'class-transformer';
 import { filterPayload, populatedPayload } from '../../person/dto/person.dto';
+import { IsValidPhone } from '../../../utils/phone.validator';
 
 export class TransactionCreateRequest {
     @ApiProperty() @IsNotEmpty() @IsString() @IsMongoId() user: string;
 
-    @ApiProperty() @IsNotEmpty() @IsString() customerPhone: string;
+    @ApiProperty() @IsNotEmpty() @IsString() @IsValidPhone() customerPhone: string;
 
     @ApiProperty() @IsOptional() @IsString() invoiceNo?: string;
 

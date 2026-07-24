@@ -3,7 +3,13 @@ import {
     TransactionFiltersDto,
     TransactionReportDto,
 } from './dto/transaction.dto';
-import { Injectable, Logger, NotAcceptableException, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    Logger,
+    NotAcceptableException,
+    NotFoundException,
+} from '@nestjs/common';
 import { Transaction, TransactionDocument } from './schema/transaction.schema';
 import { NotificationService } from '../notification/notification.service';
 import { MongoQueryUtils } from '../../utils/mongo-query-utils';
@@ -14,6 +20,7 @@ import mongoose, { Model } from 'mongoose';
 import * as XLSX from 'xlsx';
 import { PDFGeneratorService } from '../../shared/services/pdf-generator.service';
 import { WhatsAppService } from '../../shared/services/whatsapp.service';
+import { helper } from '../../utils/helper';
 
 @Injectable()
 export class TransactionService {
@@ -29,6 +36,8 @@ export class TransactionService {
      * create
      ******************************************************************/
     async create(data: TransactionCreateRequest) {
+        if (data.customerPhone) data.customerPhone = helper.formatPhoneNumber(data.customerPhone);
+
         if (data.invoiceNo) {
             const isExist = await this.model.findOne({ invoiceNo: data.invoiceNo });
             if (isExist) {
@@ -36,11 +45,25 @@ export class TransactionService {
             }
         }
 
+        // For CREDIT transactions the customer is notified on WhatsApp using their
+        // stored phone. Validate/format that phone BEFORE persisting anything, so a
+        // bad number fails with a 400 and no transaction is created or points added.
+        let person;
+        let formattedPhone;
+        if (data.type === TransactionType.CREDIT) {
+            person = await this.personService.findOne(data.user);
+            try {
+                formattedPhone = helper.formatPhoneNumber(person.phone);
+            } catch (error) {
+                const message = error instanceof Error ? error.message : 'Invalid phone number.';
+                throw new BadRequestException(message);
+            }
+        }
+
         const transaction = await this.model.create(data);
 
         // if new transaction credit, it points should add in user's points.
         if (transaction.type === TransactionType.CREDIT) {
-            const person = await this.personService.findOne(transaction.user);
             const previousBalance = Number(person.points);
             const newBalance = previousBalance + Number(transaction.points);
 
@@ -59,16 +82,20 @@ export class TransactionService {
                 Logger.error('Error while sending notification on CREDIT type transactions: ', e);
             }
 
-            // Send WhatsApp notification via Picky Assist
+            // Send WhatsApp notification via Picky Assist. The phone was already
+            // validated above, so this only handles transient network/API errors.
             try {
                 await this.whatsAppService.sendPointsNotification({
-                    phone: person.phone,
+                    phone: formattedPhone,
                     customerName: person.name,
                     pointsEarned: Number(transaction.points),
                     previousBalance,
                     newBalance,
                 });
             } catch (e) {
+                // A bad phone number is a 400 the admin panel must see and handle;
+                // let it propagate. Transient WhatsApp/network errors stay swallowed.
+                if (e instanceof BadRequestException) throw e;
                 Logger.error(
                     'Error while sending WhatsApp notification on CREDIT type transactions: ',
                     e
@@ -80,12 +107,26 @@ export class TransactionService {
     }
 
     async createWithoutCoinCalculation(data: TransactionCreateRequest) {
+        if (data.customerPhone) data.customerPhone = helper.formatPhoneNumber(data.customerPhone);
+
+        // For CREDIT transactions, validate/format the customer's stored phone
+        // BEFORE persisting anything, so a bad number fails with a 400 and no
+        // transaction is created.
+        let person;
+        if (data.type === TransactionType.CREDIT) {
+            person = await this.personService.findOne(data.user);
+            try {
+                helper.formatPhoneNumber(person.phone);
+            } catch (error) {
+                const message = error instanceof Error ? error.message : 'Invalid phone number.';
+                throw new BadRequestException(message);
+            }
+        }
+
         const transaction = await this.model.create(data);
 
         // if new transaction credit, it points should add in user's points.
         if (transaction.type === TransactionType.CREDIT) {
-            const person = await this.personService.findOne(transaction.user);
-
             try {
                 await this.notificationService.sendNotificationToSingleDevice(
                     'Congrats! You have received points.',

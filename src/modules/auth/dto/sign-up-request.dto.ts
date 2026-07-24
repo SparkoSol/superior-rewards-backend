@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsISO8601, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsValidPhone } from '../../../utils/phone.validator';
 
 export class AdminCreateUserRequest {
     @ApiProperty()
@@ -10,6 +11,7 @@ export class AdminCreateUserRequest {
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
+    @IsValidPhone()
     phone: string;
 
     @ApiProperty()
@@ -54,6 +56,7 @@ export class MobileSignUpRequest {
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
+    @IsValidPhone()
     phone: string;
 
     @ApiProperty()
