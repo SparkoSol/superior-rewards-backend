@@ -11,6 +11,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { FileDTO } from '../../../uploadFileStructue/dto/file.dto';
 import { Type } from 'class-transformer';
+import { IsValidPhone } from '../../../utils/phone.validator';
 
 export class PersonCreateDto {
     @ApiProperty()
@@ -21,6 +22,7 @@ export class PersonCreateDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
+    @IsValidPhone()
     phone: string;
 
     @ApiProperty()
@@ -104,6 +106,7 @@ export class PersonUpdateDto {
     @ApiProperty()
     @IsOptional()
     @IsString()
+    @IsValidPhone()
     phone?: string;
 
     @ApiProperty()

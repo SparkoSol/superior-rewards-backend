@@ -3,7 +3,7 @@ import { AppModule } from './app/app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as process from 'process';
 import { DocumentBuilder, SwaggerDocumentOptions, SwaggerModule } from '@nestjs/swagger';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Logger, ValidationError, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -14,6 +14,18 @@ async function bootstrap() {
         new ValidationPipe({
             whitelist: true,
             transform: true,
+            // Return `message` as a single readable string (not an array), so the
+            // admin panel can display the exact validation reason directly.
+            exceptionFactory: (errors: ValidationError[]) => {
+                const flatten = (list: ValidationError[]): string[] =>
+                    list.flatMap((err) => [
+                        ...Object.values(err.constraints ?? {}),
+                        ...(err.children?.length ? flatten(err.children) : []),
+                    ]);
+
+                const messages = flatten(errors);
+                return new BadRequestException(messages.join(' '));
+            },
         })
     );
     // app.useStaticAssets(join(process.cwd(), '..', `${process.env.APP_NAME_SLUG}-uploads`), {
