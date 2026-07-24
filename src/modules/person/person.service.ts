@@ -1,4 +1,5 @@
 import {
+    BadRequestException,
     forwardRef,
     HttpStatus,
     Inject,
@@ -53,10 +54,14 @@ export class PersonService {
      * create
      ******************************************************************/
     async create(data: MobileSignUpRequest | AdminCreateUserRequest | PersonCreateDto) {
+        if (data.phone) data.phone = helper.formatPhoneNumber(data.phone);
         return await this.model.create(data);
     }
 
     async createMany(data: MobileSignUpRequest[] | AdminCreateUserRequest[]) {
+        data.forEach((item) => {
+            if (item.phone) item.phone = helper.formatPhoneNumber(item.phone);
+        });
         return await this.model.insertMany(data, { ordered: false });
     }
 
@@ -332,7 +337,7 @@ export class PersonService {
             if (customer['Phone'] && customer['Customer Number'] && customer['Display Name']) {
                 xlsDocsItems.push({
                     name: helper.capitalizeFirstChar(customer['Display Name']),
-                    phone: customer['Phone'].replace(/[\(\)-]/g, ''),
+                    phone: helper.formatPhoneNumber(customer['Phone'].replace(/[\(\)-]/g, '')),
                     email: customer['Email'] ?? '',
                     country: customer['Country'] ?? '',
                     points: customer['Loyalty Points.'],
@@ -378,6 +383,18 @@ export class PersonService {
      * update
      ******************************************************************/
     async update(id: string, data: PersonUpdateDto) {
+        // Format/validate the phone first so a bad number surfaces as a clear 400
+        // (letting the admin update an old number to a new valid one), instead of
+        // being masked as a generic 500 by the DB try/catch below.
+        if (data.phone) {
+            try {
+                data.phone = helper.formatPhoneNumber(data.phone);
+            } catch (error) {
+                const message = error instanceof Error ? error.message : 'Invalid phone number.';
+                throw new BadRequestException(message);
+            }
+        }
+
         try {
             return await this.model.findByIdAndUpdate(id, data, { new: true });
         } catch (_e) {
