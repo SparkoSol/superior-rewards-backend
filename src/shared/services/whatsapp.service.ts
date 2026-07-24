@@ -1,4 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { helper } from '../../utils/helper';
 
 /**
  * Data required to send a WhatsApp points notification.
@@ -45,31 +46,6 @@ export class WhatsAppService {
     }
 
     /**
-     * Formats a phone number for the Picky Assist API.
-     *
-     * Picky Assist requires numbers with country code, without '+' or leading '0'.
-     * Jamaica numbers in the database are stored as 10-digit strings (e.g., '8762886883').
-     * This method prepends the Jamaica country code '1' if needed.
-     *
-     * @param phone - Raw phone number from the database
-     * @returns Formatted phone number string (e.g., '18762886883')
-     */
-    private formatPhoneNumber(phone: string): string {
-        // Remove all non-digit characters (spaces, dashes, parentheses, plus sign)
-        let formatted = phone.replace(/\D/g, '');
-
-        // Remove leading zeros
-        formatted = formatted.replace(/^0+/, '');
-
-        // If the number is 10 digits (Jamaica local format), prepend country code '1'
-        if (formatted.length === 10) {
-            formatted = '1' + formatted;
-        }
-
-        return formatted;
-    }
-
-    /**
      * Sends a WhatsApp notification to a customer about earned loyalty points.
      *
      * Template variables mapping:
@@ -90,7 +66,19 @@ export class WhatsAppService {
             return;
         }
 
-        const formattedPhone = this.formatPhoneNumber(data.phone);
+        // Format/validate the phone. A formatting failure means the stored
+        // number is bad data (e.g. an old record like "876" or "JACKSON) that
+        // an admin must fix, so surface it as a 400 with the exact reason —
+        // NOT fail-safe — so the admin panel can display and handle it.
+        // (Network/API errors below stay fail-safe and never throw.)
+        let formattedPhone: string;
+        try {
+            formattedPhone = helper.formatPhoneNumber(data.phone);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Invalid phone number.';
+            this.logger.error(`Invalid phone for WhatsApp notification "${data.phone}": ${message}`);
+            throw new BadRequestException(message);
+        }
 
         const payload = {
             token: this.apiToken,
